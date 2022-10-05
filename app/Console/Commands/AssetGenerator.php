@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Helper\PHPIco;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\File;
 use Imagine\Gd\Imagine;
@@ -39,8 +40,7 @@ class AssetGenerator extends Command
     {
         parent::__construct();
         $this->original = resource_path('/manifest/original.png');
-        $this->manifestJson = resource_path('manifest/generate.json');
-        $this->manifest = resource_path('/json/manifest.json');
+        $this->manifestJson = resource_path('/manifest/manifest.json');
     }
 
     /**
@@ -50,87 +50,52 @@ class AssetGenerator extends Command
      */
     public function handle()
     {
-        $this->info('Preparing data');
-        $this->info('Generating image');
+        $this->generateFavicon();
         $this->generateManifest();
-        $this->generateIcon();
         $this->info('Manifest Generated');
         return 0;
     }
 
-    function generateOriginal()
-    {
-        $image = new Imagick();
-        $image->readImageBlob(file_get_contents('image.svg'));
-        $image->setImageFormat("png24");
-        $image->resizeImage(1024, 768, imagick::FILTER_LANCZOS, 1);
-        $image->writeImage('image.png');
-    }
-
-    function generateIcon()
+    /**
+     * Generate favicon.ico
+     * @return void 
+     * @throws BindingResolutionException 
+     */
+    function generateFavicon()
     {
         $phpIco = new PHPIco($this->original, [[16, 16], [32, 32]]);
-        $phpIco->save_ico(resource_path('/images/favicon.ico'));
+        $phpIco->save_ico(base_path('/public/favicon.ico'));
     }
 
+    /**
+     * Generate manifest json and icon
+     * @return bool 
+     * @throws FileNotFoundException 
+     */
     function generateManifest()
     {
+        $iconSizes = [72, 96, 144, 128, 144, 152, 192, 384, 512];
+        $iconsManifestList = [];
         try {
             if (!File::exists($this->manifestJson)) throw new FileNotFoundException("File not found");
             $manifestSchema = json_decode(File::get($this->manifestJson));
-            $manifestData = [];
-            foreach ($manifestSchema as $manifest) {
-                switch ($manifest->group) {
-                    case 'Android':
-                        foreach ($manifest->size as $index => $size) {
-                            array_push($manifestData, [
-                                'src' => '/' . $manifest->slug . '-' . $size . 'x' . $size . '.png',
-                                'sizes' => $size . 'x' . $size,
-                                'type' => 'image/png',
-                                'density' => $manifest->density[$index]
-                            ]);
-
-                            $this->resizeImage(
-                                $this->original,
-                                $size,
-                                $manifest->slug . '-' . $size . 'x' . $size
-                            );
-                        }
-                        break;
-                    case 'favicon':
-                        foreach ($manifest->size as $size) {
-                            $this->resizeImage(
-                                $this->original,
-                                $size,
-                                'favicon'
-                            );
-                        }
-                        break;
-                    default:
-                        foreach ($manifest->size as $size) {
-                            $this->resizeImage(
-                                $this->original,
-                                $size,
-                                $manifest->slug . '-' . $size . 'x' . $size
-                            );
-                        }
-
-                        if (isset($manifest->custom)) {
-                            foreach ($manifest->custom as $custom) {
-                                $this->resizeImage(
-                                    $this->original,
-                                    $custom->size,
-                                    $manifest->slug  . ($custom->name !== -1 ? '-' . $custom->name : '')
-                                );
-                            }
-                        }
-                        break;
-                }
+            if (!is_dir(base_path("public/assets"))) {
+                mkdir(base_path("public/assets"), 0777, true);
             }
-            File::put($this->manifest, json_encode([
-                "name" => config('app.name'),
-                "icons" => $manifestData
-            ]));
+
+            foreach ($iconSizes as $iconSize) {
+                $iconsManifestList[] = (object) [
+                    "src" => "/assets/icon-" . $iconSize . "x" . $iconSize . ".png",
+                    "type" => "image/png",
+                    "sizes" => $iconSize . "x" . $iconSize
+                ];
+                $this->resizeImage(
+                    $iconSize,
+                    base_path("public/assets/icon-" . $iconSize . "x" . $iconSize . ".png")
+                );
+            }
+            $manifestSchema->icons = $iconsManifestList;
+            File::put(base_path("public/manifest.json"), json_encode($manifestSchema));
             return true;
         } catch (Exception $e) {
             $this->error($e->getMessage());
@@ -138,12 +103,18 @@ class AssetGenerator extends Command
         }
     }
 
-    function resizeImage($source, $size, $output)
+    /**
+     * Resize image resolution
+     * @param int $size Rectangle size array <width,height>
+     * @param String $dest Destination file PNG
+     * @return void 
+     * @throws BindingResolutionException 
+     */
+    function resizeImage($size, $dest)
     {
-        $output = '/images/favicon/' . $output . '.png';
         $imagine = new Imagine();
-        $imagine->open($source)
+        $imagine->open($this->original)
             ->thumbnail(new Box($size, $size), ImageInterface::THUMBNAIL_OUTBOUND)
-            ->save(resource_path($output));
+            ->save($dest);
     }
 }
