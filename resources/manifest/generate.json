@@ -1,0 +1,24 @@
+[
+    {
+        "group": "Android",
+        "size": [36, 48, 72, 96, 144, 192],
+        "density": ["0.75", "1.0", "1.5", "2.0", "3.0", "4.0"],
+        "slug": "android"
+    },
+    {
+        "group": "Apple",
+        "size": [57, 60, 72, 76, 114, 120, 144, 152, 180],
+        "slug": "apple-icon"
+    },
+    {
+        "group": "Microsoft",
+        "size": [70, 144, 150, 310],
+        "slug": "ms"
+    },
+    {
+        "group": "favicon",
+        "size": [32],
+        "type": "icon",
+        "slug": ""
+    }
+]
