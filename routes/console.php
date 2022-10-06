@@ -2,6 +2,7 @@
 
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\File;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,22 +37,26 @@ Artisan::command('app:install {--R|reset}', function ($reset) {
     if ($reset) {
         Artisan::call('migrate:fresh');
         $this->info("Database migrated");
-        Artisan::call('db:seed');
-        $this->info("Database seed");
-        Artisan::call('storage:link');
-        $this->info("Symbolic link finished");
-        Artisan::call('manifest:generate');
-        $this->info('Logo & manifest file generated');
-        $this->info("Application installed");
     } else {
         Artisan::call('migrate');
         $this->info("Database migrated");
-        Artisan::call('db:seed');
-        $this->info("Database seed");
-        Artisan::call('storage:link');
-        $this->info("Symbolic link finished");
-        Artisan::call('manifest:generate');
-        $this->info('Logo & manifest file generated');
-        $this->info("Application installed");
     }
+
+    Artisan::call('db:seed');
+    $this->info("Database seed");
+    Artisan::call('manifest:generate');
+    $this->info('Logo & manifest file generated');
+    if (env("APP_ENV") === "local") {
+        copy(resource_path("core/index-local.php"), base_path("public/index.php"));
+        copy(resource_path("core/bootstrap-local.php"), base_path("bootstrap/app.php"));
+        File::copyDirectory(base_path("public"), dirname(base_path(), 2) . "/inertia");
+    } else {
+        copy(resource_path("core/index-prod.php"), base_path("public/index.php"));
+        copy(resource_path("core/bootstrap-prod.php"), base_path("bootstrap/app.php"));
+        File::copyDirectory(base_path("public"), dirname(base_path(), 2) . "/inertia");
+    }
+    $this->info('Move public folder');
+    Artisan::call('storage:link');
+    $this->info("Symbolic link finished");
+    $this->info("Application installed");
 })->purpose('Clear data');

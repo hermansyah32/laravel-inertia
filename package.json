@@ -2,7 +2,9 @@
     "private": true,
     "scripts": {
         "dev": "vite",
-        "build": "vite build && vite build --ssr"
+        "build": "vite build && vite build --ssr",
+        "init": "npm run build && php artisan app:install",
+        "reset": "npm run build && php artisan app:install -R"
     },
     "devDependencies": {
         "@headlessui/react": "^1.4.2",
