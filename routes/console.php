@@ -19,19 +19,12 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Artisan::command('app:clear', function () {
-    Artisan::call("cache:clear");
-    $this->info("Cache cleared");
-    Artisan::call("config:clear");
-    $this->info("Config cleared");
-    Artisan::call("view:clear");
-    $this->info("View cleared");
-    Artisan::call("route:clear");
-    $this->info("Route cleared");
-    array_map('unlink', glob(storage_path() . "\\temp*" . ".html"));
-    array_map('unlink', glob(storage_path() . "\\temp*" . ".pdf"));
-    $this->info("Temporary files cleared");
-})->purpose("Clear cache, config and view");
+Artisan::command('init:sentry', function () {
+    Artisan::call('sentry:publish --dsn=https://8fce4597dd3b41df970e16febb86384e@o1008265.ingest.sentry.io/4503947724718080');
+    $this->info('Sentry configured');
+    Artisan::call('sentry:test');
+    $this->info('Sentry tested');
+})->purpose('init sentry configuration');
 
 Artisan::command('app:install {--R|reset}', function ($reset) {
     if ($reset) {
