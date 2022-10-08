@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Base;
+namespace App\Http\Controllers;
 
 use App\Http\Laravel\Controller as LaravelController;
 use App\Http\Response\BodyResponse;

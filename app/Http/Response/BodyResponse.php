@@ -11,8 +11,9 @@ enum ResponseCode: int
     case NOT_AUTHENTICATED = 401;
     case NOT_FOUND = 404;
     case SERVER_ERROR = 403;
-    case PRECONDITION_FAILED = 428;
+    case VALIDATION_ERROR = 422;
     case NOT_ACCEPTABLE = 406;
+    case TOO_MANY_REQUEST = 429;
 }
 
 enum ResponseStatus: string
@@ -119,11 +120,12 @@ class BodyResponse
         else $this->bodyMessage = Lang::get('data.not_found');
     }
 
-    public function setResponseValidationError(array|MessageBag $errors)
+    public function setResponseValidationError(array|MessageBag $errors, $message = '')
     {
-        $this->responseCode = ResponseCode::PRECONDITION_FAILED;
+        $this->responseCode = ResponseCode::VALIDATION_ERROR;
         $this->responseStatus = ResponseStatus::BAD;
-        $this->bodyMessage = Lang::get('data.validation');
+        if ($message === '')
+            $this->bodyMessage = Lang::get('data.validation');
         $this->bodyData = $errors;
     }
 
@@ -163,6 +165,7 @@ class BodyResponse
     public function getResponse(): array
     {
         $result = null;
+        $dataKey = $this->responseStatus === ResponseStatus::OK ? 'data' : 'error';
 
         $response = [
             'code' => $this->responseCode->value,
@@ -170,7 +173,7 @@ class BodyResponse
         ];
         $body = [
             'message' => $this->bodyMessage,
-            'data' => $this->bodyData
+            $dataKey => $this->bodyData
         ];
 
         $result = [
