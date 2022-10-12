@@ -169,6 +169,8 @@ return [
     |
     */
 
-    'attributes' => [],
+    'attributes' => [
+        'filterValue' => 'Filter Value',
+    ],
 
 ];
