@@ -112,28 +112,26 @@ class BodyResponse
         $this->bodyMessage = Lang::get('auth.failed');
     }
 
-    public function setResponseNotFound(string $message = '')
+    public function setResponseNotFound(string $messageKey = 'Data', string|null $message = '')
     {
         $this->responseCode = ResponseCode::NOT_FOUND;
         $this->responseStatus = ResponseStatus::BAD;
-        if (!empty($message)) $this->bodyMessage = $message;
-        else $this->bodyMessage = Lang::get('data.not_found');
+        $this->bodyMessage = $message ?? MessageResponse::getMessage($messageKey, 'failedNotFound');
     }
 
-    public function setResponseValidationError(array|MessageBag $errors, $message = '')
+    public function setResponseValidationError(array|MessageBag $errors, string $messageKey = 'Data', string|null $message = null)
     {
         $this->responseCode = ResponseCode::VALIDATION_ERROR;
         $this->responseStatus = ResponseStatus::BAD;
-        if ($message === '')
-            $this->bodyMessage = Lang::get('data.validation');
+        $this->bodyMessage = $message ?? $this->bodyMessage = MessageResponse::getMessage($messageKey, 'failedValidation');
         $this->bodyData = $errors;
     }
 
-    public function setPermissionDenied(string $message = null)
+    public function setPermissionDenied(string|null $message = null)
     {
         $this->responseCode = ResponseCode::NOT_ACCEPTABLE;
         $this->responseStatus = ResponseStatus::BAD;
-        $this->bodyMessage = $message ?? Lang::get('errors.permission_denied');
+        $this->bodyMessage = $message ?? MessageResponse::getMessage('', 'failedUnauthorized');
     }
 
     public function getHeaderResponse(): array
