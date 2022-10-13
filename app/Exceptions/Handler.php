@@ -85,7 +85,7 @@ class Handler extends ExceptionHandler
         }
 
         $body = new BodyResponse();
-        $body->setResponseValidationError($e->errors(), $e->getMessage());
+        $body->setResponseValidationError($e->errors(), 'Data', $e->getMessage());
         return $this->shouldReturnJson($request, $e)
             ? response()->json($body->getResponse(), $body->getResponseCode()->value)
             : $this->invalid($request, $e);
