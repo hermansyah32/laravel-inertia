@@ -9,6 +9,7 @@ use Illuminate\Container\Container as Application;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Validator;
 
 abstract class BaseRepository extends BaseAccountRepository
 {
@@ -147,36 +148,46 @@ abstract class BaseRepository extends BaseAccountRepository
     /**
      * Get all data
      *
+     * @param string $order Order asc or desc
      * @param array $search Searching column and keyword key
      * @param array $columns Output columns
      * @param int $count Data per page
      * @return BodyResponse
      */
-    public function index(array $search = [], $columns = ['*'], $count = 0): BodyResponse
+    public function index(string $order = 'desc', array $search = [], $columns = ['*'], $count = 0): BodyResponse
     {
-        if ($count > 0) $this->perPage = $count;
-        $data = $this->allQuery($search)->orderBy('created_at', 'desc')->paginate($this->getPerPage(), $columns);
         $body = new BodyResponse();
-        $body->setBodyMessage($this->messageResponse['successGet']);
-        $body->setBodyData($data);
+        try {
+            if ($count > 0) $this->perPage = $count;
+            $data = $this->allQuery($search)->orderBy('created_at', $order)->paginate($this->getPerPage(), $columns);
+            $body->setBodyMessage($this->messageResponse['successGet']);
+            $body->setBodyData($data);
+        } catch (\Throwable $th) {
+            $body->setResponseError($th->getMessage());
+        }
         return $body;
     }
 
     /**
      * Get all trashed data
      *
+     * @param string $order Order asc or desc
      * @param array $search Searching column and keyword key
      * @param array $columns Output columns
      * @param int $count Data per page
      * @return BodyResponse
      */
-    public function indexTrashed(array $search = [], $columns = ['*'], $count = 0): BodyResponse
+    public function indexTrashed(string $order = 'desc', array $search = [], $columns = ['*'], $count = 0): BodyResponse
     {
-        if ($count > 0) $this->perPage = $count;
-        $data = $this->allQuery($search)->onlyTrashed()->orderBy('created_at', 'desc')->paginate($this->getPerPage(), $columns);
         $body = new BodyResponse();
-        $body->setBodyMessage($this->messageResponse['successGetTrashed']);
-        $body->setBodyData($data);
+        try {
+            if ($count > 0) $this->perPage = $count;
+            $data = $this->allQuery($search)->onlyTrashed()->orderBy('created_at', $order)->paginate($this->getPerPage(), $columns);
+            $body->setBodyMessage($this->messageResponse['successGetTrashed']);
+            $body->setBodyData($data);
+        } catch (\Throwable $th) {
+            $body->setResponseError($th->getMessage());
+        }
         return $body;
     }
 
@@ -190,12 +201,27 @@ abstract class BaseRepository extends BaseAccountRepository
     public function create(array $input, bool $author = false): BodyResponse
     {
         $body = new BodyResponse();
-        if ($author) $this->insertAuthor(true, $input);
+        try {
+            $validator = Validator::make(
+                $input,
+                $this->createValidation()->rules,
+                $this->createValidation()->messages,
+                $this->createValidation()->attributes
+            );
+            if ($validator->fails()) {
+                $body->setResponseValidationError($validator->errors, $this->messageResponseKey);
+                return $body;
+            }
 
-        $this->model = $this->model->newInstance($input);
-        $this->model->save();
-        $body->setBodyMessage($this->messageResponse['successCreated']);
-        $body->setBodyData($this->model);
+            if ($author) $this->insertAuthor(true, $input);
+
+            $this->model = $this->model->newInstance($input);
+            $this->model->save();
+            $body->setBodyMessage($this->messageResponse['successCreated']);
+            $body->setBodyData($this->model);
+        } catch (\Throwable $th) {
+            $body->setResponseError($th->getMessage());
+        }
         return $body;
     }
 
@@ -209,11 +235,15 @@ abstract class BaseRepository extends BaseAccountRepository
     public function getFull(string $column, string|int|float $value): BodyResponse
     {
         $body = new BodyResponse();
-        $model = $this->findBy($column, $value, true, true);
-        if (!$model) $body->setResponseNotFound($this->messageResponseKey);
+        try {
+            $model = $this->findBy($column, $value, true, true);
+            if (!$model) $body->setResponseNotFound($this->messageResponseKey);
 
-        $body->setBodyMessage($this->messageResponse['successGet']);
-        $body->setBodyData($model);
+            $body->setBodyMessage($this->messageResponse['successGet']);
+            $body->setBodyData($model);
+        } catch (\Throwable $th) {
+            $body->setResponseError($th->getMessage());
+        }
         return $body;
     }
 
@@ -227,11 +257,15 @@ abstract class BaseRepository extends BaseAccountRepository
     public function get(string $column, string|int|float $value): BodyResponse
     {
         $body = new BodyResponse();
-        $model = $this->findBy($column, $value);
-        if (!$model) $body->setResponseNotFound($this->messageResponseKey);
+        try {
+            $model = $this->findBy($column, $value);
+            if (!$model) $body->setResponseNotFound($this->messageResponseKey);
 
-        $body->setBodyMessage($this->messageResponse['successGet']);
-        $body->setBodyData($model);
+            $body->setBodyMessage($this->messageResponse['successGet']);
+            $body->setBodyData($model);
+        } catch (\Throwable $th) {
+            $body->setResponseError($th->getMessage());
+        }
         return $body;
     }
 
@@ -265,15 +299,30 @@ abstract class BaseRepository extends BaseAccountRepository
     public function updateBy(array $input, string $column, string|int|float $value, bool $author = false): BodyResponse
     {
         $body = new BodyResponse();
-        $model = $this->findBy($column, $value);
-        if (!$model) $body->setResponseNotFound($this->messageResponseKey);
-        if ($author) $this->insertAuthor(true, $model);
+        try {
+            $validator = Validator::make(
+                $input,
+                $this->updateValidation()->rules,
+                $this->updateValidation()->messages,
+                $this->updateValidation()->attributes
+            );
+            if ($validator->fails()) {
+                $body->setResponseValidationError($validator->errors, $this->messageResponseKey);
+                return $body;
+            }
 
-        $model->fill($input);
-        $model->save();
+            $model = $this->findBy($column, $value);
+            if (!$model) $body->setResponseNotFound($this->messageResponseKey);
+            if ($author) $this->insertAuthor(true, $model);
 
-        $body->setBodyMessage($this->messageResponse['successUpdated']);
-        $body->setBodyData($model);
+            $model->fill($input);
+            $model->save();
+
+            $body->setBodyMessage($this->messageResponse['successUpdated']);
+            $body->setBodyData($model);
+        } catch (\Throwable $th) {
+            $body->setResponseError($th->getMessage());
+        }
         return $body;
     }
 
@@ -288,14 +337,18 @@ abstract class BaseRepository extends BaseAccountRepository
     public function restoreBy(string $column, string|int|float $value, bool $author = false): BodyResponse
     {
         $body = new BodyResponse();
-        $model = $this->findByTrashed($column, $value);
-        if (!$model) $body->setResponseNotFound($this->messageResponseKey);
-        if ($author) $this->insertAuthor(true, $model);
+        try {
+            $model = $this->findByTrashed($column, $value);
+            if (!$model) $body->setResponseNotFound($this->messageResponseKey);
+            if ($author) $this->insertAuthor(true, $model);
 
-        $model->restore();
+            $model->restore();
 
-        $body->setBodyData($model);
-        $body->setBodyMessage($this->messageResponse['successRestored']);
+            $body->setBodyData($model);
+            $body->setBodyMessage($this->messageResponse['successRestored']);
+        } catch (\Throwable $th) {
+            $body->setResponseError($th->getMessage());
+        }
         return $body;
     }
 
@@ -310,12 +363,16 @@ abstract class BaseRepository extends BaseAccountRepository
     public function deleteBy(string $column, string|int|float $value, bool $author = false): BodyResponse
     {
         $body = new BodyResponse();
-        $model = $this->findBy($column, $value);
-        if (!$model) $body->setResponseNotFound($this->messageResponseKey);
-        if ($author) $this->insertAuthor(false);
+        try {
+            $model = $this->findBy($column, $value);
+            if (!$model) $body->setResponseNotFound($this->messageResponseKey);
+            if ($author) $this->insertAuthor(false);
 
-        $model->delete();
-        $body->setBodyMessage($this->messageResponse['successDeleted']);
+            $model->delete();
+            $body->setBodyMessage($this->messageResponse['successDeleted']);
+        } catch (\Throwable $th) {
+            $body->setResponseError($th->getMessage());
+        }
         return $body;
     }
 
@@ -329,13 +386,17 @@ abstract class BaseRepository extends BaseAccountRepository
     public function permanentDeleteBy(string $column, string|int|float $value): BodyResponse
     {
         $body = new BodyResponse();
-        $model = $this->findBy($column, $value);
-        if ($model === null) {
-            $body->setResponseNotFound($this->messageResponseKey);
-        } else {
-            $model->forceDelete();
+        try {
+            $model = $this->findBy($column, $value);
+            if ($model === null) {
+                $body->setResponseNotFound($this->messageResponseKey);
+            } else {
+                $model->forceDelete();
+            }
+            $body->setBodyMessage($this->messageResponse['successPermanentDeleted']);
+        } catch (\Throwable $th) {
+            $body->setResponseError($th->getMessage());
         }
-        $body->setBodyMessage($this->messageResponse['successPermanentDeleted']);
         return $body;
     }
 
@@ -345,6 +406,18 @@ abstract class BaseRepository extends BaseAccountRepository
      * @return Model
      */
     abstract public function model();
+
+    /**
+     * Get create validation
+     * @return object Object of rules, messages, attributes. 
+     */
+    abstract public function createValidation();
+
+    /**
+     * Get update validation
+     * @return object Object of rules, messages, attributes. 
+     */
+    abstract public function updateValidation();
 
     /**
      * Remapping search input request
