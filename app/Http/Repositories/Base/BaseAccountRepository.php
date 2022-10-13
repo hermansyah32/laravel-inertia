@@ -3,9 +3,8 @@
 namespace App\Http\Repositories\Base;
 
 use App\Http\Response\BodyResponse;
-use App\Rules\ProfileGenderRule;
+use App\Http\Response\MessageResponse;
 use Illuminate\Auth\AuthenticationException;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Container\Container as Application;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Auth;
@@ -34,15 +33,42 @@ abstract class BaseAccountRepository
     protected $perPage;
 
     /**
+     * Message response key
+     * @var string
+     */
+    protected $messageResponseKey = 'Data';
+
+    /**
+     * Message response init
+     * @var object messageResponse
+     */
+    protected $messageResponse;
+
+    /**
      * Base repository constructor
-     *
-     * @param Application $app
-     * @return Model
-     * @throws Exception
      */
     public function __construct(Application $app)
     {
         $this->app = $app;
+        $this->messageResponseKey = Lang::get('data.profile');
+        $this->messageResponse = MessageResponse::getMessage($this->messageResponseKey);
+    }
+
+    /**
+     * Update message response property
+     * @param array $messageResponse 
+     * @param bool $isPatch 
+     * @return void 
+     */
+    public function refreshMessageResponse($messageResponse, $isPatch = true)
+    {
+        if ($isPatch) {
+            foreach ($messageResponse as $key => $value) {
+                $this->messageResponse[$key] = $value;
+            }
+        } else {
+            $this->messageResponse = $messageResponse;
+        }
     }
 
     /**
@@ -76,7 +102,7 @@ abstract class BaseAccountRepository
         $body = new BodyResponse();
 
         if (empty($account)) {
-            $body->setResponseNotFound();
+            $body->setResponseNotFound($this->messageResponseKey);
             return $body;
         }
 
@@ -94,7 +120,7 @@ abstract class BaseAccountRepository
         $validator = Validator::make($data, $this->AccountRules());
         if ($validator->fails()) {
             $body = new BodyResponse();
-            $body->setResponseValidationError($validator->errors());
+            $body->setResponseValidationError($validator->errors(), $this->messageResponseKey);
             return $body;
         }
 
@@ -102,7 +128,7 @@ abstract class BaseAccountRepository
         $account->fill($data);
         $account->save();
         $body = $this->getProfile();
-        $body->setBodyMessage(Lang::get('data.get.', ['Data' => Lang::get('menu.profile')]));
+        $body->setBodyMessage($this->messageResponse['successUpdated']);
         return $body;
     }
 
@@ -115,15 +141,17 @@ abstract class BaseAccountRepository
         $validator = Validator::make($data, $this->ProfileRules());
         if ($validator->fails()) {
             $body = new BodyResponse();
-            $body->setResponseValidationError($validator->errors());
+            $body->setResponseValidationError($validator->errors(), $this->messageResponseKey);
             return $body;
         }
 
         if (array_key_exists('profile_photo_url', $data)) {
-            // upload file
             $older_file = DB::table('user_profiles')->where('user_id', Auth::user()->id)->first(['photo_url'])->photo_url;
             $isDeleted = Storage::disk('public')->delete($older_file);
-            // TODO: if not deleted create report
+            if (!$isDeleted) {
+                // TODO: if not deleted create report
+            }
+
             $filename = 'profile' . '_' . md5(time()) . '.' . $data['profile_photo_url']->getClientOriginalExtension();
             $isUploaded = Storage::disk('public')->put('user/avatar/' . $filename, File::get($data['profile_photo_url']->getRealPath()));
             if ($isUploaded) $data['profile_photo_url'] = 'user/avatar/' . $filename;
@@ -135,7 +163,7 @@ abstract class BaseAccountRepository
         $account->save();
 
         $body = $this->getProfile();
-        $body->setBodyMessage(Lang::get('data.updated.', ['Data' => Lang::get('menu.account')]));
+        $body->setBodyMessage($this->messageResponse['successUpdated']);
         return $body;
     }
 
@@ -148,7 +176,7 @@ abstract class BaseAccountRepository
         $validator =  Validator::make($data, $this->PasswordRules());
         if ($validator->fails()) {
             $body = new BodyResponse();
-            $body->setResponseValidationError($validator->errors());
+            $body->setResponseValidationError($validator->errors(), $this->messageResponseKey);
             return $body;
         }
         $account = $this->currentAccount();
@@ -164,7 +192,7 @@ abstract class BaseAccountRepository
         $account->save();
 
         $body = new BodyResponse();
-        $body->setBodyMessage(Lang::get('data.updated.', ['Data' => 'Password']));
+        $body->setBodyMessage($this->messageResponse['successUpdated']);
         return $body;
     }
 

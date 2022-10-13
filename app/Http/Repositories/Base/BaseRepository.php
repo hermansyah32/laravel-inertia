@@ -3,6 +3,7 @@
 namespace App\Http\Repositories\Base;
 
 use App\Http\Response\BodyResponse;
+use App\Http\Response\MessageResponse;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Container\Container as Application;
 use Illuminate\Database\Eloquent\Builder;
@@ -25,10 +26,10 @@ abstract class BaseRepository extends BaseAccountRepository
      * Base repository Constructor
      *
      * @param Application $app
-     * @return Model
+     * @param string $messageResponseKey
      * @throws Exception
      */
-    public function __construct(Application $app)
+    public function __construct(Application $app, string $messageResponseKey = 'Data')
     {
         parent::__construct($app);
         $model = $this->app->make($this->model());
@@ -36,6 +37,8 @@ abstract class BaseRepository extends BaseAccountRepository
         if (!$model instanceof Model) {
             throw new \Exception("Class {$this->model} must be an instance of Illuminate\\Database\\Eloquent\\Model");
         }
+        $this->messageResponseKey = $messageResponseKey;
+        $this->messageResponse = MessageResponse::getMessage($this->messageResponseKey);
     }
 
     /**
@@ -71,9 +74,10 @@ abstract class BaseRepository extends BaseAccountRepository
      * @param string $column Field name
      * @param string $comp Search comparison keyword
      * @param string $val Search value
+     * @param bool $withTrashed Included soft deleted record. Default is false
      * @return Builder
      */
-    protected function search(Builder $query, string $column, string $comparison, string $value): Builder
+    protected function search(Builder $query, string $column, string $comparison, string $value, bool $withTrashed = false): Builder
     {
         switch ($comparison) {
             case 'like':
@@ -96,42 +100,48 @@ abstract class BaseRepository extends BaseAccountRepository
                 else $query->orWhere($column, '=', $value);
                 break;
         }
+        $query->withTrashed();
         return $query;
     }
 
     /**
      * Find record by where condition
      *
-     * @param string|int|float $value Keyword value
      * @param string $column Where column
+     * @param string|int|float $value Keyword value
      * @param bool $firstResult False return as Builder. Default true return as Collection|null
+     * @param bool $withTrashed Included soft deleted record. Default is false
      * @return Builder|Collection|null
      */
-    protected function findBy(string|int|float $value, string $column, bool $firstResult = true): Builder|Collection|null
+    protected function findBy(string $column, string|int|float $value, bool $firstResult = true, bool $withTrashed = false): Builder|Collection|null
     {
         $query = $this->model->newQuery();
+        if ($withTrashed)
+            $query->withTrashed();
+
         if ($firstResult)
-            return $query->firstWhere($column, $value);
+            $query->firstWhere($column, $value);
         else
-            return $query->where($column, $value);
+            $query->where($column, $value)->get();
+        return $query;
     }
 
     /**
      * Find record in trashed data by where condition
      *
-     * @param string|int|float $value Keyword value
      * @param string $column Where column
+     * @param string|int|float $value Keyword value
      * @param bool $firstResult False return as Builder. Default true return as Collection|null
      * @return Builder|Collection|null
      */
-    protected function findByTrashed(string|int|float $value, string $column, bool $firstResult = true): Builder|Collection|null
+    protected function findByTrashed(string $column, string|int|float $value, bool $firstResult = true): Builder|Collection|null
     {
         $query = $this->model->newQuery();
         $query->onlyTrashed();
         if ($firstResult)
             return $query->firstWhere($value, $column);
         else
-            return $query->where($value, $column);
+            return $query->where($value, $column)->get();
     }
 
     /**
@@ -147,6 +157,7 @@ abstract class BaseRepository extends BaseAccountRepository
         if ($count > 0) $this->perPage = $count;
         $data = $this->allQuery($search)->orderBy('created_at', 'desc')->paginate($this->getPerPage(), $columns);
         $body = new BodyResponse();
+        $body->setBodyMessage($this->messageResponse['successGet']);
         $body->setBodyData($data);
         return $body;
     }
@@ -164,6 +175,7 @@ abstract class BaseRepository extends BaseAccountRepository
         if ($count > 0) $this->perPage = $count;
         $data = $this->allQuery($search)->onlyTrashed()->orderBy('created_at', 'desc')->paginate($this->getPerPage(), $columns);
         $body = new BodyResponse();
+        $body->setBodyMessage($this->messageResponse['successGetTrashed']);
         $body->setBodyData($data);
         return $body;
     }
@@ -177,78 +189,91 @@ abstract class BaseRepository extends BaseAccountRepository
      */
     public function create(array $input, bool $author = false): BodyResponse
     {
-        if ($author) {
-            $input['author_id'] = $this->currentAccount()->id;
-        }
         $body = new BodyResponse();
+        if ($author) $this->insertAuthor(true, $input);
+
         $this->model = $this->model->newInstance($input);
         $this->model->save();
+        $body->setBodyMessage($this->messageResponse['successCreated']);
         $body->setBodyData($this->model);
         return $body;
     }
 
     /**
-     * Show record by where condition
+     * Get record by where condition included trashed data
      *
-     * @param string|int|float $value Keyword value
      * @param string $column Where column
+     * @param string|int|float $value Keyword value
      * @return BodyResponse
      */
-    public function show(string|int|float $value, string $column): BodyResponse
+    public function getFull(string $column, string|int|float $value): BodyResponse
     {
         $body = new BodyResponse();
-        $model = $this->findBy($column, $value);
-        if ($model === null) {
-            $body->setResponseNotFound();
-        } else {
-            $body->setBodyData($model);
-        }
+        $model = $this->findBy($column, $value, true, true);
+        if (!$model) $body->setResponseNotFound($this->messageResponseKey);
+
+        $body->setBodyMessage($this->messageResponse['successGet']);
+        $body->setBodyData($model);
         return $body;
     }
 
     /**
-     * Show record in trashed data by where condition
+     * Get record by where condition
      *
-     * @param string|int|float $value Keyword value
      * @param string $column Where column
+     * @param string|int|float $value Keyword value
      * @return BodyResponse
      */
-    public function showTrashed(string|int|float $value, string $column): BodyResponse
+    public function get(string $column, string|int|float $value): BodyResponse
+    {
+        $body = new BodyResponse();
+        $model = $this->findBy($column, $value);
+        if (!$model) $body->setResponseNotFound($this->messageResponseKey);
+
+        $body->setBodyMessage($this->messageResponse['successGet']);
+        $body->setBodyData($model);
+        return $body;
+    }
+
+    /**
+     * Get record in trashed data by where condition
+     *
+     * @param string $column Where column
+     * @param string|int|float $value Keyword value
+     * @return BodyResponse
+     */
+    public function getTrashed(string $column, string|int|float $value): BodyResponse
     {
         $body = new BodyResponse();
         $model = $this->findByTrashed($column, $value);
-        if ($model === null) {
-            $body->setResponseNotFound();
-        } else {
-            $body->setBodyData($model);
-        }
+        if (!$model) $body->setResponseNotFound($this->messageResponseKey);
+
+        $body->setBodyMessage($this->messageResponse['successGetTrashed']);
+        $body->setBodyData($model);
         return $body;
     }
 
     /**
      * Update a record by where condition
      *
-     * @param array $input Input value to be store/updated
+     * @param array $input Input value to be update
      * @param mixed $column Where column
      * @param mixed $value Where value
-     * @param bool $author Create data with author status
+     * @param bool $author Update data with author status
      * @return BodyResponse
      */
     public function updateBy(array $input, string $column, string|int|float $value, bool $author = false): BodyResponse
     {
         $body = new BodyResponse();
         $model = $this->findBy($column, $value);
-        if ($model === null) {
-            $body->setResponseNotFound();
-        } else {
-            if ($author) {
-                $input['author_id'] = $this->currentAccount()->id;
-            }
+        if (!$model) $body->setResponseNotFound($this->messageResponseKey);
+        if ($author) $this->insertAuthor(true, $model);
 
-            $model->fill($input);
-            $model->save();
-            $body->setBodyData($model);
-        }
+        $model->fill($input);
+        $model->save();
+
+        $body->setBodyMessage($this->messageResponse['successUpdated']);
+        $body->setBodyData($model);
         return $body;
     }
 
@@ -264,17 +289,13 @@ abstract class BaseRepository extends BaseAccountRepository
     {
         $body = new BodyResponse();
         $model = $this->findByTrashed($column, $value);
-        if ($model === null) {
-            $body->setResponseNotFound();
-        } else {
-            if ($author) {
-                $input['author_id'] = $this->currentAccount()->id;
-            }
-            $input = ['deleted_at' => null];
-            $model->fill($input);
-            $model->save();
-            $body->setBodyData($model);
-        }
+        if (!$model) $body->setResponseNotFound($this->messageResponseKey);
+        if ($author) $this->insertAuthor(true, $model);
+
+        $model->restore();
+
+        $body->setBodyData($model);
+        $body->setBodyMessage($this->messageResponse['successRestored']);
         return $body;
     }
 
@@ -290,15 +311,11 @@ abstract class BaseRepository extends BaseAccountRepository
     {
         $body = new BodyResponse();
         $model = $this->findBy($column, $value);
-        if ($model === null) {
-            $body->setResponseNotFound();
-        } else {
-            if ($author) {
-                $input['author_id'] = $this->currentAccount()->id;
-                $model->update($input);
-            }
-            $model->delete();
-        }
+        if (!$model) $body->setResponseNotFound($this->messageResponseKey);
+        if ($author) $this->insertAuthor(false);
+
+        $model->delete();
+        $body->setBodyMessage($this->messageResponse['successDeleted']);
         return $body;
     }
 
@@ -314,10 +331,11 @@ abstract class BaseRepository extends BaseAccountRepository
         $body = new BodyResponse();
         $model = $this->findBy($column, $value);
         if ($model === null) {
-            $body->setResponseNotFound();
+            $body->setResponseNotFound($this->messageResponseKey);
         } else {
             $model->forceDelete();
         }
+        $body->setBodyMessage($this->messageResponse['successPermanentDeleted']);
         return $body;
     }
 
@@ -361,5 +379,23 @@ abstract class BaseRepository extends BaseAccountRepository
             $this->perPage = config('database.perPage');
         }
         return $this->perPage;
+    }
+
+    /**
+     * Insert author if exists
+     * @param bool $isUpdate Is query will call update function. If false it will update model automatically
+     * @param array $input Input reference
+     * @return void 
+     */
+    protected function insertAuthor(bool $isUpdate = false, array|Model|Collection &$input = []): void
+    {
+        if ($isUpdate) {
+            $this->model->update(['author_id' => $this->currentAccount()->id]);
+            return;
+        }
+        if (!key_exists('author_id', $this->model->getFillable())) return;
+
+        if (is_array($input)) $input['author-id'] = $this->currentAccount()->id;
+        else $input->author_id = $this->currentAccount()->id;
     }
 }
