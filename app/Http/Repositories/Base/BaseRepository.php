@@ -7,7 +7,6 @@ use App\Http\Response\MessageResponse;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Container\Container as Application;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
 
@@ -112,19 +111,17 @@ abstract class BaseRepository extends BaseAccountRepository
      * @param string|int|float $value Keyword value
      * @param bool $firstResult False return as Builder. Default true return as Collection|null
      * @param bool $withTrashed Included soft deleted record. Default is false
-     * @return Builder|Collection|null
+     * @return \Illuminate\Database\Eloquent\Model|null
      */
-    protected function findBy(string $column, string|int|float $value, bool $firstResult = true, bool $withTrashed = false): Builder|Collection|null
+    protected function findBy(string $column, string|int|float $value, bool $firstResult = true, bool $withTrashed = false): Model|null
     {
         $query = $this->model->newQuery();
         if ($withTrashed)
             $query->withTrashed();
 
-        if ($firstResult)
-            $query->firstWhere($column, $value);
-        else
-            $query->where($column, $value)->get();
-        return $query;
+        if ($firstResult) return $query->firstWhere($column, $value);
+
+        return $query->where($column, $value);
     }
 
     /**
@@ -133,16 +130,17 @@ abstract class BaseRepository extends BaseAccountRepository
      * @param string $column Where column
      * @param string|int|float $value Keyword value
      * @param bool $firstResult False return as Builder. Default true return as Collection|null
-     * @return Builder|Collection|null
+     * @return \Illuminate\Database\Eloquent\Model|null
      */
-    protected function findByTrashed(string $column, string|int|float $value, bool $firstResult = true): Builder|Collection|null
+    protected function findByTrashed(string $column, string|int|float $value, bool $firstResult = true): Model|null
     {
+
         $query = $this->model->newQuery();
         $query->onlyTrashed();
-        if ($firstResult)
-            return $query->firstWhere($value, $column);
-        else
-            return $query->where($value, $column)->get();
+
+        if ($firstResult) return $query->firstWhere($column, $value);
+
+        return $query->where($column, $value)->get();
     }
 
     /**
@@ -460,13 +458,14 @@ abstract class BaseRepository extends BaseAccountRepository
      * @param array $input Input reference
      * @return void 
      */
-    protected function insertAuthor(bool $isUpdate = false, array|Model|Collection &$input = []): void
+    protected function insertAuthor(bool $isUpdate = false, array|Model &$input = []): void
     {
-        if ($isUpdate) {
+        if (!key_exists('author_id', $this->model->getFillable())) return;
+
+        if (!$isUpdate) {
             $this->model->update(['author_id' => $this->currentAccount()->id]);
             return;
         }
-        if (!key_exists('author_id', $this->model->getFillable())) return;
 
         if (is_array($input)) $input['author-id'] = $this->currentAccount()->id;
         else $input->author_id = $this->currentAccount()->id;

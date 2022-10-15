@@ -32,7 +32,7 @@ class BodyResponse
 
     // used for body
     private string $bodyMessage = "";
-    private array|object $bodyData = [];
+    private array|object|null $bodyData = [];
     private string|null $tokenData = null;
 
     public function getResponseCode(): ResponseCode
@@ -80,7 +80,7 @@ class BodyResponse
         return $this->bodyData;
     }
 
-    public function setBodyData(array|object $data)
+    public function setBodyData(array|object|null $data)
     {
         $this->bodyData = $data;
     }
