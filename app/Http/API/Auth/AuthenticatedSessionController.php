@@ -7,7 +7,9 @@ use App\Http\Response\BodyResponse;
 use App\Http\Response\ResponseCode;
 use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
+use Illuminate\Contracts\Validation\Validator as ValidationValidator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Validator;
@@ -30,29 +32,33 @@ class AuthenticatedSessionController extends BaseController
     public function login(Request $request)
     {
         $body = new BodyResponse();
-        $this->username = $this->findUsername($request);
+        try {
+            $this->username = $this->findUsername($request);
 
-        if (RateLimiter::tooManyAttempts($this->throttleKey($request), 5)) {
-            event(new Lockout($request));
-            $body->setResponseError("Too many request", ResponseCode::TOO_MANY_REQUEST);
-            return $this->sendResponse($body);
+            if (RateLimiter::tooManyAttempts($this->throttleKey($request), 5)) {
+                event(new Lockout($request));
+                $body->setResponseError("Too many request", ResponseCode::TOO_MANY_REQUEST);
+                return $this->sendResponse($body);
+            }
+
+            $validator = Validator::make($request->only([$this->username, 'password', 'device_name']), $this->loginRules());
+            if ($validator->fails()) {
+                $body->setResponseValidationError($validator->errors());
+                return $this->sendResponse($body);
+            }
+
+            $user = User::where($this->username, $request->input($this->username))->first();
+            if (!$user || !Hash::check($request->input('password'), $user->password)) {
+                $body->setResponseAuthFailed();
+                return $this->sendResponse($body);
+            }
+
+            $token = $user->createToken($request->input('device_name'))->plainTextToken;
+            $body->setBodyData(['user' => $user, 'token' => $token]);
+            RateLimiter::clear($this->throttleKey($request));
+        } catch (\Throwable $th) {
+            $body->setResponseError($th->getMessage());
         }
-
-        $validator = Validator::make($request->only([$this->username, 'password', 'device_name']), $this->loginRules());
-        if ($validator->fails()) {
-            $body->setResponseValidationError($validator->errors());
-            return $this->sendResponse($body);
-        }
-
-        $user = User::where($this->username, $request->input($this->username))->first();
-        if (!$user || !Hash::check($request->input('password'), $user->password)) {
-            $body->setResponseAuthFailed();
-            return $this->sendResponse($body);
-        }
-
-        $token = $user->createToken($request->input('device_name'))->plainTextToken;
-        $body->setBodyData(['user' => $user, 'token' => $token]);
-        RateLimiter::clear($this->throttleKey($request));
 
         return $this->sendResponse($body);
     }
@@ -65,11 +71,42 @@ class AuthenticatedSessionController extends BaseController
     public function logout(Request $request)
     {
         $body = new BodyResponse();
-        $tokenId = $request->bearerToken();
-        if ($tokenId)
-            $request->user()->currentAccessToken()->delete();
+        try {
+            $tokenId = $request->bearerToken();
+            if ($tokenId)
+                $request->user()->currentAccessToken()->delete();
 
-        $body->setBodyMessage("Logout successfully");
+            $body->setBodyMessage("Logout successfully");
+        } catch (\Throwable $th) {
+            $body->setResponseError($th->getMessage());
+        }
+        return $this->sendResponse($body);
+    }
+
+    /**
+     * Reissue token from valid token.
+     *
+     * @param  Request $request
+     */
+    public function reissueToken(Request $request)
+    {
+        $body = new BodyResponse();
+        try {
+            $validator = Validator::make($request->all(), ['device_name' => ['required']]);
+            if ($validator->fails()) {
+                $body->setResponseValidationError($validator->errors(), 'Authentication');
+                return $this->sendResponse($body);
+            }
+            $tokenId = $request->bearerToken();
+            if ($tokenId)
+                $request->user()->currentAccessToken()->delete();
+
+            $token = $request->user()->createToken($request->device_name)->plainTextToken;
+            $body->setBodyData(['token' => $token]);
+        } catch (\Throwable $th) {
+            $body->setResponseError($th->getMessage());
+        }
+
         return $this->sendResponse($body);
     }
 
