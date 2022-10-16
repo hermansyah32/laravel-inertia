@@ -4,8 +4,8 @@
         "dev": "vite",
         "start": "vite build --emptyOutDir --watch",
         "build": "vite build --emptyOutDir && vite build --emptyOutDir --ssr",
-        "init": "npm run build && php artisan app:install",
-        "reset": "npm run build && php artisan app:install -R"
+        "init": "php artisan app:install && npm run build",
+        "reset": "php artisan app:install -R && npm run build"
     },
     "devDependencies": {
         "@headlessui/react": "^1.4.2",
