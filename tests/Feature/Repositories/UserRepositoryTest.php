@@ -29,6 +29,22 @@ class UserRepositoryTest extends TestCase
         $this->assertCount(1, $result->getBodyData());
     }
 
+    public function test_users_index_with_search_repository()
+    {
+        $user = User::factory()->create();
+
+        /** @var BodyResponse $result */
+        $result =  App::call(function (UserRepository $repository) use ($user) {
+            return $repository->index('desc', ['col' => ['name'], 'comp' => ['eq'], 'val' => $user->name]);
+        });
+
+        $this->assertInstanceOf(BodyResponse::class, $result);
+        $this->assertSame($result->getResponseCode()->value, ResponseCode::OK->value);
+        $this->assertArrayHasKey('current_page', $result->getBodyData()->toArray());
+        $this->assertCount(1, $result->getBodyData()->toArray()['data']);
+        $this->assertEquals(1, $result->getBodyData()->toArray()['total']);
+    }
+
     public function test_users_index_trashed_repository()
     {
         $user = User::factory()->create();
@@ -42,6 +58,23 @@ class UserRepositoryTest extends TestCase
         $this->assertInstanceOf(BodyResponse::class, $result);
         $this->assertSame($result->getResponseCode()->value, ResponseCode::OK->value);
         $this->assertCount(1, $result->getBodyData());
+    }
+
+    public function test_users_index_trashed_with_search_repository()
+    {
+        $user = User::factory()->create();
+        $user->delete();
+
+        /** @var BodyResponse $result */
+        $result =  App::call(function (UserRepository $repository) use ($user) {
+            return $repository->indexTrashed('desc', ['col' => ['name'], 'comp' => ['eq'], 'val' => $user->name]);
+        });
+
+        $this->assertInstanceOf(BodyResponse::class, $result);
+        $this->assertSame($result->getResponseCode()->value, ResponseCode::OK->value);
+        $this->assertArrayHasKey('current_page', $result->getBodyData()->toArray());
+        $this->assertCount(1, $result->getBodyData()->toArray()['data']);
+        $this->assertEquals(1, $result->getBodyData()->toArray()['total']);
     }
 
     public function test_users_get_repository()
