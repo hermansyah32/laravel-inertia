@@ -73,11 +73,11 @@ abstract class BaseRepository extends BaseAccountRepository
      * @param Builder $query Eloquent Query Builder
      * @param string $column Field name
      * @param string $comp Search comparison keyword
-     * @param string $val Search value
+     * @param string|int|float|bool|array $val Search value
      * @param bool $withTrashed Included soft deleted record. Default is false
      * @return Builder
      */
-    protected function search(Builder $query, string $column, string $comparison, string $value, bool $withTrashed = false): Builder
+    protected function search(Builder $query, string $column, string $comparison, string|int|float|bool|array $value, bool $withTrashed = false): Builder
     {
         switch ($comparison) {
             case 'like':
