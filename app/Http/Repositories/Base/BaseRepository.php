@@ -100,7 +100,7 @@ abstract class BaseRepository extends BaseAccountRepository
                 else $query->orWhere($column, '=', $value);
                 break;
         }
-        $query->withTrashed();
+        if ($withTrashed) $query->withTrashed();
         return $query;
     }
 
