@@ -28,6 +28,23 @@ class RoleRepositoryTest extends TestCase
         $this->assertCount(1, $result->getBodyData());
     }
 
+    public function test_roles_index_with_search_repository()
+    {
+        $role = Role::factory()->create();
+        $role->delete();
+
+        /** @var BodyResponse $result */
+        $result =  App::call(function (RoleRepository $repository) use ($role) {
+            return $repository->index('desc', ['col' => ['name'], 'comp' => ['eq'], 'val' => $role->name]);
+        });
+
+        $this->assertInstanceOf(BodyResponse::class, $result);
+        $this->assertSame($result->getResponseCode()->value, ResponseCode::OK->value);
+        $this->assertArrayHasKey('current_page', $result->getBodyData()->toArray());
+        $this->assertCount(1, $result->getBodyData()->toArray()['data']);
+        $this->assertEquals(1, $result->getBodyData()->toArray()['total']);
+    }
+
     public function test_roles_index_trashed_repository()
     {
         $role = Role::factory()->create();
@@ -41,6 +58,23 @@ class RoleRepositoryTest extends TestCase
         $this->assertInstanceOf(BodyResponse::class, $result);
         $this->assertSame($result->getResponseCode()->value, ResponseCode::OK->value);
         $this->assertCount(1, $result->getBodyData());
+    }
+
+    public function test_roles_index_trashed_with_search_repository()
+    {
+        $role = Role::factory()->create();
+        $role->delete();
+
+        /** @var BodyResponse $result */
+        $result =  App::call(function (RoleRepository $repository) use ($role) {
+            return $repository->indexTrashed('desc', ['col' => ['name'], 'comp' => ['eq'], 'val' => $role->name]);
+        });
+
+        $this->assertInstanceOf(BodyResponse::class, $result);
+        $this->assertSame($result->getResponseCode()->value, ResponseCode::OK->value);
+        $this->assertArrayHasKey('current_page', $result->getBodyData()->toArray());
+        $this->assertCount(1, $result->getBodyData()->toArray()['data']);
+        $this->assertEquals(1, $result->getBodyData()->toArray()['total']);
     }
 
     public function test_roles_get_repository()
