@@ -23,4 +23,12 @@ class UserProfile extends Model
         'phone',
         'birthday'
     ];
+
+    /**
+     * Get the user that owns the phone.
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'id', 'user_id');
+    }
 }

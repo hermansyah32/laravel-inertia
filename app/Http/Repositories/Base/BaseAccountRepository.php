@@ -4,12 +4,13 @@ namespace App\Http\Repositories\Base;
 
 use App\Http\Response\BodyResponse;
 use App\Http\Response\MessageResponse;
+use App\Models\User;
 use App\Models\UserProfile;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Container\Container as Application;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Lang;
@@ -19,7 +20,7 @@ use Illuminate\Support\Facades\Validator;
 abstract class BaseAccountRepository
 {
     /**
-     * @var date format
+     * @var string CommonDateFormat
      */
     const CommonDateFormat = "Y-m-d";
 
@@ -57,8 +58,9 @@ abstract class BaseAccountRepository
 
     /**
      * Update message response property
-     * @param array $messageResponse 
-     * @param bool $isPatch 
+     * 
+     * @param array $messageResponse New message response that replace current message response.
+     * @param bool $isPatch If true, than only replace or add message response.
      * @return void 
      */
     public function refreshMessageResponse($messageResponse, $isPatch = true)
@@ -73,42 +75,40 @@ abstract class BaseAccountRepository
     }
 
     /**
-     * Get authenticated user
-     * @return Authenticatable 
+     * Get authenticated user.
+     * 
+     * @return Authenticatable|\Illuminate\Database\Eloquent\Model
      */
-    protected function currentAccount(): Authenticatable
+    protected function currentAccount(): Authenticatable|Model
     {
-        if (!Auth::user()) throw new AuthenticationException;
+        if (!Auth::user()) throw new AuthenticationException();
         return Auth::user();
     }
 
     /**
      * Get current active guard name.
+     * 
      * @return string 
      */
     protected function currentGuard(): string
     {
-        if (!Auth::user()) throw new AuthenticationException;
+        if (!Auth::user()) throw new AuthenticationException();
         return Auth::getDefaultDriver();
     }
 
     /**
      * Get authenticated user profile
+     * 
      * @return BodyResponse 
      */
-    protected function getProfile(): BodyResponse
+    public function getProfile(): BodyResponse
     {
         $body = new BodyResponse();
         try {
             $account = $this->currentAccount();
-            $account->Profile;
+            if (!$account->has('profile')->exists()) UserProfile::create(['user_id' => $account->id]);
 
-            if (empty($account)) {
-                $body->setResponseNotFound($this->messageResponseKey);
-                return $body;
-            }
-
-            $body->setBodyData($account);
+            $body->setBodyData($account->with('profile')->first());
         } catch (\Throwable $th) {
             $body->setResponseError($th->getMessage());
         }
@@ -117,9 +117,12 @@ abstract class BaseAccountRepository
 
     /**
      * Update authenticated user data except password
+     * 
+     * @param string $email User email.
+     * @param string $user User username.
      * @return BodyResponse 
      */
-    protected function updateAccount(string $email, string $username): BodyResponse
+    public function updateAccount(string $email, string $username): BodyResponse
     {
         $body = new BodyResponse();
         try {
@@ -130,10 +133,11 @@ abstract class BaseAccountRepository
                 return $body;
             }
 
-            $account = Auth::user();
+            $account = $this->currentAccount();
             $account->fill($data);
             $account->save();
-            $body = $this->getProfile();
+
+            $body->setBodyData($account);
             $body->setBodyMessage($this->messageResponse['successUpdated']);
         } catch (\Throwable $th) {
             $body->setResponseError($th->getMessage());
@@ -143,9 +147,11 @@ abstract class BaseAccountRepository
 
     /**
      * Update authenticated user profile
+     * 
+     * @param array $data User profile input included with user name.
      * @return BodyResponse 
      */
-    protected function updateProfile(array $data): BodyResponse
+    public function updateProfile(array $data): BodyResponse
     {
         $body = new BodyResponse();
         try {
@@ -155,24 +161,26 @@ abstract class BaseAccountRepository
                 return $body;
             }
 
-            if (array_key_exists('profile_photo_url', $data)) {
-                $older_file = UserProfile::where('user_id', Auth::user()->id)->first(['photo_url'])->photo_url;
-                $isDeleted = Storage::disk('public')->delete($older_file);
-                if (!$isDeleted) {
-                    // TODO: if not deleted create report
-                }
+            $account = $this->currentAccount();
+            if (!$account->has('profile')->exists()) UserProfile::create(['user_id' => $account->id]);
 
-                $filename = 'profile' . '_' . md5(time()) . '.' . $data['profile_photo_url']->getClientOriginalExtension();
-                $isUploaded = Storage::disk('public')->put('user/avatar/' . $filename, File::get($data['profile_photo_url']->getRealPath()));
-                if ($isUploaded) $data['profile_photo_url'] = 'user/avatar/' . $filename;
+            if (array_key_exists('profile_photo_url', $data)) {
+                $olderFile = UserProfile::where('user_id', Auth::user()->id)->first(['photo_url'])->photo_url;
+                if ($olderFile) Storage::disk('public')->delete($olderFile);
+
+                $fileName = $data['profile_photo_url']->hashName();
+                $filePath = 'user/' . $account->id . '/avatar/';
+                $isUploaded = Storage::disk('public')
+                    ->put($filePath . $fileName, File::get($data['profile_photo_url']->getRealPath()));
+                if ($isUploaded) $data['profile_photo_url'] = $filePath . $fileName;
             }
 
-            $account = $this->currentAccount();
             $account->fill($data);
-            $account->Profile->fill($this->filterProfileData($data));
             $account->save();
+            $account->profile->fill($this->filterProfileData($data));
+            $account->profile->save();
 
-            $body = $this->getProfile();
+            $body->setBodyData($account->with('profile')->first());
             $body->setBodyMessage($this->messageResponse['successUpdated']);
         } catch (\Throwable $th) {
             $body->setResponseError($th->getMessage());
@@ -182,9 +190,11 @@ abstract class BaseAccountRepository
 
     /**
      * Update authenticated user password
+     * 
+     * @param array $data Input array password has key password, current_password
      * @return BodyResponse 
      */
-    protected function updatePassword(array $data): BodyResponse
+    public function updatePassword(array $data): BodyResponse
     {
         $body = new BodyResponse();
         try {
@@ -193,11 +203,13 @@ abstract class BaseAccountRepository
                 $body->setResponseValidationError($validator->errors(), $this->messageResponseKey);
                 return $body;
             }
+
             $account = $this->currentAccount();
             if (!Hash::check($data['current_password'], $account->password)) {
                 $body->setResponseAuthFailed();
                 return $body;
             }
+
             $account->password = bcrypt($data['password']);
             $account->save();
 
@@ -208,6 +220,7 @@ abstract class BaseAccountRepository
         return $body;
     }
 
+    /** ================================= Support Function Below ================================= */
     /**
      * Remove profile name prefix from input key name
      * @param array $input Request input array
@@ -221,7 +234,6 @@ abstract class BaseAccountRepository
         }
         return $result;
     }
-
 
     private function ProfileRules(): array
     {
@@ -238,8 +250,8 @@ abstract class BaseAccountRepository
     private function AccountRules(): array
     {
         return [
-            'email' => ['required', 'email', 'unique:super_admins,email', 'unique:admins,email', 'unique:users,email'],
-            'username' => ['required', 'unique:super_admins,username',  'unique:admins,username',  'unique:users,username']
+            'email' => ['required', 'email', 'unique:users,email'],
+            'username' => ['required', 'unique:users,username']
         ];
     }
 

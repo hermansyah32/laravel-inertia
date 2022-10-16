@@ -61,9 +61,9 @@ class User extends Authenticatable
      * Profile relation
      * @return HasOne 
      */
-    public function Profile()
+    public function profile()
     {
-        return $this->hasOne(UserProfile::class, 'user_id');
+        return $this->hasOne(UserProfile::class, 'user_id', 'id');
     }
 
     /**
@@ -83,4 +83,21 @@ class User extends Authenticatable
     {
         $this->notify(new EmailVerification());
     }
+
+    // /**
+    //  * The "booted" method of the model.
+    //  *
+    //  * @return void
+    //  */
+    // protected static function booted()
+    // {
+    //     static::creating(function (User $user) {
+    //         try {
+    //             UserProfile::create(['user_id' => $user->id]);
+    //         } catch (\Throwable $th) {
+    //             echo ($th->getMessage());
+    //             return false;
+    //         }
+    //     });
+    // }
 }
