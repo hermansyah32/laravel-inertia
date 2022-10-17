@@ -73,11 +73,11 @@ abstract class BaseRepository extends BaseAccountRepository
      * @param Builder $query Eloquent Query Builder
      * @param string $column Field name
      * @param string $comp Search comparison keyword
-     * @param string|int|float|bool|array $val Search value
+     * @param string $val Search value
      * @param bool $withTrashed Included soft deleted record. Default is false
      * @return Builder
      */
-    protected function search(Builder $query, string $column, string $comparison, string|int|float|bool|array $value, bool $withTrashed = false): Builder
+    protected function search(Builder $query, string $column, string $comparison, string $value, bool $withTrashed = false): Builder
     {
         switch ($comparison) {
             case 'like':
@@ -100,7 +100,7 @@ abstract class BaseRepository extends BaseAccountRepository
                 else $query->orWhere($column, '=', $value);
                 break;
         }
-        if ($withTrashed) $query->withTrashed();
+        $query->withTrashed();
         return $query;
     }
 
@@ -277,11 +277,15 @@ abstract class BaseRepository extends BaseAccountRepository
     public function getTrashed(string $column, string|int|float $value): BodyResponse
     {
         $body = new BodyResponse();
-        $model = $this->findByTrashed($column, $value);
-        if (!$model) $body->setResponseNotFound($this->messageResponseKey);
+        try {
+            $model = $this->findByTrashed($column, $value);
+            if (!$model) $body->setResponseNotFound($this->messageResponseKey);
 
-        $body->setBodyMessage($this->messageResponse['successGetTrashed']);
-        $body->setBodyData($model);
+            $body->setBodyMessage($this->messageResponse['successGet']);
+            $body->setBodyData($model);
+        } catch (\Throwable $th) {
+            $body->setResponseError($th->getMessage());
+        }
         return $body;
     }
 
