@@ -129,7 +129,7 @@ class BodyResponse
 
     public function setPermissionDenied(string|null $message = null)
     {
-        $this->responseCode = ResponseCode::NOT_ACCEPTABLE;
+        $this->responseCode = ResponseCode::SERVER_ERROR;
         $this->responseStatus = ResponseStatus::BAD;
         $this->bodyMessage = $message ?? MessageResponse::getMessage('', 'failedUnauthorized');
     }

@@ -7,6 +7,12 @@ use App\Http\Response\BodyResponse;
 
 abstract class BaseController extends LaravelController
 {
+    /**
+     * Get permission rule
+     * @return object 
+     */
+    abstract function permissionRule();
+
     public function sendResponse(BodyResponse $body)
     {
         if (empty($body->getHeaderResponse()))

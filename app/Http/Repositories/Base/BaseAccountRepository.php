@@ -79,7 +79,7 @@ abstract class BaseAccountRepository
      * 
      * @return Authenticatable|\Illuminate\Database\Eloquent\Model
      */
-    protected function currentAccount(): Authenticatable|Model
+    public function currentAccount(): Authenticatable|Model
     {
         if (!Auth::user()) throw new AuthenticationException();
         return Auth::user();

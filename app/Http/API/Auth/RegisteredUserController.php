@@ -2,17 +2,20 @@
 
 namespace App\Http\API\Auth;
 
-use App\Http\Controllers\BaseController;
+use App\Http\Controllers\BaseController as Controller;
 use App\Http\Response\BodyResponse;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rules;
 
-class RegisteredUserController extends BaseController
+class RegisteredUserController extends Controller
 {
+
+    public function permissionRule()
+    {
+    }
     /**
      * Handle an incoming registration request.
      *

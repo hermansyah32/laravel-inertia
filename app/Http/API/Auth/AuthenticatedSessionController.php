@@ -2,20 +2,18 @@
 
 namespace App\Http\API\Auth;
 
-use App\Http\Controllers\BaseController;
+use App\Http\Controllers\BaseController as Controller;
 use App\Http\Response\BodyResponse;
 use App\Http\Response\ResponseCode;
 use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
-use Illuminate\Contracts\Validation\Validator as ValidationValidator;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
-class AuthenticatedSessionController extends BaseController
+class AuthenticatedSessionController extends Controller
 {
     /**
      * Login column type.
@@ -23,6 +21,8 @@ class AuthenticatedSessionController extends BaseController
      * @var string
      */
     protected $username;
+
+    public function permissionRule() { }
 
     /**
      * Attempt to authenticate the request's credentials.

@@ -1,24 +1,24 @@
 <?php
 
-namespace App\Http\API\Account;
+namespace App\Http\Controllers\API\Account;
 
 use App\Http\Controllers\BaseController as Controller;
-use App\Http\Repositories\UserRepository;
+use App\Http\Repositories\RoleRepository;
 use App\Http\Response\BodyResponse;
 use Exception;
 use Illuminate\Http\Request;
 
-class UserController extends Controller
+class RoleController extends Controller
 {
-    /** @var  UserRepository */
+    /** @var  RoleRepository */
     private $repository;
 
     /**
      * Class constructor
-     * @param UserRepository $repo 
+     * @param RoleRepository $repo 
      * @return void 
      */
-    public function __construct(UserRepository $repo)
+    public function __construct(RoleRepository $repo)
     {
         $this->repository = $repo;
     }
@@ -26,16 +26,15 @@ class UserController extends Controller
     public function permissionRule()
     {
         return ((object)[
-            'index' => 'can index users',
-            'indexTrashed' => 'can index trashed users',
-            'get' => 'can get users',
-            'getFull' => 'can get full users',
-            'getTrashed' => 'can get trashed users',
-            'update' => 'can update users',
-            'restore' => 'can restore users',
-            'destroy' => 'can destroy users',
-            'permanentDestroy' => 'can permanentDestroy users',
-            'reset' => 'can reset users'
+            'index' => 'can index roles',
+            'indexTrashed' => 'can index trashed roles',
+            'get' => 'can get roles',
+            'getFull' => 'can get full roles',
+            'getTrashed' => 'can get trashed roles',
+            'update' => 'can update roles',
+            'restore' => 'can restore roles',
+            'destroy' => 'can destroy roles',
+            'permanentDestroy' => 'can permanentDestroy roles',
         ]);
     }
 
@@ -66,8 +65,7 @@ class UserController extends Controller
 
     /**
      * Display a listing of the resource trashed.
-     *
-     * @return \Illuminate\Http\Response
+     ** @return \Illuminate\Http\Response
      */
     public function indexTrashed(Request $request)
     {
@@ -80,6 +78,7 @@ class UserController extends Controller
             $body->setPermissionDenied();
             return $body;
         }
+
         $order = $request->order ?? 'desc';
         $columns = $request->columns ?? ['*'];
         $count = $request->perPage ?? 0;
@@ -240,28 +239,6 @@ class UserController extends Controller
         }
 
         $result = $this->repository->permanentDeleteBy('id', $id);
-        return $this->sendResponse($result);
-    }
-
-    /**
-     * Reset the specified users.
-     *
-     * @param  int $id
-     * @return \Illuminate\Http\Response
-     */
-    public function reset(Request $request, int $id)
-    {
-        // Add permission checking
-        try {
-            if (!$request->user()->hashPermissionTo($this->permissionRule()->reset))
-                throw new Exception('Permission denied');
-        } catch (\Throwable $th) {
-            $body = new BodyResponse();
-            $body->setPermissionDenied();
-            return $body;
-        }
-
-        $result = $this->repository->reset('id', $id);
         return $this->sendResponse($result);
     }
 }
