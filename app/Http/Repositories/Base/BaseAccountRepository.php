@@ -111,6 +111,7 @@ class BaseAccountRepository
             $body->setBodyMessage(Lang::get('data.get', ['Data' => 'Profile']));
             $body->setBodyData($account->with('profile')->first());
         } catch (\Throwable $th) {
+            $body->setBodyMessage($this->messageResponse['failedError']);
             $body->setResponseError($th->getMessage());
         }
         return $body;
@@ -129,10 +130,8 @@ class BaseAccountRepository
         try {
             $data = ['email' => $email, 'username' => $username];
             $validator = Validator::make($data, $this->AccountRules());
-            if ($validator->fails()) {
+            if ($validator->fails())
                 $body->setResponseValidationError($validator->errors(), $this->messageResponseKey);
-                return $body;
-            }
 
             $account = $this->currentAccount();
             $account->fill($data);
@@ -141,6 +140,7 @@ class BaseAccountRepository
             $body->setBodyData($account);
             $body->setBodyMessage($this->messageResponse['successUpdated']);
         } catch (\Throwable $th) {
+            $body->setBodyMessage($this->messageResponse['failedError']);
             $body->setResponseError($th->getMessage());
         }
         return $body;
@@ -157,10 +157,9 @@ class BaseAccountRepository
         $body = new BodyResponse();
         try {
             $validator = Validator::make($data, $this->ProfileRules());
-            if ($validator->fails()) {
-                $body->setResponseValidationError($validator->errors(), $this->messageResponseKey);
-                return $body;
-            }
+            if ($validator->fails())
+                return $body->setResponseValidationError($validator->errors(), $this->messageResponseKey);
+
 
             $account = $this->currentAccount();
             if (!$account->has('profile')->exists()) UserProfile::create(['user_id' => $account->id]);
@@ -184,6 +183,7 @@ class BaseAccountRepository
             $body->setBodyData($account->with('profile')->first());
             $body->setBodyMessage($this->messageResponse['successUpdated']);
         } catch (\Throwable $th) {
+            $body->setBodyMessage($this->messageResponse['failedError']);
             $body->setResponseError($th->getMessage());
         }
         return $body;
@@ -200,22 +200,18 @@ class BaseAccountRepository
         $body = new BodyResponse();
         try {
             $validator =  Validator::make($data, $this->PasswordRules());
-            if ($validator->fails()) {
-                $body->setResponseValidationError($validator->errors(), $this->messageResponseKey);
-                return $body;
-            }
+            if ($validator->fails())
+                return $body->setResponseValidationError($validator->errors(), $this->messageResponseKey);
 
             $account = $this->currentAccount();
-            if (!Hash::check($data['current_password'], $account->password)) {
-                $body->setResponseAuthFailed();
-                return $body;
-            }
+            if (!Hash::check($data['current_password'], $account->password)) return $body->setResponseAuthFailed();
 
             $account->password = bcrypt($data['password']);
             $account->save();
 
             $body->setBodyMessage($this->messageResponse['successUpdated']);
         } catch (\Throwable $th) {
+            $body->setBodyMessage($this->messageResponse['failedError']);
             $body->setResponseError($th->getMessage());
         }
         return $body;

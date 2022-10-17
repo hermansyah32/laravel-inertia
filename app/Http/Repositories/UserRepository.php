@@ -80,7 +80,7 @@ class UserRepository extends BaseRepository
         try {
             $randomPassword = Str::random(8);
             $model = $this->findBy($column, $value);
-            if (!$model) $body->setResponseNotFound($this->messageResponseKey);
+            if (!$model) return $body->setResponseNotFound($this->messageResponseKey);
             if ($author) $this->insertAuthor(true, $model);
 
             $model->password = Hash::make($randomPassword);
@@ -88,6 +88,7 @@ class UserRepository extends BaseRepository
 
             $body->setBodyMessage($this->messageResponse['successUpdated']);
         } catch (\Throwable $th) {
+            $body->setBodyMessage($this->messageResponse['failedError']);
             $body->setResponseError($th->getMessage());
         }
         return $body;

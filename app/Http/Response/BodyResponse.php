@@ -99,39 +99,47 @@ class BodyResponse
         string $message = "Server error",
         ResponseCode $responseCode = ResponseCode::SERVER_ERROR,
         ResponseStatus $responseStatus = ResponseStatus::BAD,
-    ) {
+    ): BodyResponse {
         $this->bodyMessage = $message;
         $this->responseCode = $responseCode;
         $this->responseStatus = $responseStatus;
+        return $this;
     }
 
-    public function setResponseAuthFailed()
+    public function setResponseAuthFailed(): BodyResponse
     {
         $this->responseCode = ResponseCode::NOT_AUTHENTICATED;
         $this->responseStatus = ResponseStatus::BAD;
         $this->bodyMessage = Lang::get('auth.failed');
+        return $this;
     }
 
-    public function setResponseNotFound(string $messageKey = 'Data', string|null $message = '')
+    public function setResponseNotFound(string $messageKey = 'Data', string|null $message = ''): BodyResponse
     {
         $this->responseCode = ResponseCode::NOT_FOUND;
         $this->responseStatus = ResponseStatus::BAD;
-        $this->bodyMessage = $message ?? MessageResponse::getMessage($messageKey, 'failedNotFound');
+        $this->bodyMessage =  $message ?: MessageResponse::getMessage($messageKey, 'failedNotFound');
+        return $this;
     }
 
-    public function setResponseValidationError(array|MessageBag $errors, string $messageKey = 'Data', string|null $message = null)
-    {
+    public function setResponseValidationError(
+        array|MessageBag $errors,
+        string $messageKey = 'Data',
+        string|null $message = null
+    ): BodyResponse {
         $this->responseCode = ResponseCode::VALIDATION_ERROR;
         $this->responseStatus = ResponseStatus::BAD;
-        $this->bodyMessage = $message ?? $this->bodyMessage = MessageResponse::getMessage($messageKey, 'failedValidation');
+        $this->bodyMessage = $message ?: $this->bodyMessage = MessageResponse::getMessage($messageKey, 'failedValidation');
         $this->bodyData = $errors;
+        return $this;
     }
 
-    public function setPermissionDenied(string|null $message = null)
+    public function setPermissionDenied(string|null $message = null): BodyResponse
     {
         $this->responseCode = ResponseCode::SERVER_ERROR;
         $this->responseStatus = ResponseStatus::BAD;
-        $this->bodyMessage = $message ?? MessageResponse::getMessage('', 'failedUnauthorized');
+        $this->bodyMessage = $message ?: MessageResponse::getMessage('', 'failedPermission');
+        return $this;
     }
 
     public function getHeaderResponse(): array

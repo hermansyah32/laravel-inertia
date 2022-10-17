@@ -161,6 +161,7 @@ abstract class BaseRepository extends BaseAccountRepository
             $body->setBodyMessage($this->messageResponse['successGet']);
             $body->setBodyData($data);
         } catch (\Throwable $th) {
+            $body->setBodyMessage($this->messageResponse['failedError']);
             $body->setResponseError($th->getMessage());
         }
         return $body;
@@ -184,6 +185,7 @@ abstract class BaseRepository extends BaseAccountRepository
             $body->setBodyMessage($this->messageResponse['successGetTrashed']);
             $body->setBodyData($data);
         } catch (\Throwable $th) {
+            $body->setBodyMessage($this->messageResponse['failedError']);
             $body->setResponseError($th->getMessage());
         }
         return $body;
@@ -206,10 +208,8 @@ abstract class BaseRepository extends BaseAccountRepository
                 $this->createValidation()->messages,
                 $this->createValidation()->attributes
             );
-            if ($validator->fails()) {
-                $body->setResponseValidationError($validator->errors, $this->messageResponseKey);
-                return $body;
-            }
+            if ($validator->fails())
+                return $body->setResponseValidationError($validator->errors, $this->messageResponseKey);
 
             if ($author) $this->insertAuthor(true, $input);
 
@@ -218,6 +218,7 @@ abstract class BaseRepository extends BaseAccountRepository
             $body->setBodyMessage($this->messageResponse['successCreated']);
             $body->setBodyData($this->model);
         } catch (\Throwable $th) {
+            $body->setBodyMessage($this->messageResponse['failedError']);
             $body->setResponseError($th->getMessage());
         }
         return $body;
@@ -235,11 +236,12 @@ abstract class BaseRepository extends BaseAccountRepository
         $body = new BodyResponse();
         try {
             $model = $this->findBy($column, $value, true, true);
-            if (!$model) $body->setResponseNotFound($this->messageResponseKey);
+            if (!$model) return $body->setResponseNotFound($this->messageResponseKey);
 
             $body->setBodyMessage($this->messageResponse['successGet']);
             $body->setBodyData($model);
         } catch (\Throwable $th) {
+            $body->setBodyMessage($this->messageResponse['failedError']);
             $body->setResponseError($th->getMessage());
         }
         return $body;
@@ -257,11 +259,12 @@ abstract class BaseRepository extends BaseAccountRepository
         $body = new BodyResponse();
         try {
             $model = $this->findBy($column, $value);
-            if (!$model) $body->setResponseNotFound($this->messageResponseKey);
+            if (!$model) return $body->setResponseNotFound($this->messageResponseKey);
 
             $body->setBodyMessage($this->messageResponse['successGet']);
             $body->setBodyData($model);
         } catch (\Throwable $th) {
+            $body->setBodyMessage($this->messageResponse['failedError']);
             $body->setResponseError($th->getMessage());
         }
         return $body;
@@ -279,11 +282,12 @@ abstract class BaseRepository extends BaseAccountRepository
         $body = new BodyResponse();
         try {
             $model = $this->findByTrashed($column, $value);
-            if (!$model) $body->setResponseNotFound($this->messageResponseKey);
+            if (!$model) return $body->setResponseNotFound($this->messageResponseKey);
 
             $body->setBodyMessage($this->messageResponse['successGet']);
             $body->setBodyData($model);
         } catch (\Throwable $th) {
+            $body->setBodyMessage($this->messageResponse['failedError']);
             $body->setResponseError($th->getMessage());
         }
         return $body;
@@ -308,13 +312,12 @@ abstract class BaseRepository extends BaseAccountRepository
                 $this->updateValidation()->messages,
                 $this->updateValidation()->attributes
             );
-            if ($validator->fails()) {
-                $body->setResponseValidationError($validator->errors, $this->messageResponseKey);
-                return $body;
-            }
+            if ($validator->fails())
+                return $body->setResponseValidationError($validator->errors, $this->messageResponseKey);
+
 
             $model = $this->findBy($column, $value);
-            if (!$model) $body->setResponseNotFound($this->messageResponseKey);
+            if (!$model) return $body->setResponseNotFound($this->messageResponseKey);
             if ($author) $this->insertAuthor(true, $model);
 
             $model->fill($input);
@@ -323,6 +326,7 @@ abstract class BaseRepository extends BaseAccountRepository
             $body->setBodyMessage($this->messageResponse['successUpdated']);
             $body->setBodyData($model);
         } catch (\Throwable $th) {
+            $body->setBodyMessage($this->messageResponse['failedError']);
             $body->setResponseError($th->getMessage());
         }
         return $body;
@@ -341,7 +345,7 @@ abstract class BaseRepository extends BaseAccountRepository
         $body = new BodyResponse();
         try {
             $model = $this->findByTrashed($column, $value);
-            if (!$model) $body->setResponseNotFound($this->messageResponseKey);
+            if (!$model) return $body->setResponseNotFound($this->messageResponseKey);
             if ($author) $this->insertAuthor(true, $model);
 
             $model->restore();
@@ -349,6 +353,7 @@ abstract class BaseRepository extends BaseAccountRepository
             $body->setBodyData($model);
             $body->setBodyMessage($this->messageResponse['successRestored']);
         } catch (\Throwable $th) {
+            $body->setBodyMessage($this->messageResponse['failedError']);
             $body->setResponseError($th->getMessage());
         }
         return $body;
@@ -367,12 +372,13 @@ abstract class BaseRepository extends BaseAccountRepository
         $body = new BodyResponse();
         try {
             $model = $this->findBy($column, $value);
-            if (!$model) $body->setResponseNotFound($this->messageResponseKey);
+            if (!$model) return $body->setResponseNotFound($this->messageResponseKey);
             if ($author) $this->insertAuthor(false);
 
             $model->delete();
             $body->setBodyMessage($this->messageResponse['successDeleted']);
         } catch (\Throwable $th) {
+            $body->setBodyMessage($this->messageResponse['failedError']);
             $body->setResponseError($th->getMessage());
         }
         return $body;
@@ -389,14 +395,13 @@ abstract class BaseRepository extends BaseAccountRepository
     {
         $body = new BodyResponse();
         try {
-            $model = $this->findBy($column, $value);
-            if ($model === null) {
-                $body->setResponseNotFound($this->messageResponseKey);
-            } else {
-                $model->forceDelete();
-            }
+            $model = $this->findByTrashed($column, $value);
+            if (!$model)
+                return $body->setResponseNotFound($this->messageResponseKey);
+            $model->forceDelete();
             $body->setBodyMessage($this->messageResponse['successPermanentDeleted']);
         } catch (\Throwable $th) {
+            $body->setBodyMessage($this->messageResponse['failedError']);
             $body->setResponseError($th->getMessage());
         }
         return $body;

@@ -34,8 +34,10 @@ class MessageResponse
         self::$message['successReset'] = Lang::get('data.reset', ['Data' => $dataName]);
 
         self::$message['failedValidation'] = Lang::get('data.validation', ['Data' => $dataName]);
-        self::$message['failedNotFound'] = Lang::get('data.not-found', ['data' => Str::lower($dataName)]);
+        self::$message['failedNotFound'] = Lang::get('data.not_found', ['data' => Str::lower($dataName)]);
         self::$message['failedUnauthorized'] = Lang::get('data.unauthorized');
+        self::$message['failedPermission'] = Lang::get('data.permission_denied');
+        self::$message['failedError'] = Lang::get('data.error');
 
         if (!$messageKey) return self::$message;
 

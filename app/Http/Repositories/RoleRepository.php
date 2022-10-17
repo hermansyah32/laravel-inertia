@@ -18,7 +18,7 @@ class RoleRepository extends BaseRepository
      */
     public function __construct(Application $app)
     {
-        parent::__construct($app, Lang::get('data.user'));
+        parent::__construct($app, Lang::get('data.roles'));
     }
 
     /**
