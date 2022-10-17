@@ -23,9 +23,9 @@ class AuthenticatedSessionController extends Controller
      */
     protected $username;
 
-    public function permissionRule()
-    {
-    }
+    // Not sued in authentication controller
+    public function checkPermission($rule) { }
+    public function permissionRule(){} 
 
     /**
      * Attempt to authenticate the request's credentials.

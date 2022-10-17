@@ -1,10 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\API\Account;
+namespace App\Http\API\Account;
 
 use App\Http\Controllers\BaseController as Controller;
 use App\Http\Repositories\RoleRepository;
 use App\Http\Response\BodyResponse;
+use App\Models\Role;
+use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 
@@ -23,18 +25,32 @@ class RoleController extends Controller
         $this->repository = $repo;
     }
 
+    public function checkPermission($rule)
+    {
+        try {
+            if (!$this->repository->currentAccount()
+                ->hasPermissionTo($rule))
+                throw new Exception('Permission denied');
+        } catch (\Throwable $th) {
+            $body = new BodyResponse();
+            $body->setPermissionDenied();
+            return $this->sendResponse($body);
+        }
+    }
+
     public function permissionRule()
     {
         return ((object)[
             'index' => 'can index roles',
             'indexTrashed' => 'can index trashed roles',
-            'get' => 'can get roles',
-            'getFull' => 'can get full roles',
-            'getTrashed' => 'can get trashed roles',
+            'show' => 'can show roles',
+            'showFull' => 'can show full roles',
+            'showTrashed' => 'can show trashed roles',
+            'store' => 'can store roles',
             'update' => 'can update roles',
             'restore' => 'can restore roles',
             'destroy' => 'can destroy roles',
-            'permanentDestroy' => 'can permanentDestroy roles',
+            'permanentDestroy' => 'can permanent destroy roles',
         ]);
     }
 
@@ -46,15 +62,7 @@ class RoleController extends Controller
      */
     public function index(Request $request)
     {
-        // Add permission checking
-        try {
-            if (!$request->user()->hashPermissionTo($this->permissionRule()->index))
-                throw new Exception('Permission denied');
-        } catch (\Throwable $th) {
-            $body = new BodyResponse();
-            $body->setPermissionDenied();
-            return $body;
-        }
+        $this->checkPermission($this->permissionRule()->index);
 
         $order = $request->order ?? 'desc';
         $columns = $request->columns ?? ['*'];
@@ -70,14 +78,7 @@ class RoleController extends Controller
     public function indexTrashed(Request $request)
     {
         // Add permission checking
-        try {
-            if (!$request->user()->hashPermissionTo($this->permissionRule()->indexTrashed))
-                throw new Exception('Permission denied');
-        } catch (\Throwable $th) {
-            $body = new BodyResponse();
-            $body->setPermissionDenied();
-            return $body;
-        }
+        $this->checkPermission($this->permissionRule()->indexTrashed);
 
         $order = $request->order ?? 'desc';
         $columns = $request->columns ?? ['*'];
@@ -94,15 +95,7 @@ class RoleController extends Controller
      */
     public function store(Request $request)
     {
-        // Add permission checking
-        try {
-            if (!$request->user()->hashPermissionTo($this->permissionRule()->store))
-                throw new Exception('Permission denied');
-        } catch (\Throwable $th) {
-            $body = new BodyResponse();
-            $body->setPermissionDenied();
-            return $body;
-        }
+        $this->checkPermission($this->permissionRule()->store);
 
         $result = $this->repository->create($request->all());
         return $this->sendResponse($result);
@@ -116,15 +109,7 @@ class RoleController extends Controller
      */
     public function show(Request $request, int $id)
     {
-        // Add permission checking
-        try {
-            if (!$request->user()->hashPermissionTo($this->permissionRule()->show))
-                throw new Exception('Permission denied');
-        } catch (\Throwable $th) {
-            $body = new BodyResponse();
-            $body->setPermissionDenied();
-            return $body;
-        }
+        $this->checkPermission($this->permissionRule()->show);
 
         $result = $this->repository->get('id', $id);
         return $this->sendResponse($result);
@@ -138,15 +123,7 @@ class RoleController extends Controller
      */
     public function showTrashed(Request $request, int $id)
     {
-        // Add permission checking
-        try {
-            if (!$request->user()->hashPermissionTo($this->permissionRule()->showTrashed))
-                throw new Exception('Permission denied');
-        } catch (\Throwable $th) {
-            $body = new BodyResponse();
-            $body->setPermissionDenied();
-            return $body;
-        }
+        $this->checkPermission($this->permissionRule()->showTrashed);
 
         $result = $this->repository->getTrashed('id', $id);
         return $this->sendResponse($result);
@@ -161,15 +138,7 @@ class RoleController extends Controller
      */
     public function update(Request $request, int $id)
     {
-        // Add permission checking
-        try {
-            if (!$request->user()->hashPermissionTo($this->permissionRule()->update))
-                throw new Exception('Permission denied');
-        } catch (\Throwable $th) {
-            $body = new BodyResponse();
-            $body->setPermissionDenied();
-            return $body;
-        }
+        $this->checkPermission($this->permissionRule()->update);
 
         $result = $this->repository->updateBy($request->all(), 'id', $id);
         return $this->sendResponse($result);
@@ -184,15 +153,7 @@ class RoleController extends Controller
      */
     public function restore(Request $request, int $id)
     {
-        // Add permission checking
-        try {
-            if (!$request->user()->hashPermissionTo($this->permissionRule()->restore))
-                throw new Exception('Permission denied');
-        } catch (\Throwable $th) {
-            $body = new BodyResponse();
-            $body->setPermissionDenied();
-            return $body;
-        }
+        $this->checkPermission($this->permissionRule()->restore);
 
         $result = $this->repository->restoreBy('id', $id);
         return $this->sendResponse($result);
@@ -206,15 +167,7 @@ class RoleController extends Controller
      */
     public function destroy(Request $request, int $id)
     {
-        // Add permission checking
-        try {
-            if (!$request->user()->hashPermissionTo($this->permissionRule()->destroy))
-                throw new Exception('Permission denied');
-        } catch (\Throwable $th) {
-            $body = new BodyResponse();
-            $body->setPermissionDenied();
-            return $body;
-        }
+        $this->checkPermission($this->permissionRule()->destroy);
 
         $result = $this->repository->deleteBy('id', $id);
         return $this->sendResponse($result);
@@ -228,15 +181,7 @@ class RoleController extends Controller
      */
     public function permanentDestroy(Request $request, int $id)
     {
-        // Add permission checking
-        try {
-            if (!$request->user()->hashPermissionTo($this->permissionRule()->permanentDestroy))
-                throw new Exception('Permission denied');
-        } catch (\Throwable $th) {
-            $body = new BodyResponse();
-            $body->setPermissionDenied();
-            return $body;
-        }
+        $this->checkPermission($this->permissionRule()->permanentDestroy);
 
         $result = $this->repository->permanentDeleteBy('id', $id);
         return $this->sendResponse($result);

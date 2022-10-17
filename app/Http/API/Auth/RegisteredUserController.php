@@ -14,9 +14,10 @@ use Illuminate\Support\Facades\Validator;
 class RegisteredUserController extends Controller
 {
 
-    public function permissionRule()
-    {
-    }
+    // Not sued in authentication controller
+    public function checkPermission($rule) { }
+    public function permissionRule(){} 
+    
     /**
      * Handle an incoming registration request.
      *

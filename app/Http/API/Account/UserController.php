@@ -23,6 +23,19 @@ class UserController extends Controller
         $this->repository = $repo;
     }
 
+    public function checkPermission($rule)
+    {
+        try {
+            if (!$this->repository->currentAccount()
+                ->hasPermissionTo($rule))
+                throw new Exception('Permission denied');
+        } catch (\Throwable $th) {
+            $body = new BodyResponse();
+            $body->setPermissionDenied();
+            return $this->sendResponse($body);
+        }
+    }
+
     public function permissionRule()
     {
         return ((object)[
@@ -34,7 +47,7 @@ class UserController extends Controller
             'update' => 'can update users',
             'restore' => 'can restore users',
             'destroy' => 'can destroy users',
-            'permanentDestroy' => 'can permanentDestroy users',
+            'permanentDestroy' => 'can permanent destroy users',
             'reset' => 'can reset users'
         ]);
     }
@@ -47,15 +60,7 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        // Add permission checking
-        try {
-            if (!$request->user()->hashPermissionTo($this->permissionRule()->index))
-                throw new Exception('Permission denied');
-        } catch (\Throwable $th) {
-            $body = new BodyResponse();
-            $body->setPermissionDenied();
-            return $body;
-        }
+        $this->checkPermission($this->permissionRule()->index);
 
         $order = $request->order ?? 'desc';
         $columns = $request->columns ?? ['*'];
@@ -71,15 +76,8 @@ class UserController extends Controller
      */
     public function indexTrashed(Request $request)
     {
-        // Add permission checking
-        try {
-            if (!$request->user()->hashPermissionTo($this->permissionRule()->indexTrashed))
-                throw new Exception('Permission denied');
-        } catch (\Throwable $th) {
-            $body = new BodyResponse();
-            $body->setPermissionDenied();
-            return $body;
-        }
+        $this->checkPermission($this->permissionRule()->indexTrashed);
+
         $order = $request->order ?? 'desc';
         $columns = $request->columns ?? ['*'];
         $count = $request->perPage ?? 0;
@@ -95,15 +93,7 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        // Add permission checking
-        try {
-            if (!$request->user()->hashPermissionTo($this->permissionRule()->store))
-                throw new Exception('Permission denied');
-        } catch (\Throwable $th) {
-            $body = new BodyResponse();
-            $body->setPermissionDenied();
-            return $body;
-        }
+        $this->checkPermission($this->permissionRule()->store);
 
         $result = $this->repository->create($request->all());
         return $this->sendResponse($result);
@@ -117,15 +107,7 @@ class UserController extends Controller
      */
     public function show(Request $request, int $id)
     {
-        // Add permission checking
-        try {
-            if (!$request->user()->hashPermissionTo($this->permissionRule()->show))
-                throw new Exception('Permission denied');
-        } catch (\Throwable $th) {
-            $body = new BodyResponse();
-            $body->setPermissionDenied();
-            return $body;
-        }
+        $this->checkPermission($this->permissionRule()->show);
 
         $result = $this->repository->get('id', $id);
         return $this->sendResponse($result);
@@ -139,15 +121,7 @@ class UserController extends Controller
      */
     public function showTrashed(Request $request, int $id)
     {
-        // Add permission checking
-        try {
-            if (!$request->user()->hashPermissionTo($this->permissionRule()->showTrashed))
-                throw new Exception('Permission denied');
-        } catch (\Throwable $th) {
-            $body = new BodyResponse();
-            $body->setPermissionDenied();
-            return $body;
-        }
+        $this->checkPermission($this->permissionRule()->showTrashed);
 
         $result = $this->repository->getTrashed('id', $id);
         return $this->sendResponse($result);
@@ -162,15 +136,7 @@ class UserController extends Controller
      */
     public function update(Request $request, int $id)
     {
-        // Add permission checking
-        try {
-            if (!$request->user()->hashPermissionTo($this->permissionRule()->update))
-                throw new Exception('Permission denied');
-        } catch (\Throwable $th) {
-            $body = new BodyResponse();
-            $body->setPermissionDenied();
-            return $body;
-        }
+        $this->checkPermission($this->permissionRule()->update);
 
         $result = $this->repository->updateBy($request->all(), 'id', $id);
         return $this->sendResponse($result);
@@ -185,15 +151,7 @@ class UserController extends Controller
      */
     public function restore(Request $request, int $id)
     {
-        // Add permission checking
-        try {
-            if (!$request->user()->hashPermissionTo($this->permissionRule()->restore))
-                throw new Exception('Permission denied');
-        } catch (\Throwable $th) {
-            $body = new BodyResponse();
-            $body->setPermissionDenied();
-            return $body;
-        }
+        $this->checkPermission($this->permissionRule()->restore);
 
         $result = $this->repository->restoreBy('id', $id);
         return $this->sendResponse($result);
@@ -207,15 +165,7 @@ class UserController extends Controller
      */
     public function destroy(Request $request, int $id)
     {
-        // Add permission checking
-        try {
-            if (!$request->user()->hashPermissionTo($this->permissionRule()->destroy))
-                throw new Exception('Permission denied');
-        } catch (\Throwable $th) {
-            $body = new BodyResponse();
-            $body->setPermissionDenied();
-            return $body;
-        }
+        $this->checkPermission($this->permissionRule()->destroy);
 
         $result = $this->repository->deleteBy('id', $id);
         return $this->sendResponse($result);
@@ -229,15 +179,7 @@ class UserController extends Controller
      */
     public function permanentDestroy(Request $request, int $id)
     {
-        // Add permission checking
-        try {
-            if (!$request->user()->hashPermissionTo($this->permissionRule()->permanentDestroy))
-                throw new Exception('Permission denied');
-        } catch (\Throwable $th) {
-            $body = new BodyResponse();
-            $body->setPermissionDenied();
-            return $body;
-        }
+        $this->checkPermission($this->permissionRule()->permanentDestroy);
 
         $result = $this->repository->permanentDeleteBy('id', $id);
         return $this->sendResponse($result);
@@ -251,15 +193,7 @@ class UserController extends Controller
      */
     public function reset(Request $request, int $id)
     {
-        // Add permission checking
-        try {
-            if (!$request->user()->hashPermissionTo($this->permissionRule()->reset))
-                throw new Exception('Permission denied');
-        } catch (\Throwable $th) {
-            $body = new BodyResponse();
-            $body->setPermissionDenied();
-            return $body;
-        }
+        $this->checkPermission($this->permissionRule()->reset);
 
         $result = $this->repository->reset('id', $id);
         return $this->sendResponse($result);

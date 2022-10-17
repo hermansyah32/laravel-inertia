@@ -21,9 +21,9 @@ class ProfileController extends Controller
         $this->repository = $repo;
     }
 
-    public function permissionRule()
-    {
-    }
+    // Not sued in authentication controller
+    public function checkPermission($rule) { }
+    public function permissionRule(){} 
 
     /**
      * Display the specified resource.

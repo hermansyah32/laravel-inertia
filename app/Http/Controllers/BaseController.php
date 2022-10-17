@@ -13,6 +13,8 @@ abstract class BaseController extends LaravelController
      */
     abstract function permissionRule();
 
+    abstract function checkPermission($rule);
+
     public function sendResponse(BodyResponse $body)
     {
         if (empty($body->getHeaderResponse()))
