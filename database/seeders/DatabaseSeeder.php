@@ -28,19 +28,19 @@ class DatabaseSeeder extends Seeder
                 'password' => bcrypt('password'),
             ]);
         }
-        $role = Role::find(1);
-        $user->assignRole([$role->id]);
+        $user->assignRole([1]); // Role as admin
 
         /** User with user role */
         $users = User::factory(100)->make();
         foreach ($users as $user) {
             $this->createUser($user);
+            $user->assignRole([3]); // Role as user
         }
     }
 
     private function createUser($data = null)
     {
-        if ($data === null) $data = User::factory(1)->make()[0];
+        if (!$data) $data = User::factory(1)->make()[0];
         try {
             $data->save();
         } catch (\Illuminate\Database\QueryException $e) {

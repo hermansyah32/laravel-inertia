@@ -29,7 +29,7 @@ class RolesPermissionsSeeder extends Seeder
             'update' => 'can update users',
             'restore' => 'can restore users',
             'destroy' => 'can destroy users',
-            'permanentDestroy' => 'can permanentDestroy users',
+            'permanentDestroy' => 'can permanent destroy users',
             'reset' => 'can reset users',
         ];
         foreach ($userPermissions as $permission) {
@@ -48,7 +48,7 @@ class RolesPermissionsSeeder extends Seeder
             'update' => 'can update roles',
             'restore' => 'can restore roles',
             'destroy' => 'can destroy roles',
-            'permanentDestroy' => 'can permanentDestroy roles',
+            'permanentDestroy' => 'can permanent destroy roles',
         ];
         foreach ($rolePermissions as $permission) {
             $permission = Permission::firstOrCreate(['name' => $permission]);
