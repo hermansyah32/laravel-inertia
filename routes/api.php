@@ -13,6 +13,7 @@
 
 use App\Http\API\Account\ProfileController;
 use App\Http\API\Account\UserController;
+use App\Http\API\Account\RoleController;
 use Illuminate\Support\Facades\Route;
 
 require __DIR__ . '/authapi.php';
@@ -21,8 +22,9 @@ Route::middleware('auth:sanctum')->group(function () {
     /**============================= Account Profile ============================================== */
     Route::get('account', [ProfileController::class, 'show'])
         ->name('api.account.show');
-    Route::match(['put', 'patch'], 'account', [ProfileController::class, 'update'])
-        ->name('api.account.update');
+    /** Update account is not complete yet */
+    // Route::match(['put', 'patch'], 'account', [ProfileController::class, 'update'])
+    //     ->name('api.account.update');
     Route::match(['put', 'patch'], 'account/profile', [ProfileController::class, 'updateProfile'])
         ->name('api.account.profile');
     Route::match(['put', 'patch'], 'account/password', [ProfileController::class, 'updatePassword'])
