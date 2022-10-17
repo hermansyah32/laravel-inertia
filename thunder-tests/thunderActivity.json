@@ -1,0 +1,35 @@
+[
+  {
+    "_id": "73fa6b39-be31-432d-aaba-3779ebafa115",
+    "colId": "history",
+    "containerId": "",
+    "name": "Auth Login",
+    "url": "http://localhost/inertia/api/login",
+    "method": "POST",
+    "sortNum": 0,
+    "created": "2022-10-08T03:10:58.173Z",
+    "modified": "2022-10-08T09:34:29.174Z",
+    "headers": [
+      {
+        "name": "Accept",
+        "value": "application/json"
+      }
+    ],
+    "params": [],
+    "body": {
+      "type": "formencoded",
+      "raw": "",
+      "form": [
+        {
+          "name": "login",
+          "value": "me@hermansyah.dev"
+        },
+        {
+          "name": "password",
+          "value": "password"
+        }
+      ]
+    },
+    "tests": []
+  }
+]

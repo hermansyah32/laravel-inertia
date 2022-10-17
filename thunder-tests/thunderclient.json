@@ -1,0 +1,705 @@
+[
+  {
+    "_id": "8b0fed30-e7be-455e-bd59-ad64282511a5",
+    "colId": "5d0f8bfa-bde4-421b-82bc-8bceaa8f5b8d",
+    "containerId": "",
+    "name": "Auth Login",
+    "url": "http://localhost/inertia/api/auth/login",
+    "method": "POST",
+    "sortNum": 10000,
+    "created": "2022-10-08T09:36:00.738Z",
+    "modified": "2022-10-15T03:17:45.791Z",
+    "headers": [
+      {
+        "name": "Content-Type",
+        "value": "application/json"
+      },
+      {
+        "name": "Accept",
+        "value": "application/json"
+      }
+    ],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"login\": \"me@hermansyah.dev\",\n  \"password\": \"password\",\n  \"device_name\": \"Mobile Test\"\n}",
+      "form": []
+    },
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "200"
+      },
+      {
+        "type": "json-query",
+        "custom": "json.body.data.token",
+        "action": "istype",
+        "value": "string"
+      },
+      {
+        "type": "set-env-var",
+        "custom": "json.body.data.token",
+        "action": "setto",
+        "value": "{{access_token}}"
+      }
+    ]
+  },
+  {
+    "_id": "0fe4f077-62c8-4c43-aeb5-d91cb8fe7af3",
+    "colId": "5d0f8bfa-bde4-421b-82bc-8bceaa8f5b8d",
+    "containerId": "",
+    "name": "Auth Logout",
+    "url": "http://localhost/inertia/api/auth/logout",
+    "method": "POST",
+    "sortNum": 20000,
+    "created": "2022-10-08T10:38:18.855Z",
+    "modified": "2022-10-15T03:17:48.949Z",
+    "headers": [
+      {
+        "name": "Content-Type",
+        "value": "application/json"
+      },
+      {
+        "name": "Accept",
+        "value": "application/json"
+      }
+    ],
+    "params": [],
+    "auth": {
+      "type": "bearer",
+      "bearer": "{{access_token}}"
+    },
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "200"
+      }
+    ]
+  },
+  {
+    "_id": "746373f5-53de-4670-b72c-caa78337adb1",
+    "colId": "5d0f8bfa-bde4-421b-82bc-8bceaa8f5b8d",
+    "containerId": "",
+    "name": "Auth Reissue Token",
+    "url": "http://localhost/inertia/api/auth/token/refresh",
+    "method": "POST",
+    "sortNum": 30000,
+    "created": "2022-10-15T02:52:40.984Z",
+    "modified": "2022-10-15T03:51:18.285Z",
+    "headers": [
+      {
+        "name": "Content-Type",
+        "value": "application/json"
+      },
+      {
+        "name": "Accept",
+        "value": "application/json"
+      }
+    ],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"device_name\" : \"Mobile Test\"\n}",
+      "form": []
+    },
+    "auth": {
+      "type": "bearer",
+      "bearer": "{{access_token}}"
+    },
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "200"
+      }
+    ],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "8b0fed30-e7be-455e-bd59-ad64282511a5",
+          "colId": "5d0f8bfa-bde4-421b-82bc-8bceaa8f5b8d",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "a1383b0a-a01a-4b89-806d-32d857c7b9e5",
+    "colId": "5d0f8bfa-bde4-421b-82bc-8bceaa8f5b8d",
+    "containerId": "",
+    "name": "Auth Register",
+    "url": "http://localhost/inertia/api/auth/register",
+    "method": "POST",
+    "sortNum": 40000,
+    "created": "2022-10-15T03:53:05.706Z",
+    "modified": "2022-10-15T03:57:04.871Z",
+    "headers": [
+      {
+        "name": "Accept",
+        "value": "application/json"
+      },
+      {
+        "name": "Content-Type",
+        "value": "application/json"
+      }
+    ],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"name\": \"Hermansyah\",\n  \"email\": \"herman.piliang23@gmail.com\",\n  \"password\": \"password\",\n  \"device_name\": \"Mobile Test\"\n}",
+      "form": []
+    },
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "200"
+      }
+    ]
+  },
+  {
+    "_id": "34838724-37ee-486e-89fa-01304b983573",
+    "colId": "f7b83f36-f350-4e81-b369-a3763f6741bc",
+    "containerId": "",
+    "name": "Profile",
+    "url": "http://localhost/inertia/api/account",
+    "method": "GET",
+    "sortNum": 10000,
+    "created": "2022-10-17T03:36:30.886Z",
+    "modified": "2022-10-17T03:37:37.770Z",
+    "headers": [
+      {
+        "name": "Accept",
+        "value": "application/json"
+      },
+      {
+        "name": "Content-Type",
+        "value": "application/json"
+      }
+    ],
+    "params": [],
+    "auth": {
+      "type": "bearer",
+      "bearer": "{{access_token}}"
+    },
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "200"
+      }
+    ],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "8b0fed30-e7be-455e-bd59-ad64282511a5",
+          "colId": "5d0f8bfa-bde4-421b-82bc-8bceaa8f5b8d",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "b8db9892-236b-4e3f-b7f9-822637ebcafb",
+    "colId": "f7b83f36-f350-4e81-b369-a3763f6741bc",
+    "containerId": "",
+    "name": "Account Update [Not Working Yet]",
+    "url": "http://localhost/inertia/api/account",
+    "method": "PUT",
+    "sortNum": 20000,
+    "created": "2022-10-17T03:40:18.585Z",
+    "modified": "2022-10-17T03:54:53.178Z",
+    "headers": [
+      {
+        "name": "Accept",
+        "value": "application/json"
+      },
+      {
+        "name": "Content-Type",
+        "value": "application/json"
+      }
+    ],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"email\": \"me@hermansyah.dev\",\n  \"username\": \"hermansyah.dev\"\n}",
+      "form": []
+    },
+    "auth": {
+      "type": "bearer",
+      "bearer": "{{access_token}}"
+    },
+    "tests": [],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "8b0fed30-e7be-455e-bd59-ad64282511a5",
+          "colId": "5d0f8bfa-bde4-421b-82bc-8bceaa8f5b8d",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "601d02eb-a5a8-4c7c-baca-490a327e85a8",
+    "colId": "f7b83f36-f350-4e81-b369-a3763f6741bc",
+    "containerId": "",
+    "name": "Profile Update",
+    "url": "http://localhost/inertia/api/account/profile",
+    "method": "PUT",
+    "sortNum": 30000,
+    "created": "2022-10-17T03:55:05.932Z",
+    "modified": "2022-10-17T06:03:23.679Z",
+    "headers": [
+      {
+        "name": "Accept",
+        "value": "application/json"
+      }
+    ],
+    "params": [],
+    "body": {
+      "type": "formencoded",
+      "raw": "",
+      "form": [
+        {
+          "name": "name",
+          "value": "Hermansyah - Edited"
+        },
+        {
+          "name": "profile_gender",
+          "value": "male"
+        },
+        {
+          "name": "profile_birthday",
+          "value": "1996-03-23"
+        },
+        {
+          "name": "profile_address",
+          "value": "Jl. Teluk Betung Binjai"
+        }
+      ]
+    },
+    "auth": {
+      "type": "bearer",
+      "bearer": "{{access_token}}"
+    },
+    "tests": [],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "8b0fed30-e7be-455e-bd59-ad64282511a5",
+          "colId": "5d0f8bfa-bde4-421b-82bc-8bceaa8f5b8d",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "9a353e1a-afb9-4b3b-9f52-bc7fcb43e47d",
+    "colId": "f7b83f36-f350-4e81-b369-a3763f6741bc",
+    "containerId": "",
+    "name": "Password Update",
+    "url": "http://localhost/inertia/api/account/password",
+    "method": "PUT",
+    "sortNum": 40000,
+    "created": "2022-10-17T03:56:40.534Z",
+    "modified": "2022-10-17T05:59:37.435Z",
+    "headers": [
+      {
+        "name": "Accept",
+        "value": "application/json"
+      },
+      {
+        "name": "Content-Type",
+        "value": "application/json"
+      }
+    ],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"current_password\": \"password\",\n  \"password\": \"password1\",\n  \"confirm_password\": \"password1\"\n}",
+      "form": []
+    },
+    "auth": {
+      "type": "bearer",
+      "bearer": "{{access_token}}"
+    },
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "200"
+      }
+    ],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "8b0fed30-e7be-455e-bd59-ad64282511a5",
+          "colId": "5d0f8bfa-bde4-421b-82bc-8bceaa8f5b8d",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "69624792-dadf-49b7-8c9b-d8fe4be3e975",
+    "colId": "509663a0-9908-43fd-bb89-77a4b8f83f3a",
+    "containerId": "",
+    "name": "Index",
+    "url": "http://localhost/inertia/api/roles",
+    "method": "GET",
+    "sortNum": 10000,
+    "created": "2022-10-17T06:30:02.039Z",
+    "modified": "2022-10-17T06:31:36.931Z",
+    "headers": [
+      {
+        "name": "Accept",
+        "value": "application/json"
+      },
+      {
+        "name": "Content-Type",
+        "value": "application/json"
+      }
+    ],
+    "params": [],
+    "auth": {
+      "type": "bearer",
+      "bearer": "{{access_token}}"
+    },
+    "tests": [],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "8b0fed30-e7be-455e-bd59-ad64282511a5",
+          "colId": "5d0f8bfa-bde4-421b-82bc-8bceaa8f5b8d",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "ec87e83a-0862-400c-80da-ac23cd63ac45",
+    "colId": "509663a0-9908-43fd-bb89-77a4b8f83f3a",
+    "containerId": "",
+    "name": "Index Trashed",
+    "url": "http://localhost/inertia/api/trashed/roles",
+    "method": "GET",
+    "sortNum": 20000,
+    "created": "2022-10-17T07:57:13.922Z",
+    "modified": "2022-10-17T07:57:40.957Z",
+    "headers": [
+      {
+        "name": "Accept",
+        "value": "application/json"
+      },
+      {
+        "name": "Content-Type",
+        "value": "application/json"
+      }
+    ],
+    "params": [],
+    "auth": {
+      "type": "bearer",
+      "bearer": "{{access_token}}"
+    },
+    "tests": [],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "8b0fed30-e7be-455e-bd59-ad64282511a5",
+          "colId": "5d0f8bfa-bde4-421b-82bc-8bceaa8f5b8d",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "ec000b17-b55a-4c10-a184-9e59f8e0f007",
+    "colId": "509663a0-9908-43fd-bb89-77a4b8f83f3a",
+    "containerId": "",
+    "name": "Show",
+    "url": "http://localhost/inertia/api/roles/4",
+    "method": "GET",
+    "sortNum": 30000,
+    "created": "2022-10-17T07:58:05.114Z",
+    "modified": "2022-10-17T08:23:18.451Z",
+    "headers": [
+      {
+        "name": "Accept",
+        "value": "application/json"
+      },
+      {
+        "name": "Content-Type",
+        "value": "application/json"
+      }
+    ],
+    "params": [],
+    "auth": {
+      "type": "bearer",
+      "bearer": "{{access_token}}"
+    },
+    "tests": [],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "8b0fed30-e7be-455e-bd59-ad64282511a5",
+          "colId": "5d0f8bfa-bde4-421b-82bc-8bceaa8f5b8d",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "bb965fd8-4c9a-414e-a511-7a071e8b45b7",
+    "colId": "509663a0-9908-43fd-bb89-77a4b8f83f3a",
+    "containerId": "",
+    "name": "Show Trashed",
+    "url": "http://localhost/inertia/api/trashed/roles/4",
+    "method": "GET",
+    "sortNum": 38125,
+    "created": "2022-10-17T08:00:02.306Z",
+    "modified": "2022-10-17T08:23:42.266Z",
+    "headers": [
+      {
+        "name": "Accept",
+        "value": "application/json"
+      },
+      {
+        "name": "Content-Type",
+        "value": "application/json"
+      }
+    ],
+    "params": [],
+    "auth": {
+      "type": "bearer",
+      "bearer": "{{access_token}}"
+    },
+    "tests": [],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "8b0fed30-e7be-455e-bd59-ad64282511a5",
+          "colId": "5d0f8bfa-bde4-421b-82bc-8bceaa8f5b8d",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "149b3bc6-65d2-48fa-a38a-358601ca4d98",
+    "colId": "509663a0-9908-43fd-bb89-77a4b8f83f3a",
+    "containerId": "",
+    "name": "Store",
+    "url": "http://localhost/inertia/api/roles",
+    "method": "POST",
+    "sortNum": 25000,
+    "created": "2022-10-17T08:17:20.814Z",
+    "modified": "2022-10-17T08:23:14.586Z",
+    "headers": [
+      {
+        "name": "Accept",
+        "value": "application/json"
+      },
+      {
+        "name": "Content-Type",
+        "value": "application/json"
+      }
+    ],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"name\": \"Role ABC\"\n}",
+      "form": []
+    },
+    "auth": {
+      "type": "bearer",
+      "bearer": "{{access_token}}"
+    },
+    "tests": [],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "8b0fed30-e7be-455e-bd59-ad64282511a5",
+          "colId": "5d0f8bfa-bde4-421b-82bc-8bceaa8f5b8d",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "366fadf7-233b-4a99-ac3f-972302a7b392",
+    "colId": "509663a0-9908-43fd-bb89-77a4b8f83f3a",
+    "containerId": "",
+    "name": "Update",
+    "url": "http://localhost/inertia/api/roles/4",
+    "method": "PUT",
+    "sortNum": 35000,
+    "created": "2022-10-17T08:18:26.526Z",
+    "modified": "2022-10-17T08:23:24.969Z",
+    "headers": [
+      {
+        "name": "Accept",
+        "value": "application/json"
+      },
+      {
+        "name": "Content-Type",
+        "value": "application/json"
+      }
+    ],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"name\": \"Role BCA\"\n}",
+      "form": []
+    },
+    "auth": {
+      "type": "bearer",
+      "bearer": "{{access_token}}"
+    },
+    "tests": [],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "8b0fed30-e7be-455e-bd59-ad64282511a5",
+          "colId": "5d0f8bfa-bde4-421b-82bc-8bceaa8f5b8d",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "25b11307-d06b-45c3-8554-b31804b067cc",
+    "colId": "509663a0-9908-43fd-bb89-77a4b8f83f3a",
+    "containerId": "",
+    "name": "Destroy",
+    "url": "http://localhost/inertia/api/roles/4",
+    "method": "DELETE",
+    "sortNum": 37500,
+    "created": "2022-10-17T08:18:28.533Z",
+    "modified": "2022-10-17T08:23:30.572Z",
+    "headers": [
+      {
+        "name": "Accept",
+        "value": "application/json"
+      },
+      {
+        "name": "Content-Type",
+        "value": "application/json"
+      }
+    ],
+    "params": [],
+    "auth": {
+      "type": "bearer",
+      "bearer": "{{access_token}}"
+    },
+    "tests": [],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "8b0fed30-e7be-455e-bd59-ad64282511a5",
+          "colId": "5d0f8bfa-bde4-421b-82bc-8bceaa8f5b8d",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "54aad863-0fd8-49d7-b28a-3ef360e9bdef",
+    "colId": "509663a0-9908-43fd-bb89-77a4b8f83f3a",
+    "containerId": "",
+    "name": "Permanent Destroy",
+    "url": "http://localhost/inertia/api/trashed/roles/4",
+    "method": "DELETE",
+    "sortNum": 80000,
+    "created": "2022-10-17T08:20:38.503Z",
+    "modified": "2022-10-17T08:25:44.110Z",
+    "headers": [
+      {
+        "name": "Accept",
+        "value": "application/json"
+      },
+      {
+        "name": "Content-Type",
+        "value": "application/json"
+      }
+    ],
+    "params": [],
+    "auth": {
+      "type": "bearer",
+      "bearer": "{{access_token}}"
+    },
+    "tests": [],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "25b11307-d06b-45c3-8554-b31804b067cc",
+          "colId": "509663a0-9908-43fd-bb89-77a4b8f83f3a",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "16d82e38-8c24-437e-ae94-6d2b2d673978",
+    "colId": "509663a0-9908-43fd-bb89-77a4b8f83f3a",
+    "containerId": "",
+    "name": "Restore",
+    "url": "http://localhost/inertia/api/trashed/roles/4",
+    "method": "PUT",
+    "sortNum": 38750,
+    "created": "2022-10-17T08:21:23.436Z",
+    "modified": "2022-10-17T08:23:38.891Z",
+    "headers": [
+      {
+        "name": "Accept",
+        "value": "application/json"
+      },
+      {
+        "name": "Content-Type",
+        "value": "application/json"
+      }
+    ],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"name\": \"Role BCA\"\n}",
+      "form": []
+    },
+    "auth": {
+      "type": "bearer",
+      "bearer": "{{access_token}}"
+    },
+    "tests": [],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "8b0fed30-e7be-455e-bd59-ad64282511a5",
+          "colId": "5d0f8bfa-bde4-421b-82bc-8bceaa8f5b8d",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  }
+]
