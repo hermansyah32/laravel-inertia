@@ -21,8 +21,16 @@ return [
     'reset' => ':Data password successfully reset.',
     'validation' => ':Data validation doesn\'t match..',
     'unauthorized' => 'You are not authorized. Please login or contact support',
+    'permission_denied' => 'Permission denied',
+    'login' => 'Login successfully',
+    'logout' => 'Logout successfully',
+    'register' => 'Register successfully',
+    'reissue_token' => 'Token successfully issued',
+    'error' => 'Something is not right.',
 
     // Section default data name
     'profile' => 'Profile',
     'account' => 'Account',
+    'users' => 'Users',
+    'roles' => 'Roles',
 ];
