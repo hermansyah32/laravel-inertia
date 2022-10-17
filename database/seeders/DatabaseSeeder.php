@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(RolesPermissionsSeeder::class);
 
+        /** Create user as admin */
         $user = User::where('email', 'me@hermansyah.dev')->first();
         if (!$user) {
             $user = User::create([
@@ -27,11 +28,11 @@ class DatabaseSeeder extends Seeder
                 'password' => bcrypt('password'),
             ]);
         }
-
         $role = Role::find(1);
         $user->assignRole([$role->id]);
-        $users = User::factory(100)->make();
 
+        /** User with user role */
+        $users = User::factory(100)->make();
         foreach ($users as $user) {
             $this->createUser($user);
         }
