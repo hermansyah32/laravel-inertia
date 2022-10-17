@@ -40,6 +40,8 @@ class ProfileRepositoryTest extends TestCase
 
     public function test_account_update_repository()
     {
+        $this->markTestIncomplete("This test change new email address/username directly. 
+        To appropriate function, should have a proper flow to check if this action is valid by sending verification email with token.");
         /** @var User $user */
         $user = User::factory()->create();
         $oldEmail = $user->email;
@@ -107,6 +109,7 @@ class ProfileRepositoryTest extends TestCase
 
     public function test_account_password_update_repository()
     {
+        $this->markTestIncomplete("When password is changed should send email notification to user");
         /** @var User $user */
         $user = User::factory()->create();
         $this->actingAs($user);
