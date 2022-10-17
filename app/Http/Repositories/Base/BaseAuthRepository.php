@@ -7,7 +7,7 @@ use Illuminate\Container\Container as Application;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Validator;
 
-abstract class BaseAuthRepository extends BaseRepository
+class BaseAuthRepository extends BaseAccountRepository
 {
     public function __construct(Application $app)
     {

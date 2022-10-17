@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Validator;
 
 class RegisteredUserController extends Controller
@@ -46,6 +47,7 @@ class RegisteredUserController extends Controller
             event(new Registered($user));
 
             $token = $user->createToken($request->string('device_name'))->plainTextToken;
+            $body->setBodyMessage(Lang::get('data.register'));
             $body->setBodyData(['user' => $user, 'token' => $token]);
         } catch (\Throwable $th) {
             $body->setResponseError($th->getMessage());

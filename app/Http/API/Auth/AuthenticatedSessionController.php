@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -22,7 +23,9 @@ class AuthenticatedSessionController extends Controller
      */
     protected $username;
 
-    public function permissionRule() { }
+    public function permissionRule()
+    {
+    }
 
     /**
      * Attempt to authenticate the request's credentials.
@@ -54,6 +57,7 @@ class AuthenticatedSessionController extends Controller
             }
 
             $token = $user->createToken($request->input('device_name'))->plainTextToken;
+            $body->setBodyMessage(Lang::get('data.login'));
             $body->setBodyData(['user' => $user, 'token' => $token]);
             RateLimiter::clear($this->throttleKey($request));
         } catch (\Throwable $th) {
@@ -76,6 +80,7 @@ class AuthenticatedSessionController extends Controller
             if ($tokenId)
                 $request->user()->currentAccessToken()->delete();
 
+            $body->setBodyMessage(Lang::get('data.logout'));
             $body->setBodyMessage("Logout successfully");
         } catch (\Throwable $th) {
             $body->setResponseError($th->getMessage());
@@ -102,6 +107,7 @@ class AuthenticatedSessionController extends Controller
                 $request->user()->currentAccessToken()->delete();
 
             $token = $request->user()->createToken($request->device_name)->plainTextToken;
+            $body->setBodyMessage(Lang::get('data.reissue_token'));
             $body->setBodyData(['token' => $token]);
         } catch (\Throwable $th) {
             $body->setResponseError($th->getMessage());

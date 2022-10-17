@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
-abstract class BaseAccountRepository
+class BaseAccountRepository
 {
     /**
      * @var string CommonDateFormat
@@ -108,6 +108,7 @@ abstract class BaseAccountRepository
             $account = $this->currentAccount();
             if (!$account->has('profile')->exists()) UserProfile::create(['user_id' => $account->id]);
 
+            $body->setBodyMessage(Lang::get('data.get', ['Data' => 'Profile']));
             $body->setBodyData($account->with('profile')->first());
         } catch (\Throwable $th) {
             $body->setResponseError($th->getMessage());
