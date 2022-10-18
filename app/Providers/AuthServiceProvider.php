@@ -37,13 +37,16 @@ class AuthServiceProvider extends ServiceProvider
 
         // Log viewer
         Gate::define('viewLogViewer', function (?User $user) {
-            return $user->hasRole('Super Admin') ? true : null;
+            if (!$user) return abort(404);
+            return $user->hasRole('Super Admin') ? true : abort(404);
         });
         Gate::define('downloadLogFile', function (?User $user, LogFile $file) {
-            return $user->hasRole('Super Admin') ? true : null;
+            if (!$user) return abort(404);
+            return $user->hasRole('Super Admin') ? true : abort(404);
         });
         Gate::define('deleteLogFile', function (?User $user, LogFile $file) {
-            return $user->hasRole('Super Admin') ? true : null;
+            if (!$user) return abort(404);
+            return $user->hasRole('Super Admin') ? true : abort(404);
         });
     }
 }
