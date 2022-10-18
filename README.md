@@ -13,7 +13,6 @@
 ## Vendor Commands
 
 -   `laravel backup` - Run Laravel backup. See documentation here [Backup](https://spatie.be/docs/laravel-backup/v8/introduction).
--   `sentry laravel` - App monitor Sentry. Follow step in production. See documentation here [Sentry](https://docs.sentry.io/platforms/php/guides/laravel/)
 
 ## Custom Commands
 
