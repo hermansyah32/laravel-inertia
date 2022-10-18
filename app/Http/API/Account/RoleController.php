@@ -5,8 +5,6 @@ namespace App\Http\API\Account;
 use App\Http\Controllers\BaseController as Controller;
 use App\Http\Repositories\RoleRepository;
 use App\Http\Response\BodyResponse;
-use App\Models\Role;
-use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 
