@@ -8,6 +8,10 @@
 -   `../inertia` Public folder.
 -   `base-laravel/inertia` Main application folder.
 
+# Config
+
+-   Because laravel [log-viewer](https://github.com/opcodesio/log-viewer) use live wire, in `.env` should add `WIRE_URL=/<subfolder>`</subfolder> if main project run in sub folder directory
+
 # Commands
 
 ## Vendor Commands
