@@ -45,7 +45,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::match(['put', 'patch'], 'roles/{id}', [RoleController::class, 'update'])
         ->name('api.roles.update');
     Route::match(['put', 'patch'], 'trashed/roles/{id}', [RoleController::class, 'restore'])
-        ->name('api.roles.restore');
+        ->name('api.trashed.roles.restore');
     Route::delete('roles/{id}', [RoleController::class, 'destroy'])
         ->name('api.roles.destroy');
     Route::delete('trashed/roles/{id}', [RoleController::class, 'permanentDestroy'])
@@ -66,7 +66,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::match(['put', 'patch'], 'users/{id}', [UserController::class, 'update'])
         ->name('api.users.update');
     Route::match(['put', 'patch'], 'trashed/users/{id}', [UserController::class, 'restore'])
-        ->name('api.users.restore');
+        ->name('api.trashed.users.restore');
     Route::delete('users/{id}', [UserController::class, 'destroy'])
         ->name('api.users.destroy');
     Route::delete('trashed/users/{id}', [UserController::class, 'permanentDestroy'])
