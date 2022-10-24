@@ -1,123 +1,172 @@
-import React, { useState } from 'react';
-import ApplicationLogo from '@/Components/ApplicationLogo';
-import Dropdown from '@/Components/Dropdown';
-import NavLink from '@/Components/NavLink';
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
-import { Link } from '@inertiajs/inertia-react';
+import React, { Fragment, useState } from "react";
+import { Disclosure, Menu, Transition } from "@headlessui/react";
+import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import AvatarMenu2 from "@/Components/AvatarMenu";
+import ApplicationLogo from "@/Components/ApplicationLogo";
+import NavMenu from "@/Components/NavMenu";
+import { SidebarLeft } from "@/Components/SidebarLeft";
+import SidebarContentLeft from "@/Components/SidebarContentLeft";
+import { FooterContent } from "@/Components/FooterContent";
+import AvatarMenu from "@/Components/AvatarMenu";
 
-export default function Authenticated({ auth, header, children }) {
-    const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
+const navigation = [
+    { label: "Dashboard", href: "#", isActive: true },
+    {
+        label: "Apps",
+        href: "#",
+        items: [{ label: "Todo", href: route("welcome") }],
+    },
+    {
+        label: "Setting",
+        href: "#",
+        items: [
+            { label: "User", href: "#" },
+            { label: "Role", href: "#" },
+            { label: "Permission", href: "#" },
+        ],
+    },
+];
+
+function classNames(...classes) {
+    return classes.filter(Boolean).join(" ");
+}
+
+export default function AuthenticatedLayout({ auth, header, children }) {
+    const [show, setShow] = useState(true);
+    const [tooltipStatus, setTooltipStatus] = useState(0);
+
+    const closeModal = () => {};
 
     return (
-        <div className="min-h-screen bg-gray-100">
-            <nav className="bg-white border-b border-gray-100">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between h-16">
-                        <div className="flex">
-                            <div className="shrink-0 flex items-center">
-                                <Link href="/">
-                                    <ApplicationLogo className="block h-9 w-auto text-gray-500" />
-                                </Link>
-                            </div>
-
-                            <div className="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                                <NavLink href={route('dashboard')} active={route().current('dashboard')}>
-                                    Dashboard
-                                </NavLink>
-                            </div>
-                        </div>
-
-                        <div className="hidden sm:flex sm:items-center sm:ml-6">
-                            <div className="ml-3 relative">
-                                <Dropdown>
-                                    <Dropdown.Trigger>
-                                        <span className="inline-flex rounded-md">
+        <>
+            <div className="min-h-screen flex flex-col">
+                <Disclosure as="nav" className="bg-gray-800">
+                    {({ open }) => (
+                        <>
+                            <div className="px-4 lg:px-6">
+                                <div className="flex h-16 items-center justify-between">
+                                    <div className="flex items-center">
+                                        <div className="-ml-2 flex md:hidden z-10">
+                                            {/* Mobile menu button */}
+                                            <Disclosure.Button className="inline-flex items-center justify-center rounded-md bg-gray-800 p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
+                                                <span className="sr-only">
+                                                    Open main menu
+                                                </span>
+                                                {open ? (
+                                                    <XMarkIcon
+                                                        className="block h-6 w-6"
+                                                        aria-hidden="true"
+                                                    />
+                                                ) : (
+                                                    <Bars3Icon
+                                                        className="block h-6 w-6"
+                                                        aria-hidden="true"
+                                                    />
+                                                )}
+                                            </Disclosure.Button>
+                                        </div>
+                                        <div className="hidden md:flex md:flex-shrink-0">
+                                            <ApplicationLogo className="h-8 w-8 fill-white" />
+                                        </div>
+                                        <div className="hidden md:block">
+                                            <div className="ml-10 flex items-baseline space-x-4">
+                                                {navigation.map((item) => (
+                                                    <NavMenu
+                                                        menu={item}
+                                                        childMenus={
+                                                            item.items || []
+                                                        }
+                                                        className="relative"
+                                                    />
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="absolute left-0 w-full md:static md:-ml-2 md:w-auto flex items-center">
+                                        <ApplicationLogo className="block h-8 w-auto mx-auto md:hidden fill-white" />
+                                    </div>
+                                    <div className="block">
+                                        <div className="ml-4 flex items-center md:ml-6">
                                             <button
                                                 type="button"
-                                                className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150"
+                                                className="rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
                                             >
-                                                {auth.user.name}
-
-                                                <svg
-                                                    className="ml-2 -mr-0.5 h-4 w-4"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    viewBox="0 0 20 20"
-                                                    fill="currentColor"
-                                                >
-                                                    <path
-                                                        fillRule="evenodd"
-                                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                        clipRule="evenodd"
-                                                    />
-                                                </svg>
+                                                <span className="sr-only">
+                                                    View notifications
+                                                </span>
+                                                <BellIcon
+                                                    className="h-6 w-6"
+                                                    aria-hidden="true"
+                                                />
                                             </button>
-                                        </span>
-                                    </Dropdown.Trigger>
 
-                                    <Dropdown.Content>
-                                        <Dropdown.Link href={route('logout')} method="post" as="button">
-                                            Log Out
-                                        </Dropdown.Link>
-                                    </Dropdown.Content>
-                                </Dropdown>
+                                            <AvatarMenu
+                                                name={auth.user.name}
+                                                email={auth.user.email}
+                                                role={"Super Admin"}
+                                                profilePhoto={
+                                                    auth.user.profile?.photo_url
+                                                }
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
 
-                        <div className="-mr-2 flex items-center sm:hidden">
-                            <button
-                                onClick={() => setShowingNavigationDropdown((previousState) => !previousState)}
-                                className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out"
-                            >
-                                <svg className="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                                    <path
-                                        className={!showingNavigationDropdown ? 'inline-flex' : 'hidden'}
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"
-                                        d="M4 6h16M4 12h16M4 18h16"
-                                    />
-                                    <path
-                                        className={showingNavigationDropdown ? 'inline-flex' : 'hidden'}
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"
-                                        d="M6 18L18 6M6 6l12 12"
-                                    />
-                                </svg>
-                            </button>
-                        </div>
+                            <Disclosure.Panel className="md:hidden">
+                                <div className="space-y-1 px-2 pt-2 pb-3 sm:px-3">
+                                    {navigation.map((item) => (
+                                        <Disclosure.Button
+                                            key={item.label}
+                                            as="a"
+                                            href={item.href}
+                                            className={classNames(
+                                                item.isActive
+                                                    ? "bg-gray-900 text-white"
+                                                    : "text-gray-300 hover:bg-gray-700 hover:text-white",
+                                                "block px-3 py-2 rounded-md text-base font-medium"
+                                            )}
+                                            aria-current={
+                                                item.isActive
+                                                    ? "page"
+                                                    : undefined
+                                            }
+                                        >
+                                            {item.label}
+                                        </Disclosure.Button>
+                                    ))}
+                                </div>
+                            </Disclosure.Panel>
+                        </>
+                    )}
+                </Disclosure>
+
+                {/* Sidebar left menu on mobile laout */}
+                {/* <SidebarLeft /> */}
+                {/* /End sidebar left menu */}
+                <div className="flex flex-1 overflow-hidden">
+                    <SidebarContentLeft />
+                    <div className="flex flex-1 flex-col">
+                        <header className="bg-white">
+                            <div className="py-4 px-4 lg:pr-6 shadow">
+                                <h1 className="text-xl font-bold tracking-tight text-gray-900">
+                                    Dashboard
+                                </h1>
+                            </div>
+                        </header>
+                        <main className="flex flex-1 hover:overflow-y-auto">
+                            <div className="w-full py-6 px-4 lg:pr-6">
+                                {/* Replace with your content */}
+                                <div className="h-96 rounded-lg border-4 border-dashed border-gray-200">
+                                    {children}
+                                </div>
+                                {/* /End replace */}
+                            </div>
+                        </main>
+                        <FooterContent />
                     </div>
                 </div>
-
-                <div className={(showingNavigationDropdown ? 'block' : 'hidden') + ' sm:hidden'}>
-                    <div className="pt-2 pb-3 space-y-1">
-                        <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>
-                            Dashboard
-                        </ResponsiveNavLink>
-                    </div>
-
-                    <div className="pt-4 pb-1 border-t border-gray-200">
-                        <div className="px-4">
-                            <div className="font-medium text-base text-gray-800">{auth.user.name}</div>
-                            <div className="font-medium text-sm text-gray-500">{auth.user.email}</div>
-                        </div>
-
-                        <div className="mt-3 space-y-1">
-                            <ResponsiveNavLink method="post" href={route('logout')} as="button">
-                                Log Out
-                            </ResponsiveNavLink>
-                        </div>
-                    </div>
-                </div>
-            </nav>
-
-            {header && (
-                <header className="bg-white shadow">
-                    <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">{header}</div>
-                </header>
-            )}
-
-            <main>{children}</main>
-        </div>
+            </div>
+        </>
     );
 }
