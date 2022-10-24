@@ -5,6 +5,7 @@ namespace App\Exceptions;
 use App\Http\Response\BodyResponse;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Throwable;
 
@@ -46,7 +47,19 @@ class Handler extends ExceptionHandler
      */
     public function register()
     {
-        //
+        $this->reportable(function (Throwable $e) {
+            if (env('APP_ENV') === 'prod') {
+                Log::error($e->getMessage(), $e);
+            }
+        });
+
+        $this->renderable(function (Throwable $e, $request) {
+            $body = new BodyResponse();
+            if ($request->is('api/*')) {
+                $body->setResponseError($e->getMessage());
+                return response()->json($body->getResponse(), $body->getResponseCode()->value);
+            }
+        });
     }
 
     /**
