@@ -11,6 +11,7 @@
 # Config
 
 -   Because laravel [log-viewer](https://github.com/opcodesio/log-viewer) use live wire, in `.env` should add `WIRE_URL=/<subfolder>`</subfolder> if main project run in sub folder directory
+-   Route in `HandleInertiaRequests.php` middleware has been removed. In addition, you should send all routes needed on every request. For more details look in [Ziggy](https://github.com/tighten/ziggy);
 
 # Commands
 
