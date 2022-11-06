@@ -6,6 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.0.2",
+        "geoip2/geoip2": "~2.1",
         "guzzlehttp/guzzle": "^7.2",
         "inertiajs/inertia-laravel": "^0.6.3",
         "laravel/framework": "^9.19",
@@ -13,9 +14,12 @@
         "laravel/tinker": "^2.7",
         "opcodesio/log-viewer": "^1.6",
         "pion/laravel-chunk-upload": "^1.5",
+        "predis/predis": "^2.0",
+        "rappasoft/laravel-authentication-log": "^2.0",
         "spatie/laravel-backup": "^8.1",
         "spatie/laravel-permission": "^5.5",
-        "tightenco/ziggy": "^1.0"
+        "tightenco/ziggy": "^1.0",
+        "torann/geoip": "^3.0"
     },
     "require-dev": {
         "chrisjean/php-ico": "^1.0",
