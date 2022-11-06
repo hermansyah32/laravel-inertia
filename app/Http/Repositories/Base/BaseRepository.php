@@ -209,7 +209,7 @@ abstract class BaseRepository extends BaseAccountRepository
                 $this->createValidation()->attributes
             );
             if ($validator->fails())
-                return $body->setResponseValidationError($validator->errors, $this->messageResponseKey);
+                return $body->setResponseValidationError($validator->errors(), $this->messageResponseKey);
 
             if ($author) $this->insertAuthor(true, $input);
 
@@ -313,7 +313,7 @@ abstract class BaseRepository extends BaseAccountRepository
                 $this->updateValidation()->attributes
             );
             if ($validator->fails())
-                return $body->setResponseValidationError($validator->errors, $this->messageResponseKey);
+                return $body->setResponseValidationError($validator->errors(), $this->messageResponseKey);
 
 
             $model = $this->findBy($column, $value);
