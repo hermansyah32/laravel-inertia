@@ -163,6 +163,7 @@ class UserRepositoryTest extends TestCase
     public function test_users_delete_permanently_repository()
     {
         $user = User::factory()->create();
+        $user->delete();
 
         /** @var BodyResponse $delete */
         $delete = App::call(function (UserRepository $repository) use ($user) {

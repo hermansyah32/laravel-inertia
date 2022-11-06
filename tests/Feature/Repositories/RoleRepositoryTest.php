@@ -31,7 +31,6 @@ class RoleRepositoryTest extends TestCase
     public function test_roles_index_with_search_repository()
     {
         $role = Role::factory()->create();
-        $role->delete();
 
         /** @var BodyResponse $result */
         $result =  App::call(function (RoleRepository $repository) use ($role) {
@@ -109,18 +108,18 @@ class RoleRepositoryTest extends TestCase
     public function test_roles_update_repository()
     {
         $role = Role::factory()->create();
-        $updatedUser = [
+        $updatedData = [
             'name' => 'Role A'
         ];
 
         /** @var BodyResponse $result */
-        $result =  App::call(function (RoleRepository $repository) use ($role, $updatedUser) {
-            return $repository->updateBy($updatedUser, 'id', $role->id);
+        $result =  App::call(function (RoleRepository $repository) use ($role, $updatedData) {
+            return $repository->updateBy($updatedData, 'id', $role->id);
         });
 
         $this->assertInstanceOf(BodyResponse::class, $result);
         $this->assertSame($result->getResponseCode()->value, ResponseCode::OK->value);
-        $this->assertSame($updatedUser['name'], $result->getBodyData()->name);
+        $this->assertSame($updatedData['name'], $result->getBodyData()->name);
     }
 
     public function test_roles_restore_repository()
@@ -161,6 +160,7 @@ class RoleRepositoryTest extends TestCase
     public function test_roles_delete_permanently_repository()
     {
         $role = Role::factory()->create();
+        $role->delete();
 
         /** @var BodyResponse $delete */
         $delete = App::call(function (RoleRepository $repository) use ($role) {
