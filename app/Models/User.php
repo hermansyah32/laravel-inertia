@@ -4,13 +4,17 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
-use App\Notifications\EmailVerification;
+use App\Notifications\AccountActivatedNotification;
+use App\Notifications\ResetPasswordNotification;
+use App\Notifications\UserLoginNotification;
+use App\Notifications\VerifyEmailNotification;
+use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laravel\Sanctum\HasApiTokens;
+use Rappasoft\LaravelAuthenticationLog\Traits\AuthenticationLoggable;
 use Spatie\Permission\Traits\HasRoles;
 
 enum UserStatus: string
@@ -22,7 +26,7 @@ enum UserStatus: string
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, HasRoles;
+    use AuthenticationLoggable, HasApiTokens, HasFactory, Notifiable, SoftDeletes, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -58,6 +62,18 @@ class User extends Authenticatable
     ];
 
     /**
+     * Route notifications for the mail channel.
+     *
+     * @param  \Illuminate\Notifications\Notification  $notification
+     * @return array|string
+     */
+    public function routeNotificationForMail($notification)
+    {
+        // Return email address and name...
+        return [$this->email => $this->name];
+    }
+
+    /**
      * Profile relation
      * @return HasOne 
      */
@@ -79,9 +95,47 @@ class User extends Authenticatable
         }
     }
 
+    /**
+     * Send the verified notification.
+     * 
+     * @return void 
+     */
+    public function sendVerifiedNotification()
+    {
+        $this->notify(new AccountActivatedNotification());
+    }
+
+    /**
+     * Send password change notification.
+     * 
+     * @param string $ipAddress
+     * @param mixed $ipLocation
+     * @return void 
+     */
+    public function sendPasswordChangeNotification($ipAddress, $ipLocation)
+    {
+        $this->notify(new UserLoginNotification($ipAddress, $ipLocation));
+    }
+
+    /**
+     * Send the verification notification.
+     * 
+     * @return void 
+     */
     public function sendEmailVerificationNotification()
     {
-        $this->notify(new EmailVerification());
+        $this->notify(new VerifyEmailNotification());
+    }
+
+    /**
+     * Send the password reset notification.
+     *
+     * @param  string  $token
+     * @return void
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new ResetPasswordNotification($token));
     }
 
     // /**
