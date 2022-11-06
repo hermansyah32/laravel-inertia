@@ -2,6 +2,7 @@
 
 namespace App\Helper;
 
+use App\Helper\NotificationType;
 use App\Http\Response\BodyResponse;
 use App\Http\Response\ResponseCode;
 use Illuminate\Support\Facades\Lang;
@@ -12,14 +13,6 @@ enum FlashType: string
     case TOAST = 'toast';
     case MODAL = 'modal';
     case BANNER = 'banner';
-}
-
-enum NotificationType: string
-{
-    case INFO = 'info';
-    case SUCCESS = 'success';
-    case WARNING = 'warning';
-    case ERROR = 'error';
 }
 
 class FlashMessenger
