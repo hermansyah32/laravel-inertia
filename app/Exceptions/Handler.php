@@ -5,6 +5,7 @@ namespace App\Exceptions;
 use App\Http\Response\BodyResponse;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Throwable;
@@ -96,5 +97,22 @@ class Handler extends ExceptionHandler
         return $this->shouldReturnJson($request, $e)
             ? response()->json($body->getResponse(), $body->getResponseCode()->value)
             : $this->invalid($request, $e);
+    }
+
+    /**
+     * Convert a validation exception into a response.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Validation\ValidationException  $exception
+     * @return \Illuminate\Http\Response
+     */
+    protected function invalid($request, ValidationException $exception)
+    {
+        // dd($exception);
+        $input = $request->input();
+        // dd($input);
+        return redirect($exception->redirectTo ?? url()->previous())
+            ->withInput([])
+            ->withErrors($exception->errors(), $request->input('_error_bag', $exception->errorBag));
     }
 }
