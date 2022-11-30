@@ -82,7 +82,22 @@ class BaseAccountRepository
     public function currentAccount(): Authenticatable|Model
     {
         if (!Auth::user()) throw new AuthenticationException();
-        return Auth::user();
+        $auth = Auth::user();
+        $result = User::where('id', $auth->id)->first();
+        return $result;
+    }
+
+    /**
+     * Get all current roles.
+     * 
+     * @return bool
+     */
+    public function currentRoles(): bool
+    {
+        if (!Auth::user()) throw new AuthenticationException();
+        $auth = Auth::user();
+        $result = User::where('id', $auth->id)->with('roles')->first();
+        return $result;
     }
 
     /**
@@ -106,13 +121,23 @@ class BaseAccountRepository
         $body = new BodyResponse();
         try {
             $account = $this->currentAccount();
-            if (!$account->has('profile')->exists()) UserProfile::create(['user_id' => $account->id]);
+            $account->setAttribute('profile_gender', $account->profile?->gender);
+            $account->setAttribute('profile_photo_url', $account->profile?->photo_url);
+            $account->setAttribute('profile_phone', $account->profile?->phone);
+            $account->setAttribute('profile_birthday', $account->profile?->birthday);
+            $account->setAttribute('profile_address', $account->profile?->address);
+            $account->setAttribute('role', is_array($account->roles?->toArray()) && count($account->roles?->toArray()) > 0
+                ? $account->roles[0]?->name
+                : null);
+            unset($account->profile);
+            unset($account->roles);
 
             $body->setBodyMessage(Lang::get('data.get', ['Data' => 'Profile']));
-            $body->setBodyData($account->with('profile')->first());
+            $body->setBodyData($account);
         } catch (\Throwable $th) {
-            $body->setBodyMessage($this->messageResponse['failedError']);
+            $body->setException($th);
             $body->setResponseError($th->getMessage());
+            $body->setBodyMessage($this->messageResponse['failedError']);
         }
         return $body;
     }
@@ -137,11 +162,20 @@ class BaseAccountRepository
             $account->fill($data);
             $account->save();
 
+            $result = $account->with('profile')->with('roles')->first();
+            $result->setAttribute('profile_gender', $result->profile?->gender);
+            $result->setAttribute('profile_photo_url', $result->profile?->photo_url);
+            $result->setAttribute('profile_phone', $result->profile?->phone);
+            $result->setAttribute('profile_birthday', $result->profile?->birthday);
+            $result->setAttribute('profile_address', $result->profile?->address);
+            $result->setAttribute('role', is_array($result->roles?->toArray()) ? $result->roles[0]?->name : null);
+
             $body->setBodyData($account);
             $body->setBodyMessage($this->messageResponse['successUpdated']);
         } catch (\Throwable $th) {
-            $body->setBodyMessage($this->messageResponse['failedError']);
+            $body->setException($th);
             $body->setResponseError($th->getMessage());
+            $body->setBodyMessage($this->messageResponse['failedError']);
         }
         return $body;
     }
@@ -160,11 +194,10 @@ class BaseAccountRepository
             if ($validator->fails())
                 return $body->setResponseValidationError($validator->errors(), $this->messageResponseKey);
 
-
             $account = $this->currentAccount();
             if (!$account->has('profile')->exists()) UserProfile::create(['user_id' => $account->id]);
 
-            if (array_key_exists('profile_photo_url', $data)) {
+            if (array_key_exists('profile_photo_url', $data) && $data['profile_photo_url']) {
                 $olderFile = UserProfile::where('user_id', Auth::user()->id)->first(['photo_url'])->photo_url;
                 if ($olderFile) Storage::disk('public')->delete($olderFile);
 
@@ -180,11 +213,19 @@ class BaseAccountRepository
             $account->profile->fill($this->filterProfileData($data));
             $account->profile->save();
 
-            $body->setBodyData($account->with('profile')->first());
+            $account->setAttribute('profile_gender', $account->profile?->gender);
+            $account->setAttribute('profile_photo_url', $account->profile?->photo_url);
+            $account->setAttribute('profile_phone', $account->profile?->phone);
+            $account->setAttribute('profile_birthday', $account->profile?->birthday);
+            $account->setAttribute('profile_address', $account->profile?->address);
+            $account->setAttribute('role', is_array($account->roles?->toArray()) ? $account->roles[0]?->name : null);
+
+            $body->setBodyData($account);
             $body->setBodyMessage($this->messageResponse['successUpdated']);
         } catch (\Throwable $th) {
-            $body->setBodyMessage($this->messageResponse['failedError']);
+            $body->setException($th);
             $body->setResponseError($th->getMessage());
+            $body->setBodyMessage($this->messageResponse['failedError']);
         }
         return $body;
     }
@@ -211,8 +252,9 @@ class BaseAccountRepository
 
             $body->setBodyMessage($this->messageResponse['successUpdated']);
         } catch (\Throwable $th) {
-            $body->setBodyMessage($this->messageResponse['failedError']);
+            $body->setException($th);
             $body->setResponseError($th->getMessage());
+            $body->setBodyMessage($this->messageResponse['failedError']);
         }
         return $body;
     }

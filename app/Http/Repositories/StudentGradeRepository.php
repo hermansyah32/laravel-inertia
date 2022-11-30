@@ -18,7 +18,7 @@ class StudentGradeRepository extends BaseRepository
      */
     public function __construct(Application $app)
     {
-        parent::__construct($app, Lang::get('data.student_assignments'));
+        parent::__construct($app, Lang::get('data.student_grades'));
     }
 
     /**
@@ -38,7 +38,7 @@ class StudentGradeRepository extends BaseRepository
     {
         return ((object) [
             'rules' => [
-                'name' => ['required', 'string'],
+                'name' => ['required', 'string', 'unique:student_grades'],
             ],
             'messages' => [],
             'attributes' => []

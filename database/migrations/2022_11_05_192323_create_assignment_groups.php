@@ -14,10 +14,11 @@ return new class extends Migration
     public function up()
     {
         Schema::create('assignment_groups', function (Blueprint $table) {
-            $table->id();
-            $table->integer('subject_group_id');
-            $table->integer('subject_content_id')->nullable();
-            $table->string('title');
+            $table->uuid('id')->primary();
+            $table->uuid('subject_id');
+            $table->uuid('subject_group_id')->nullable();
+            $table->uuid('subject_content_id')->nullable();
+            $table->string('name');
             $table->softDeletes();
             $table->timestamps();
         });

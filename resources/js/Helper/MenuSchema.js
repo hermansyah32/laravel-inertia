@@ -2,6 +2,7 @@ export default class MenuSchema {
     constructor({
         type,
         label,
+        icon,
         href = "#",
         content = null,
         isActive = false,
@@ -11,6 +12,7 @@ export default class MenuSchema {
     }) {
         this.type = type;
         this.label = label;
+        this.icon = icon;
         this.href = href;
         this.content = content || null;
         this.isActive = isActive || false;

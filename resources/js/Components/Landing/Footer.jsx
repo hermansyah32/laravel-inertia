@@ -1,7 +1,6 @@
-import { Link } from "@inertiajs/inertia-react";
 import React from "react";
 
-export const Footer = () => {
+export default function Footer() {
     return (
         <div className="pt-16">
             <div className="w-full bg-gray-100 py-12 xl:px-20 md:px-6 px-4">
@@ -15,4 +14,4 @@ export const Footer = () => {
             </div>
         </div>
     );
-};
+}

@@ -68,6 +68,43 @@ abstract class BaseRepository extends BaseAccountRepository
     }
 
     /**
+     * Build a query for retrieving all records
+     *
+     * @return Builder
+     */
+    protected function nonSearchableAllQuery(): Builder
+    {
+        $query = $this->model->newQuery();
+        return $query;
+    }
+
+    /**
+     * Build a query for retrieving all records
+     * 
+     * @param Builder $query Query builder
+     * @param array $searchableKeys
+     * @param array $search Search query that have been prepared;
+     * @param array $colModifier Search column name map list
+     * @return Builder
+     */
+    protected function searchQuery($query, $searchableKeys = [], $search = [], $colModifier = []): Builder
+    {
+        if (count($search) > 1) {
+            $requestCols = $search['col'];
+            $requestComps = $search['comp'];
+            $requestVals = $search['val'];
+
+            foreach ($requestCols as $index => $column) {
+                if (in_array($column, $searchableKeys)) {
+                    $modifiedCol = isset($colModifier[$column]) ? $colModifier[$column] : $column;
+                    $query = $this->search($query, $modifiedCol, $requestComps[$index], $requestVals[$index]);
+                }
+            }
+        }
+        return $query;
+    }
+
+    /**
      * Build search query
      *
      * @param Builder $query Eloquent Query Builder
@@ -144,6 +181,18 @@ abstract class BaseRepository extends BaseAccountRepository
     }
 
     /**
+     * Filter columns
+     * 
+     */
+    public function clearColumn($columns, $item)
+    {
+        if ($columns[0] === '*') return;
+        foreach ($item->toArray() as $key => $value) {
+            if (!in_array($key, $columns)) unset($item->{$key});
+        }
+    }
+
+    /**
      * Get all data
      *
      * @param string $order Order asc or desc
@@ -161,8 +210,9 @@ abstract class BaseRepository extends BaseAccountRepository
             $body->setBodyMessage($this->messageResponse['successGet']);
             $body->setBodyData($data);
         } catch (\Throwable $th) {
-            $body->setBodyMessage($this->messageResponse['failedError']);
+            $body->setException($th);
             $body->setResponseError($th->getMessage());
+            $body->setBodyMessage($this->messageResponse['failedError']);
         }
         return $body;
     }
@@ -185,8 +235,9 @@ abstract class BaseRepository extends BaseAccountRepository
             $body->setBodyMessage($this->messageResponse['successGetTrashed']);
             $body->setBodyData($data);
         } catch (\Throwable $th) {
-            $body->setBodyMessage($this->messageResponse['failedError']);
+            $body->setException($th);
             $body->setResponseError($th->getMessage());
+            $body->setBodyMessage($this->messageResponse['failedError']);
         }
         return $body;
     }
@@ -218,8 +269,9 @@ abstract class BaseRepository extends BaseAccountRepository
             $body->setBodyMessage($this->messageResponse['successCreated']);
             $body->setBodyData($this->model);
         } catch (\Throwable $th) {
-            $body->setBodyMessage($this->messageResponse['failedError']);
+            $body->setException($th);
             $body->setResponseError($th->getMessage());
+            $body->setBodyMessage($this->messageResponse['failedError']);
         }
         return $body;
     }
@@ -241,8 +293,9 @@ abstract class BaseRepository extends BaseAccountRepository
             $body->setBodyMessage($this->messageResponse['successGet']);
             $body->setBodyData($model);
         } catch (\Throwable $th) {
-            $body->setBodyMessage($this->messageResponse['failedError']);
+            $body->setException($th);
             $body->setResponseError($th->getMessage());
+            $body->setBodyMessage($this->messageResponse['failedError']);
         }
         return $body;
     }
@@ -264,8 +317,9 @@ abstract class BaseRepository extends BaseAccountRepository
             $body->setBodyMessage($this->messageResponse['successGet']);
             $body->setBodyData($model);
         } catch (\Throwable $th) {
-            $body->setBodyMessage($this->messageResponse['failedError']);
+            $body->setException($th);
             $body->setResponseError($th->getMessage());
+            $body->setBodyMessage($this->messageResponse['failedError']);
         }
         return $body;
     }
@@ -287,8 +341,9 @@ abstract class BaseRepository extends BaseAccountRepository
             $body->setBodyMessage($this->messageResponse['successGet']);
             $body->setBodyData($model);
         } catch (\Throwable $th) {
-            $body->setBodyMessage($this->messageResponse['failedError']);
+            $body->setException($th);
             $body->setResponseError($th->getMessage());
+            $body->setBodyMessage($this->messageResponse['failedError']);
         }
         return $body;
     }
@@ -326,8 +381,9 @@ abstract class BaseRepository extends BaseAccountRepository
             $body->setBodyMessage($this->messageResponse['successUpdated']);
             $body->setBodyData($model);
         } catch (\Throwable $th) {
-            $body->setBodyMessage($this->messageResponse['failedError']);
+            $body->setException($th);
             $body->setResponseError($th->getMessage());
+            $body->setBodyMessage($this->messageResponse['failedError']);
         }
         return $body;
     }
@@ -353,8 +409,9 @@ abstract class BaseRepository extends BaseAccountRepository
             $body->setBodyData($model);
             $body->setBodyMessage($this->messageResponse['successRestored']);
         } catch (\Throwable $th) {
-            $body->setBodyMessage($this->messageResponse['failedError']);
+            $body->setException($th);
             $body->setResponseError($th->getMessage());
+            $body->setBodyMessage($this->messageResponse['failedError']);
         }
         return $body;
     }
@@ -378,8 +435,9 @@ abstract class BaseRepository extends BaseAccountRepository
             $model->delete();
             $body->setBodyMessage($this->messageResponse['successDeleted']);
         } catch (\Throwable $th) {
-            $body->setBodyMessage($this->messageResponse['failedError']);
+            $body->setException($th);
             $body->setResponseError($th->getMessage());
+            $body->setBodyMessage($this->messageResponse['failedError']);
         }
         return $body;
     }
@@ -401,8 +459,9 @@ abstract class BaseRepository extends BaseAccountRepository
             $model->forceDelete();
             $body->setBodyMessage($this->messageResponse['successPermanentDeleted']);
         } catch (\Throwable $th) {
-            $body->setBodyMessage($this->messageResponse['failedError']);
+            $body->setException($th);
             $body->setResponseError($th->getMessage());
+            $body->setBodyMessage($this->messageResponse['failedError']);
         }
         return $body;
     }
@@ -444,7 +503,7 @@ abstract class BaseRepository extends BaseAccountRepository
             unset($input[$item]);
         }
         if (count($input) < 1) return ['*'];
-        if (!key_exists('col', $input)) return $input;
+        if (!key_exists('col', $input)) return [];
         return $input;
     }
 

@@ -11,13 +11,369 @@
     "colName": "Account and Profile",
     "created": "2022-10-17T03:36:19.522Z",
     "sortNum": 20000,
-    "folders": []
+    "folders": [],
+    "settings": {
+      "headers": [],
+      "auth": {
+        "type": "bearer",
+        "bearer": "{{access_token}}"
+      },
+      "tests": [],
+      "preReq": {
+        "runRequests": [
+          {
+            "reqId": "8b0fed30-e7be-455e-bd59-ad64282511a5",
+            "colId": "5d0f8bfa-bde4-421b-82bc-8bceaa8f5b8d",
+            "triggerCondition": "run-var-empty",
+            "triggerValue": "{{access_token}}"
+          }
+        ]
+      }
+    }
   },
   {
     "_id": "509663a0-9908-43fd-bb89-77a4b8f83f3a",
     "colName": "Role",
     "created": "2022-10-17T06:04:45.710Z",
     "sortNum": 30000,
-    "folders": []
+    "folders": [],
+    "settings": {
+      "headers": [],
+      "auth": {
+        "type": "bearer",
+        "bearer": "{{access_token}}"
+      },
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "200"
+        }
+      ],
+      "preReq": {
+        "runRequests": [
+          {
+            "reqId": "8b0fed30-e7be-455e-bd59-ad64282511a5",
+            "colId": "5d0f8bfa-bde4-421b-82bc-8bceaa8f5b8d",
+            "triggerCondition": "run-var-empty",
+            "triggerValue": "{{access_token}}"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "_id": "9eda14b2-b654-4edd-a922-4cfc50cd605c",
+    "colName": "Student Grade",
+    "created": "2022-11-07T02:10:03.506Z",
+    "sortNum": 40000,
+    "folders": [],
+    "settings": {
+      "headers": [],
+      "auth": {
+        "type": "bearer",
+        "bearer": "{{access_token}}"
+      },
+      "tests": [],
+      "preReq": {
+        "runRequests": [
+          {
+            "reqId": "8b0fed30-e7be-455e-bd59-ad64282511a5",
+            "colId": "5d0f8bfa-bde4-421b-82bc-8bceaa8f5b8d",
+            "triggerCondition": "run-var-empty",
+            "triggerValue": "{{access_token}}"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "_id": "7101b1e0-851c-4ada-a9b3-5c09760e8482",
+    "colName": "Student Class",
+    "created": "2022-11-07T02:18:39.301Z",
+    "sortNum": 50000,
+    "folders": [],
+    "settings": {
+      "headers": [],
+      "auth": {
+        "type": "bearer",
+        "bearer": "{{access_token}}"
+      },
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "200"
+        }
+      ],
+      "preReq": {
+        "runRequests": [
+          {
+            "reqId": "8b0fed30-e7be-455e-bd59-ad64282511a5",
+            "colId": "5d0f8bfa-bde4-421b-82bc-8bceaa8f5b8d",
+            "triggerCondition": "run-var-empty",
+            "triggerValue": "{{access_token}}"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "_id": "1787f3d4-aede-49d8-9be2-39cedef45fc0",
+    "colName": "Subject Group",
+    "created": "2022-11-07T02:26:16.897Z",
+    "sortNum": 60000,
+    "folders": [],
+    "settings": {
+      "headers": [],
+      "auth": {
+        "type": "bearer",
+        "bearer": "{{access_token}}"
+      },
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "200"
+        }
+      ],
+      "preReq": {
+        "runRequests": [
+          {
+            "reqId": "8b0fed30-e7be-455e-bd59-ad64282511a5",
+            "colId": "5d0f8bfa-bde4-421b-82bc-8bceaa8f5b8d",
+            "triggerCondition": "run-var-empty",
+            "triggerValue": "{{access_token}}"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "_id": "4f4d5238-c176-40f2-96d8-d7e7135e2667",
+    "colName": "Subject Content",
+    "created": "2022-11-07T03:25:21.844Z",
+    "sortNum": 70000,
+    "folders": [],
+    "settings": {
+      "headers": [],
+      "auth": {
+        "type": "bearer",
+        "bearer": "{{access_token}}"
+      },
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "200"
+        }
+      ],
+      "preReq": {
+        "runRequests": [
+          {
+            "reqId": "8b0fed30-e7be-455e-bd59-ad64282511a5",
+            "colId": "5d0f8bfa-bde4-421b-82bc-8bceaa8f5b8d",
+            "triggerCondition": "run-var-empty",
+            "triggerValue": "{{access_token}}"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "_id": "6a74356d-62a6-41d7-92dc-99c2a768b88f",
+    "colName": "Subject Reference",
+    "created": "2022-11-07T03:34:25.391Z",
+    "sortNum": 80000,
+    "folders": [],
+    "settings": {
+      "headers": [],
+      "auth": {
+        "type": "bearer",
+        "bearer": "{{access_token}}"
+      },
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "200"
+        }
+      ],
+      "preReq": {
+        "runRequests": [
+          {
+            "reqId": "8b0fed30-e7be-455e-bd59-ad64282511a5",
+            "colId": "5d0f8bfa-bde4-421b-82bc-8bceaa8f5b8d",
+            "triggerCondition": "run-var-empty",
+            "triggerValue": "{{access_token}}"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "_id": "92702699-4d90-44d9-9406-714319c2edee",
+    "colName": "Sub Subject Content",
+    "created": "2022-11-07T03:54:08.525Z",
+    "sortNum": 90000,
+    "folders": [],
+    "settings": {
+      "headers": [],
+      "auth": {
+        "type": "bearer",
+        "bearer": "{{access_token}}"
+      },
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "200"
+        }
+      ],
+      "preReq": {
+        "runRequests": [
+          {
+            "reqId": "8b0fed30-e7be-455e-bd59-ad64282511a5",
+            "colId": "5d0f8bfa-bde4-421b-82bc-8bceaa8f5b8d",
+            "triggerCondition": "run-var-empty",
+            "triggerValue": "{{access_token}}"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "_id": "59dfbc31-efee-4931-aa35-5ce52ac14d85",
+    "colName": "Assignment Group",
+    "created": "2022-11-07T06:49:22.289Z",
+    "sortNum": 100000,
+    "folders": [],
+    "settings": {
+      "headers": [],
+      "auth": {
+        "type": "bearer",
+        "bearer": "{{access_token}}"
+      },
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "200"
+        }
+      ],
+      "preReq": {
+        "runRequests": [
+          {
+            "reqId": "8b0fed30-e7be-455e-bd59-ad64282511a5",
+            "colId": "5d0f8bfa-bde4-421b-82bc-8bceaa8f5b8d",
+            "triggerCondition": "run-var-empty",
+            "triggerValue": "{{access_token}}"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "_id": "ceab7fb6-9a45-4dec-b007-aa9a5d64fe60",
+    "colName": "Subject Assignment",
+    "created": "2022-11-07T07:00:21.636Z",
+    "sortNum": 110000,
+    "folders": [],
+    "settings": {
+      "headers": [],
+      "auth": {
+        "type": "bearer",
+        "bearer": "{{access_token}}"
+      },
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "200"
+        }
+      ],
+      "preReq": {
+        "runRequests": [
+          {
+            "reqId": "8b0fed30-e7be-455e-bd59-ad64282511a5",
+            "colId": "5d0f8bfa-bde4-421b-82bc-8bceaa8f5b8d",
+            "triggerCondition": "run-var-empty",
+            "triggerValue": "{{access_token}}"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "_id": "27339242-d4ed-4ab8-9239-ed81e0f135d7",
+    "colName": "Student Assignment",
+    "created": "2022-11-07T07:10:55.175Z",
+    "sortNum": 120000,
+    "folders": [],
+    "settings": {
+      "headers": [],
+      "auth": {
+        "type": "bearer",
+        "bearer": "{{access_token}}"
+      },
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "200"
+        }
+      ],
+      "preReq": {
+        "runRequests": [
+          {
+            "reqId": "8b0fed30-e7be-455e-bd59-ad64282511a5",
+            "colId": "5d0f8bfa-bde4-421b-82bc-8bceaa8f5b8d",
+            "triggerCondition": "run-var-empty",
+            "triggerValue": "{{access_token}}"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "_id": "e6503de7-bf2a-4877-acc6-6dd14436bae7",
+    "colName": "User",
+    "created": "2022-11-22T14:47:38.709Z",
+    "sortNum": 25000,
+    "folders": [],
+    "settings": {
+      "headers": [],
+      "auth": {
+        "type": "bearer",
+        "bearer": "{{access_token}}"
+      },
+      "tests": [
+        {
+          "type": "res-code",
+          "custom": "",
+          "action": "equal",
+          "value": "200"
+        }
+      ],
+      "preReq": {
+        "runRequests": [
+          {
+            "reqId": "8b0fed30-e7be-455e-bd59-ad64282511a5",
+            "colId": "5d0f8bfa-bde4-421b-82bc-8bceaa8f5b8d",
+            "triggerCondition": "run-var-empty",
+            "triggerValue": "{{access_token}}"
+          }
+        ]
+      }
+    }
   }
 ]

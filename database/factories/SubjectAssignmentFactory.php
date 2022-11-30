@@ -17,11 +17,12 @@ class SubjectAssignmentFactory extends Factory
     public function definition()
     {
         return [
-            'assignment_group_id' => fake()->randomNumber(),
+            'assignment_group_id' => fake()->uuid(),
             'type' => 'multiple-choice',
             'question' => 'Question ' . fake()->randomLetter(),
             'options' => json_encode(['A' => 'True', 'B' => 'False', 'C' => 'False', 'D' => 'False', 'E' => 'False',]),
             'answer' => 'A',
+            'score' => fake()->randomNumber(),
         ];
     }
 }

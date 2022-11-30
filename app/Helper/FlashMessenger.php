@@ -20,27 +20,27 @@ class FlashMessenger
     public static function send(
         string $title,
         string $message,
-        NotificationType $type = NotificationType::INFO,
-        FlashType $flashType = FlashType::BANNER
+        NotificationType $notification = NotificationType::INFO,
+        FlashType $type = FlashType::BANNER
     ) {
         Session::flash('flash_message', $message);
         Session::flash('flash_title', $title);
+        Session::flash('flash_notification', $notification->value);
         Session::flash('flash_type', $type->value);
-        Session::flash('flash_notification', $flashType->value);
     }
 
-    public static function sendFromBody(BodyResponse $bodyResponse, FlashType $flashType = FlashType::BANNER)
+    public static function sendFromBody(BodyResponse $bodyResponse, FlashType $type = FlashType::BANNER)
     {
         $title = Lang::get('flash.success');
-        $type = NotificationType::SUCCESS;
+        $notification = NotificationType::SUCCESS;
         $message = $bodyResponse->getBodyMessage();
         if ($bodyResponse->getResponseCode() !== ResponseCode::OK) {
-            $title = Lang::get('flash.success');
-            $type = NotificationType::ERROR;
+            $title = Lang::get('flash.error');
+            $notification = NotificationType::ERROR;
         }
         Session::flash('flash_message', $message);
         Session::flash('flash_title', $title);
+        Session::flash('flash_notification', $notification->value);
         Session::flash('flash_type', $type->value);
-        Session::flash('flash_notification', $flashType->value);
     }
 }

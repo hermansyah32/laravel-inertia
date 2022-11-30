@@ -14,8 +14,8 @@ return new class extends Migration
     public function up()
     {
         Schema::create('subject_references', function (Blueprint $table) {
-            $table->id();
-            $table->integer('subject_content_id');
+            $table->uuid('id')->primary();
+            $table->uuid('subject_content_id');
             $table->string('name');
             $table->text('url');
             $table->softDeletes();

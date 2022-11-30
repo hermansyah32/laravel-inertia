@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Models\Role;
 use Illuminate\Database\Seeder;
 use App\Models\User;
-use Spatie\Permission\Models\Role;
 
 class DatabaseSeeder extends Seeder
 {
@@ -28,13 +28,19 @@ class DatabaseSeeder extends Seeder
                 'password' => bcrypt('password'),
             ]);
         }
-        $user->assignRole([1]); // Role as admin
+        $user->assignRole(['super-admin']); // Role as super admin
 
         /** User with user role */
+        $roles = ['admin', 'user', 'teacher', 'student'];
         $users = User::factory(100)->make();
         foreach ($users as $user) {
             $this->createUser($user);
-            $user->assignRole([3]); // Role as user
+            $randomRole = random_int(0, count($roles) - 1);
+            if ($randomRole > 1) {
+                $user->assignRole(['user', $roles[$randomRole]]);
+            } else {
+                $user->assignRole([$roles[$randomRole]]);
+            }
         }
     }
 

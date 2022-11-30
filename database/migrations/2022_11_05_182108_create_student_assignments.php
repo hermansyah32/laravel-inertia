@@ -14,10 +14,10 @@ return new class extends Migration
     public function up()
     {
         Schema::create('student_assignments', function (Blueprint $table) {
-            $table->id();
-            $table->integer('user_id');
-            $table->integer('assignment_group_id');
-            $table->integer('subject_assignment_id');
+            $table->uuid('id')->primary();
+            $table->uuid('user_id');
+            $table->uuid('assignment_group_id');
+            $table->uuid('subject_assignment_id');
             $table->text('answer');
             $table->softDeletes();
             $table->timestamps();

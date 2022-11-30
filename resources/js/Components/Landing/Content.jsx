@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 
-export const Content = () => {
+export default function Content() {
     return (
         <>
             <div className="xl:px-20 md:px-6 px-4 md:py-20 py-14 w-full flex flex-col items-center justify-center">
@@ -59,4 +59,4 @@ export const Content = () => {
             </div>
         </>
     );
-};
+}

@@ -1,7 +1,9 @@
 <?php
 
+use App\Models\Teacher;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 
 /*
@@ -18,6 +20,19 @@ use Illuminate\Support\Facades\File;
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
+
+Artisan::command('testcode', function (){
+    $result = Teacher::all();
+    // dd(User::with("roles")->whereHas("roles", function ($q) {
+    //     $q->whereIn("name", ["student"]);
+    // })->take(1)->get()->toArray());
+    // DB::connection()->enableQueryLog();
+
+    // $students = Student::take(1)->get()->toArray();
+    // dd($students);
+    // $queries = DB::getQueryLog();
+    // dd($queries);
+});
 
 Artisan::command('init:sentry', function () {
     Artisan::call('sentry:publish --dsn=https://8fce4597dd3b41df970e16febb86384e@o1008265.ingest.sentry.io/4503947724718080');

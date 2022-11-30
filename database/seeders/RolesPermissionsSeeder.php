@@ -2,9 +2,10 @@
 
 namespace Database\Seeders;
 
-use Spatie\Permission\Models\Role;
+use App\Helper\Constants;
+use App\Models\Permission;
+use App\Models\Role;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Permission;
 
 class RolesPermissionsSeeder extends Seeder
 {
@@ -15,44 +16,36 @@ class RolesPermissionsSeeder extends Seeder
      */
     public function run()
     {
-        $superAdminRole = Role::firstOrCreate(['name' => 'Super Admin']);
-        $adminRole = Role::firstOrCreate(['name' => 'Admin']);
-        $userRole = Role::firstOrCreate(['name' => 'User']);
+        /**==================================== Create Role ============================================= */
+        $superAdminRole = Role::firstOrCreate(['name' => 'super-admin']);
+        $adminRole = Role::firstOrCreate(['name' => 'admin']);
+        $userRole = Role::firstOrCreate(['name' => 'user']);
+        $teacherRole = Role::firstOrCreate(['name' => 'teacher']);
+        $studentRole = Role::firstOrCreate(['name' => 'student']);
 
-        /**==================================== User Permission Role ============================================= */
-        $userPermissions = [
-            'index' => 'can index users',
-            'indexTrashed' => 'can index trashed users',
-            'get' => 'can get users',
-            'getFull' => 'can get full users',
-            'getTrashed' => 'can get trashed users',
-            'update' => 'can update users',
-            'restore' => 'can restore users',
-            'destroy' => 'can destroy users',
-            'permanentDestroy' => 'can permanent destroy users',
-            'reset' => 'can reset users',
-        ];
-        foreach ($userPermissions as $permission) {
-            $permission = Permission::firstOrCreate(['name' => $permission]);
-            $superAdminRole->givePermissionTo($permission);
-            $adminRole->givePermissionTo($permission);
+        /**==================================== Create Permissions ============================================= */
+        $permissions = ((array) Constants::PERMISSIONS());
+        foreach ($permissions as $key => $permission) {
+            $permissionRule = ((array) $permission);
+            foreach ($permissionRule as $key => $rule) {
+                Permission::firstOrCreate(['name' => $rule]);
+            }
         }
 
-        /**==================================== Role Permission Role ============================================= */
-        $rolePermissions = [
-            'index' => 'can index roles',
-            'indexTrashed' => 'can index trashed roles',
-            'get' => 'can get roles',
-            'getFull' => 'can get full roles',
-            'getTrashed' => 'can get trashed roles',
-            'update' => 'can update roles',
-            'restore' => 'can restore roles',
-            'destroy' => 'can destroy roles',
-            'permanentDestroy' => 'can permanent destroy roles',
+        /**==================================== Manage by Role ============================================= */
+        $managePermission = [
+            'super-admin' => 'managed by super-admin',
+            'admin' => 'managed by admin',
+            'user' => 'managed by user',
+            'teacher' => 'managed by teacher',
+            'student' => 'managed by student',
         ];
-        foreach ($rolePermissions as $permission) {
+        foreach ($managePermission as $permission) {
             $permission = Permission::firstOrCreate(['name' => $permission]);
-            $superAdminRole->givePermissionTo($permission);
         }
+        $adminRole->givePermissionTo($managePermission['super-admin']);
+        $userRole->givePermissionTo($managePermission['super-admin'], $managePermission['admin']);
+        $teacherRole->givePermissionTo($managePermission['super-admin'], $managePermission['admin'], $managePermission['user']);
+        $studentRole->givePermissionTo($managePermission['super-admin'], $managePermission['admin'], $managePermission['user'], $managePermission['teacher']);
     }
 }

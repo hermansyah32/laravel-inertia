@@ -2,7 +2,7 @@
     "private": true,
     "scripts": {
         "dev": "vite",
-        "start": "vite build --emptyOutDir --watch",
+        "start": "vite build --emptyOutDir --watch --mode development",
         "build": "vite build --emptyOutDir && vite build --emptyOutDir --ssr",
         "init": "php artisan app:install && npm run build",
         "reset": "php artisan app:install -R && npm run build"
@@ -28,6 +28,12 @@
     "dependencies": {
         "@fontsource/roboto": "^4.5.8",
         "@heroicons/react": "^1.0.6",
-        "node-watch": "^0.7.3"
+        "apexcharts": "^3.36.3",
+        "cleave.js": "^1.6.0",
+        "dayjs": "^1.11.6",
+        "node-watch": "^0.7.3",
+        "react-datepicker": "^4.8.0",
+        "react-table": "^7.8.0",
+        "regenerator-runtime": "^0.13.11"
     }
 }

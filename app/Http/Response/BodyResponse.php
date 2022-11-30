@@ -35,6 +35,9 @@ class BodyResponse
     private array|object|null $bodyData = [];
     private string|null $tokenData = null;
 
+    // in case need exception data
+    private $exception;
+
     public function getResponseCode(): ResponseCode
     {
         return $this->responseCode;
@@ -93,6 +96,16 @@ class BodyResponse
     public function setTokenData(string $token)
     {
         $this->tokenData = $token;
+    }
+
+    public function getException()
+    {
+        return $this->exception;
+    }
+
+    public function setException($exception)
+    {
+        $this->exception = $exception;
     }
 
     public function setResponseError(

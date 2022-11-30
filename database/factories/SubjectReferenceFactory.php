@@ -19,7 +19,7 @@ class SubjectReferenceFactory extends Factory
         return [
             'name' => 'Content ' . fake()->randomLetter(),
             'url' => fake()->url(),
-            'subject_content_id' => fake()->randomNumber(),
+            'subject_content_id' => fake()->uuid(),
         ];
     }
 }

@@ -18,7 +18,8 @@ class StudentClassFactory extends Factory
     {
         return [
             'name' => fake()->name(),
-            'student_grade_id' => fake()->randomNumber(),
+            'student_grade_id' => fake()->uuid(),
+            'student_department_id' => fake()->uuid(),
         ];
     }
 }

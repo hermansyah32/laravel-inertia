@@ -18,6 +18,8 @@ class SubjectGroupFactory extends Factory
     {
         return [
             'name' => 'SubjectGroup ' . fake()->randomLetter(),
+            'subject_id' => fake()->uuid(),
+            'order' => 1,
         ];
     }
 }

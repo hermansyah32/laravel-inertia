@@ -18,7 +18,7 @@ class SubjectAssignmentRepository extends BaseRepository
      */
     public function __construct(Application $app)
     {
-        parent::__construct($app, Lang::get('data.student_assignments'));
+        parent::__construct($app, Lang::get('data.subject_assignments'));
     }
 
     /**
@@ -38,7 +38,7 @@ class SubjectAssignmentRepository extends BaseRepository
     {
         return ((object) [
             'rules' => [
-                'assignment_group_id' => ['required', 'integer'],
+                'assignment_group_id' => ['required', 'uuid'],
                 'type' => ['required', 'string'],
                 'question' => ['required', 'string'],
                 'options' => ['required', 'string'],
@@ -57,7 +57,7 @@ class SubjectAssignmentRepository extends BaseRepository
     {
         return ((object) [
             'rules' => [
-                'assignment_group_id' => ['required', 'integer'],
+                'assignment_group_id' => ['required', 'uuid'],
                 'type' => ['required', 'string'],
                 'question' => ['required', 'string'],
                 'options' => ['required', 'string'],

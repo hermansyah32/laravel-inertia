@@ -2,7 +2,8 @@
 
 namespace App\Http\API\Account;
 
-use App\Http\Controllers\BaseController as Controller;
+use App\Helper\Constants;
+use App\Http\Controllers\BaseAPIController as Controller;
 use App\Http\Repositories\UserRepository;
 use App\Http\Response\BodyResponse;
 use Exception;
@@ -38,18 +39,7 @@ class UserController extends Controller
 
     public function permissionRule()
     {
-        return ((object)[
-            'index' => 'can index users',
-            'indexTrashed' => 'can index trashed users',
-            'get' => 'can get users',
-            'getFull' => 'can get full users',
-            'getTrashed' => 'can get trashed users',
-            'update' => 'can update users',
-            'restore' => 'can restore users',
-            'destroy' => 'can destroy users',
-            'permanentDestroy' => 'can permanent destroy users',
-            'reset' => 'can reset users'
-        ]);
+        return Constants::PERMISSIONS()->users;
     }
 
 
@@ -65,7 +55,7 @@ class UserController extends Controller
         $order = $request->order ?? 'desc';
         $columns = $request->columns ?? ['*'];
         $count = $request->perPage ?? 0;
-        $result = $this->repository->index($order, $request->all(), $columns, $count);
+        $result = $this->repository->indexWithProfile($order, $request->all(), $columns, $count);
         return $this->sendResponse($result);
     }
 
@@ -76,12 +66,12 @@ class UserController extends Controller
      */
     public function indexTrashed(Request $request)
     {
-        $this->checkPermission($this->permissionRule()->indexTrashed);
+        $this->checkPermission($this->permissionRule()->index_trashed);
 
         $order = $request->order ?? 'desc';
         $columns = $request->columns ?? ['*'];
         $count = $request->perPage ?? 0;
-        $result = $this->repository->indexTrashed($order, $request->all(), $columns, $count);
+        $result = $this->repository->indexWithProfileTrashed($order, $request->all(), $columns, $count);
         return $this->sendResponse($result);
     }
 
@@ -94,7 +84,6 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $this->checkPermission($this->permissionRule()->store);
-
         $result = $this->repository->create($request->all());
         return $this->sendResponse($result);
     }
@@ -102,10 +91,10 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int $id
+     * @param  string $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request, int $id)
+    public function show(Request $request, string $id)
     {
         $this->checkPermission($this->permissionRule()->show);
 
@@ -116,12 +105,12 @@ class UserController extends Controller
     /**
      * Display the specified resource trashed.
      *
-     * @param  int $id
+     * @param  string $id
      * @return \Illuminate\Http\Response
      */
-    public function showTrashed(Request $request, int $id)
+    public function showTrashed(Request $request, string $id)
     {
-        $this->checkPermission($this->permissionRule()->showTrashed);
+        $this->checkPermission($this->permissionRule()->show_trashed);
 
         $result = $this->repository->getTrashed('id', $id);
         return $this->sendResponse($result);
@@ -131,10 +120,10 @@ class UserController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int $id
+     * @param  string $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, int $id)
+    public function update(Request $request, string $id)
     {
         $this->checkPermission($this->permissionRule()->update);
 
@@ -146,10 +135,10 @@ class UserController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int $id
+     * @param  string $id
      * @return \Illuminate\Http\Response
      */
-    public function restore(Request $request, int $id)
+    public function restore(Request $request, string $id)
     {
         $this->checkPermission($this->permissionRule()->restore);
 
@@ -160,10 +149,10 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int $id
+     * @param  string $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request, int $id)
+    public function destroy(Request $request, string $id)
     {
         $this->checkPermission($this->permissionRule()->destroy);
 
@@ -174,12 +163,12 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage permanently.
      *
-     * @param  int $id
+     * @param  string $id
      * @return \Illuminate\Http\Response
      */
-    public function permanentDestroy(Request $request, int $id)
+    public function permanentDestroy(Request $request, string $id)
     {
-        $this->checkPermission($this->permissionRule()->permanentDestroy);
+        $this->checkPermission($this->permissionRule()->permanent_destroy);
 
         $result = $this->repository->permanentDeleteBy('id', $id);
         return $this->sendResponse($result);
@@ -188,10 +177,10 @@ class UserController extends Controller
     /**
      * Reset the specified users.
      *
-     * @param  int $id
+     * @param  string $id
      * @return \Illuminate\Http\Response
      */
-    public function reset(Request $request, int $id)
+    public function reset(Request $request, string $id)
     {
         $this->checkPermission($this->permissionRule()->reset);
 

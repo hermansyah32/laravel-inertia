@@ -14,8 +14,8 @@ return new class extends Migration
     public function up()
     {
         Schema::create('user_profiles', function (Blueprint $table) {
-            $table->id();
-            $table->bigInteger('user_id');
+            $table->uuid('id')->primary();
+            $table->uuid('user_id');
             $table->text('photo_url')->nullable();
             $table->string('gender', 20)->nullable();
             $table->text('address')->nullable();

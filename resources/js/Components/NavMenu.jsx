@@ -72,19 +72,6 @@ const setMenuButtonDefaultClass = (menu) => {
     menu.className = "px-3 py-2 rounded-md text-sm font-medium";
 };
 
-/**
- * Set default class for each child menu item
- * @param {MenuSchema[]} menus Child menu schema
- */
-const setChildMenuDefaultClass = (menus) => {
-    menus.forEach((menu) => {
-        if (!menu.activeClass) menu.activeClass = "bg-gray-200";
-        if (!menu.hoverClass) menu.hoverClass = "hover:bg-gray-100";
-        if (!menu.className)
-            menu.className = "block px-4 py-2 text-sm text-gray-700";
-    });
-};
-
 export default function NavMenu({
     menu,
     childMenus,
@@ -92,12 +79,6 @@ export default function NavMenu({
     key = "",
 }) {
     const [open, setOpen] = useState(false);
-
-    useEffect(() => {
-        console.log("open :>> ", open);
-        setMenuButtonDefaultClass(menu);
-        setChildMenuDefaultClass(childMenus);
-    }, []);
 
     return (
         <Menu

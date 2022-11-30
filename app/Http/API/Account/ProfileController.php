@@ -2,7 +2,7 @@
 
 namespace App\Http\API\Account;
 
-use App\Http\Controllers\BaseController as Controller;
+use App\Http\Controllers\BaseAPIController as Controller;
 use App\Http\Repositories\Base\BaseAccountRepository;
 use Illuminate\Http\Request;
 

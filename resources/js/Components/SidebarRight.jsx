@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { XMarkIcon } from "@heroicons/react/24/outline";
+import { XIcon } from "@heroicons/react/outline";
 
 export function SidebarRight() {
     const [open, setOpen] = useState(false);
@@ -56,7 +56,7 @@ export function SidebarRight() {
                                                 <span className="sr-only">
                                                     Close panel
                                                 </span>
-                                                <XMarkIcon
+                                                <XIcon
                                                     className="h-6 w-6"
                                                     aria-hidden="true"
                                                 />

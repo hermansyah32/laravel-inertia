@@ -14,9 +14,10 @@ return new class extends Migration
     public function up()
     {
         Schema::create('student_classes', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->string('name');
-            $table->integer('student_grade_id');
+            $table->uuid('student_grade_id');
+            $table->uuid('student_department_id');
             $table->softDeletes();
             $table->timestamps();
         });

@@ -14,12 +14,13 @@ return new class extends Migration
     public function up()
     {
         Schema::create('subject_assignments', function (Blueprint $table) {
-            $table->id();
-            $table->integer('assignment_group_id');
+            $table->uuid('id')->primary();
+            $table->uuid('assignment_group_id');
             $table->string('type');
             $table->text('question');
             $table->json('options')->nullable();
             $table->string('answer');
+            $table->integer('score');
             $table->softDeletes();
             $table->timestamps();
         });

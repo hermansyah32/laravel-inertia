@@ -2,9 +2,9 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
-use Tightenco\Ziggy\Ziggy;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -34,9 +34,25 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request)
     {
+        $auth = $request->user();
+
+        if ($auth) {
+            $auth = User::where('id', $auth->id)->with('profile')->with('roles')->first();
+            $profileData = $auth->profile;
+            $role = is_array($auth->roles) && count($auth->roles) > 0 ? $auth->roles[0]->name : null;
+            $auth->setAttribute('profile_gender', $profileData?->gender);
+            $auth->setAttribute('profile_photo_url', $profileData?->photo_url);
+            $auth->setAttribute('profile_phone', $profileData?->phone);
+            $auth->setAttribute('profile_birthday', $profileData?->birthday);
+            $auth->setAttribute('profile_address', $profileData?->address);
+            $auth->setAttribute('role', $role);
+            unset($auth->profile);
+            unset($auth->roles);
+        }
+
         return array_merge(parent::share($request), [
             'auth' => [
-                'user' => $request->user(),
+                'user' => $auth,
             ],
             'ziggy' => function () use ($request) {
                 return [

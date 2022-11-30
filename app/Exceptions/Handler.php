@@ -108,9 +108,6 @@ class Handler extends ExceptionHandler
      */
     protected function invalid($request, ValidationException $exception)
     {
-        // dd($exception);
-        $input = $request->input();
-        // dd($input);
         return redirect($exception->redirectTo ?? url()->previous())
             ->withInput([])
             ->withErrors($exception->errors(), $request->input('_error_bag', $exception->errorBag));

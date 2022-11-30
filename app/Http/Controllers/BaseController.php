@@ -2,24 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Laravel\Controller as LaravelController;
 use App\Http\Response\BodyResponse;
+use Exception;
+use Illuminate\Support\Facades\Log;
 
-abstract class BaseController extends LaravelController
+abstract class BaseController extends BaseAPIController
 {
-    /**
-     * Get permission rule
-     * @return object 
-     */
-    abstract function permissionRule();
 
-    abstract function checkPermission($rule);
+    abstract function baseComponent();
 
-    public function sendResponse(BodyResponse $body)
-    {
-        if (empty($body->getHeaderResponse()))
-            return response()->json($body->getResponse(), $body->getResponseCode()->value);
-        else
-            return response()->json($body->getResponse(), $body->getResponseCode()->value, $body->getHeaderResponse());
-    }
+    abstract static function getPageItems();
 }

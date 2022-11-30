@@ -17,9 +17,10 @@ class AssignmentGroupFactory extends Factory
     public function definition()
     {
         return [
-            'subject_group_id' => fake()->randomNumber(),
-            'subject_content_id' => fake()->randomNumber(),
-            'title' => 'Assignment Group ' . fake()->randomLetter(),
+            'subject_id' => fake()->uuid(),
+            'subject_group_id' => fake()->uuid(),
+            'subject_content_id' => fake()->uuid(),
+            'name' => 'Assignment Group ' . fake()->randomLetter(),
         ];
     }
 }

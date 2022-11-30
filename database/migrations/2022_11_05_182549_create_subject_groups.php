@@ -14,8 +14,10 @@ return new class extends Migration
     public function up()
     {
         Schema::create('subject_groups', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
+            $table->uuid('subject_id');
             $table->string('name');
+            $table->integer('order')->default(1);
             $table->softDeletes();
             $table->timestamps();
         });

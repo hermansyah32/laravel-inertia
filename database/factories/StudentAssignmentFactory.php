@@ -17,9 +17,9 @@ class StudentAssignmentFactory extends Factory
     public function definition()
     {
         return [
-            'user_id' => fake()->randomNumber(),
-            'assignment_group_id' => fake()->randomNumber(),
-            'subject_assignment_id' => fake()->randomNumber(),
+            'user_id' => fake()->uuid(),
+            'assignment_group_id' => fake()->uuid(),
+            'subject_assignment_id' => fake()->uuid(),
             'answer' => fake()->randomLetter(),
         ];
     }

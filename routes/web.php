@@ -1,7 +1,5 @@
 <?php
 
-use App\Http\Controllers\Account\UserController;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -30,18 +28,11 @@ Route::get('/about', function () {
     ]);
 })->name('about');
 
+require __DIR__ . '/web/auth.php';
 
-// Route for landing 
-Route::get('/inertia', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register')
-    ]);
+Route::middleware(['auth'])->group(function () {
+    require __DIR__ . '/web/dashboard.php';
+    require __DIR__ . '/web/apps.php';
+    require __DIR__ . '/web/settings.php';
+    require __DIR__ . '/web/account.php';
 });
-
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
-
-require __DIR__ . '/auth.php';

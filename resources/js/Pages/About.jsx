@@ -1,9 +1,7 @@
 import React from "react";
-import { Link, Head } from "@inertiajs/inertia-react";
+import { Head } from "@inertiajs/inertia-react";
 import Navbar from "@/Components/Landing/Navbar";
-import { Hero } from "@/Components/Landing/Hero";
-import { Footer } from "@/Components/Landing/Footer";
-import { Content } from "@/Components/Landing/Content";
+import Footer from "@/Components/Landing/Footer";
 
 export default function Welcome(props) {
     return (

@@ -38,9 +38,9 @@ class StudentAssignmentRepository extends BaseRepository
     {
         return ((object) [
             'rules' => [
-                'user_id' => ['required', 'integer'],
-                'assignment_group_id' => ['required', 'integer'],
-                'subject_assignment_id' => ['required', 'integer'],
+                'user_id' => ['required', 'uuid'],
+                'assignment_group_id' => ['required', 'uuid'],
+                'subject_assignment_id' => ['required', 'uuid'],
                 'answer' => ['required', 'string'],
             ],
             'messages' => [],
@@ -56,9 +56,9 @@ class StudentAssignmentRepository extends BaseRepository
     {
         return ((object) [
             'rules' => [
-                'user_id' => ['required', 'integer'],
-                'assignment_group_id' => ['required', 'integer'],
-                'subject_assignment_id' => ['required', 'integer'],
+                'user_id' => ['required', 'uuid'],
+                'assignment_group_id' => ['required', 'uuid'],
+                'subject_assignment_id' => ['required', 'uuid'],
                 'answer' => ['required', 'string'],
             ],
             'messages' => [],

@@ -19,7 +19,8 @@ class SubjectContentFactory extends Factory
         return [
             'title' => 'Content ' . fake()->randomLetter(),
             'content' => fake()->paragraph(),
-            'subject_group_id' => fake()->randomNumber(),
+            'order' => fake()->randomNumber(),
+            'subject_group_id' => fake()->uuid(),
         ];
     }
 }

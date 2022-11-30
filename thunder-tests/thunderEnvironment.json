@@ -5,11 +5,51 @@
     "default": true,
     "sortNum": 10000,
     "created": "2022-10-14T11:44:30.101Z",
-    "modified": "2022-10-17T07:20:55.157Z",
+    "modified": "2022-11-24T16:18:12.129Z",
     "data": [
       {
+        "name": "settings_users_id",
+        "value": "85c11fff-8cea-4b3c-b9b0-572ff0577067"
+      },
+      {
         "name": "access_token",
-        "value": "3|ymUpvjUlPXvz1ePugL9OlDS2301ABU5x5aFXyFFV"
+        "value": "3|zc9EGTgech7bvKPFUISszVVpQjKVXTBoL8PFWGFZ"
+      },
+      {
+        "name": "settings_roles_id",
+        "value": "9b05ba20-b8fb-413f-a55f-054e5b225d18"
+      },
+      {
+        "name": "settings_student_grades_id",
+        "value": "1c873958-06a6-437f-b2ab-c96ae5e040f9"
+      },
+      {
+        "name": "apps_subject_group_id",
+        "value": "9ca0c234-0286-48d8-ad5a-393ff15ff3ed"
+      },
+      {
+        "name": "apps_subject_content_id",
+        "value": "9c5cecc6-5d0a-49af-8d4f-bfdcc6cf50e3"
+      },
+      {
+        "name": "apps_subject_reference_id",
+        "value": "fa870ca5-5b4e-4010-95d8-941927d2b43c"
+      },
+      {
+        "name": "apps_sub_subject_content_id",
+        "value": "238c6525-3f50-446c-8c33-4bd293b4bd8e"
+      },
+      {
+        "name": "apps_assignment_group_id",
+        "value": "de22eb5b-fa4c-478c-b72d-7693d54b4e09"
+      },
+      {
+        "name": "apps_assignment_subject_id",
+        "value": "83b2c5f7-a544-4b87-b0cf-fa31da0c7fcf"
+      },
+      {
+        "name": "apps_assignment_students",
+        "value": "6973c7d9-8f92-43e4-b886-c9123e50976b"
       }
     ]
   }

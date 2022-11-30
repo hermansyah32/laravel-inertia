@@ -2,7 +2,8 @@
 
 namespace App\Http\API\Account;
 
-use App\Http\Controllers\BaseController as Controller;
+use App\Helper\Constants;
+use App\Http\Controllers\BaseAPIController as Controller;
 use App\Http\Repositories\RoleRepository;
 use App\Http\Response\BodyResponse;
 use Exception;
@@ -38,18 +39,7 @@ class RoleController extends Controller
 
     public function permissionRule()
     {
-        return ((object)[
-            'index' => 'can index roles',
-            'indexTrashed' => 'can index trashed roles',
-            'show' => 'can show roles',
-            'showFull' => 'can show full roles',
-            'showTrashed' => 'can show trashed roles',
-            'store' => 'can store roles',
-            'update' => 'can update roles',
-            'restore' => 'can restore roles',
-            'destroy' => 'can destroy roles',
-            'permanentDestroy' => 'can permanent destroy roles',
-        ]);
+        return Constants::PERMISSIONS()->roles;
     }
 
 
@@ -76,7 +66,7 @@ class RoleController extends Controller
     public function indexTrashed(Request $request)
     {
         // Add permission checking
-        $this->checkPermission($this->permissionRule()->indexTrashed);
+        $this->checkPermission($this->permissionRule()->index_trashed);
 
         $order = $request->order ?? 'desc';
         $columns = $request->columns ?? ['*'];
@@ -102,10 +92,10 @@ class RoleController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int $id
+     * @param  string $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request, int $id)
+    public function show(Request $request, string $id)
     {
         $this->checkPermission($this->permissionRule()->show);
 
@@ -116,12 +106,12 @@ class RoleController extends Controller
     /**
      * Display the specified resource trashed.
      *
-     * @param  int $id
+     * @param  string $id
      * @return \Illuminate\Http\Response
      */
-    public function showTrashed(Request $request, int $id)
+    public function showTrashed(Request $request, string $id)
     {
-        $this->checkPermission($this->permissionRule()->showTrashed);
+        $this->checkPermission($this->permissionRule()->show_trashed);
 
         $result = $this->repository->getTrashed('id', $id);
         return $this->sendResponse($result);
@@ -131,10 +121,10 @@ class RoleController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int $id
+     * @param  string $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, int $id)
+    public function update(Request $request, string $id)
     {
         $this->checkPermission($this->permissionRule()->update);
 
@@ -146,10 +136,10 @@ class RoleController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int $id
+     * @param  string $id
      * @return \Illuminate\Http\Response
      */
-    public function restore(Request $request, int $id)
+    public function restore(Request $request, string $id)
     {
         $this->checkPermission($this->permissionRule()->restore);
 
@@ -160,10 +150,10 @@ class RoleController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int $id
+     * @param  string $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request, int $id)
+    public function destroy(Request $request, string $id)
     {
         $this->checkPermission($this->permissionRule()->destroy);
 
@@ -174,12 +164,12 @@ class RoleController extends Controller
     /**
      * Remove the specified resource from storage permanently.
      *
-     * @param  int $id
+     * @param  string $id
      * @return \Illuminate\Http\Response
      */
-    public function permanentDestroy(Request $request, int $id)
+    public function permanentDestroy(Request $request, string $id)
     {
-        $this->checkPermission($this->permissionRule()->permanentDestroy);
+        $this->checkPermission($this->permissionRule()->permanent_destroy);
 
         $result = $this->repository->permanentDeleteBy('id', $id);
         return $this->sendResponse($result);

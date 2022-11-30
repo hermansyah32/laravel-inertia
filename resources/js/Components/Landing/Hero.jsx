@@ -1,4 +1,6 @@
-export const Hero = () => {
+import React from "react";
+
+export default function Hero() {
     return (
         <div className="overflow-y-hidden">
             <div className="relative flex justify-center items-center md:flex md:justify-start">
@@ -25,11 +27,13 @@ export const Hero = () => {
                             </span>
                         </h1>
                         <p className="mt-4 md:w-80 lg:w-3/4 text-center md:text-left  text-base leading-normal text-gray-600">
-                            Cukup sekali download, dapat belajar dimana saja tanpa kuota internet. Solusi belajar jarak jauh terkini.
+                            Cukup sekali download, dapat belajar dimana saja
+                            tanpa kuota internet. Solusi belajar jarak jauh
+                            terkini.
                         </p>
                     </div>
                 </div>
             </div>
         </div>
     );
-};
+}

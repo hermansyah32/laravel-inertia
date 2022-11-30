@@ -2,7 +2,7 @@
 
 namespace App\Http\API\Auth;
 
-use App\Http\Controllers\BaseController as Controller;
+use App\Http\Controllers\BaseAPIController as Controller;
 use App\Http\Response\BodyResponse;
 use App\Http\Response\ResponseCode;
 use App\Models\User;

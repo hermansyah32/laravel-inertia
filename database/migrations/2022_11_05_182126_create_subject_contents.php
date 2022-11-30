@@ -14,8 +14,9 @@ return new class extends Migration
     public function up()
     {
         Schema::create('subject_contents', function (Blueprint $table) {
-            $table->id();
-            $table->integer('subject_group_id');
+            $table->uuid('id')->primary();
+            $table->uuid('subject_group_id');
+            $table->integer('order')->default(1);
             $table->string('title');
             $table->longText('content');
             $table->softDeletes();
