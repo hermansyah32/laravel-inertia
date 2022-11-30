@@ -1,8 +1,20 @@
 <?php
 
 use App\Http\API\Apps\Class\StudentClassController;
+use App\Http\API\Apps\Class\StudentDepartmentController;
 use App\Http\API\Apps\Class\StudentGradeController;
 use Illuminate\Support\Facades\Route;
+
+/**============================= Student Department ============================================== */
+Route::get('departments', [StudentDepartmentController::class, 'index'])->name('api.departments.index');
+Route::get('trashed/departments', [StudentDepartmentController::class, 'indexTrashed'])->name('api.trashed.departments.index');
+Route::post('departments', [StudentDepartmentController::class, 'store'])->name('api.departments.store');
+Route::get('departments/{id}', [StudentDepartmentController::class, 'show'])->name('api.departments.show');
+Route::get('trashed/departments/{id}', [StudentDepartmentController::class, 'showTrashed'])->name('api.trashed.departments.show');
+Route::match(['put', 'patch'], 'departments/{id}', [StudentDepartmentController::class, 'update'])->name('api.departments.update');
+Route::match(['put', 'patch'], 'trashed/departments/{id}', [StudentDepartmentController::class, 'restore'])->name('api.trashed.departments.restore');
+Route::delete('departments/{id}', [StudentDepartmentController::class, 'destroy'])->name('api.departments.destroy');
+Route::delete('trashed/departments/{id}', [StudentDepartmentController::class, 'permanentDestroy'])->name('api.trashed.departments.destroy');
 
 /**============================= Student Grade ============================================== */
 Route::get('grades', [StudentGradeController::class, 'index'])->name('api.grades.index');

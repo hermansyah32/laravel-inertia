@@ -1,10 +1,21 @@
 <?php
 
 use App\Http\API\Apps\Content\SubjectContentController;
+use App\Http\API\Apps\Content\SubjectController;
 use App\Http\API\Apps\Content\SubjectGroupController;
 use App\Http\API\Apps\Content\SubjectReferenceController;
-use App\Http\API\Apps\Content\SubSubjectContentController;
 use Illuminate\Support\Facades\Route;
+
+/**============================= Subject ============================================== */
+Route::get('subject', [SubjectController::class, 'index'])->name('api.subject.index');
+Route::get('trashed/subject', [SubjectController::class, 'indexTrashed'])->name('api.trashed.subject.index');
+Route::post('subject', [SubjectController::class, 'store'])->name('api.subject.store');
+Route::get('subject/{id}', [SubjectController::class, 'show'])->name('api.subject.show');
+Route::get('trashed/subject/{id}', [SubjectController::class, 'showTrashed'])->name('api.trashed.subject.show');
+Route::match(['put', 'patch'], 'subject/{id}', [SubjectController::class, 'update'])->name('api.subject.update');
+Route::match(['put', 'patch'], 'trashed/subject/{id}', [SubjectController::class, 'restore'])->name('api.trashed.subject.restore');
+Route::delete('subject/{id}', [SubjectController::class, 'destroy'])->name('api.subject.destroy');
+Route::delete('trashed/subject/{id}', [SubjectController::class, 'permanentDestroy'])->name('api.trashed.subject.destroy');
 
 /**============================= Subject Group ============================================== */
 Route::get('subject/groups', [SubjectGroupController::class, 'index'])->name('api.subject.groups.index');

@@ -12,10 +12,6 @@
         "value": "85c11fff-8cea-4b3c-b9b0-572ff0577067"
       },
       {
-        "name": "access_token",
-        "value": "3|zc9EGTgech7bvKPFUISszVVpQjKVXTBoL8PFWGFZ"
-      },
-      {
         "name": "settings_roles_id",
         "value": "9b05ba20-b8fb-413f-a55f-054e5b225d18"
       },
@@ -50,6 +46,10 @@
       {
         "name": "apps_assignment_students",
         "value": "6973c7d9-8f92-43e4-b886-c9123e50976b"
+      },
+      {
+        "name": "access_token",
+        "value": "2|knHD2ydX1H4ckfB3gqRmMeLNtnVJ67EnENZCFtlU"
       }
     ]
   }

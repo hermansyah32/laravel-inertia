@@ -4,24 +4,24 @@ namespace App\Http\API\Apps\Class;
 
 use App\Helper\Constants;
 use App\Http\Controllers\BaseAPIController as Controller;
-use App\Http\Repositories\StudentGradeRepository;
+use App\Http\Repositories\StudentDepartmentRepository;
 use App\Http\Response\BodyResponse;
 use App\Http\Response\ResponseCode;
 use App\Models\StudentClass;
 use Exception;
 use Illuminate\Http\Request;
 
-class StudentGradeController extends Controller
+class StudentDepartmentController extends Controller
 {
-    /** @var  StudentGradeRepository */
+    /** @var  StudentDepartmentRepository */
     private $repository;
 
     /**
      * Class constructor
-     * @param StudentGradeRepository $repo 
+     * @param StudentDepartmentRepository $repo 
      * @return void 
      */
-    public function __construct(StudentGradeRepository $repo)
+    public function __construct(StudentDepartmentRepository $repo)
     {
         $this->repository = $repo;
     }
@@ -156,7 +156,7 @@ class StudentGradeController extends Controller
      */
     public function destroy(Request $request, string $id)
     {
-        $countClass = StudentClass::where('student_grade_id', $id)->count();
+        $countClass = StudentClass::where('student_department_id', $id)->count();
         if ($countClass > 0) {
             $body = new BodyResponse();
             $body->setResponseError('Grade still have classes', ResponseCode::SERVER_ERROR);

@@ -6,8 +6,6 @@ use App\Helper\Constants;
 use App\Http\Controllers\BaseAPIController as Controller;
 use App\Http\Repositories\SubjectContentRepository;
 use App\Http\Response\BodyResponse;
-use App\Http\Response\ResponseCode;
-use App\Models\SubSubjectContent;
 use Exception;
 use Illuminate\Http\Request;
 
@@ -157,13 +155,6 @@ class SubjectContentController extends Controller
      */
     public function destroy(Request $request, string $id)
     {
-        $countStudent = SubSubjectContent::where('subject_content_id', $id)->count();
-        if ($countStudent > 0) {
-            $body = new BodyResponse();
-            $body->setResponseError('Subject content still have sub content', ResponseCode::SERVER_ERROR);
-            return $this->sendResponse($body);
-        }
-
         $this->checkPermission($this->permissionRule()->destroy);
 
         $result = $this->repository->deleteBy('id', $id);

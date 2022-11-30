@@ -149,14 +149,17 @@ class BaseAccountRepository
      * @param string $user User username.
      * @return BodyResponse 
      */
-    public function updateAccount(string $email, string $username): BodyResponse
+    public function updateAccount(string|null $email, string|null $username): BodyResponse
     {
         $body = new BodyResponse();
         try {
-            $data = ['email' => $email, 'username' => $username];
+            $data = [];
+            if ($email !== null) $data['email'] = $email;
+            if ($username !== null) $data['username'] = $username;
+
             $validator = Validator::make($data, $this->AccountRules());
             if ($validator->fails())
-                $body->setResponseValidationError($validator->errors(), $this->messageResponseKey);
+                return $body->setResponseValidationError($validator->errors(), $this->messageResponseKey);
 
             $account = $this->currentAccount();
             $account->fill($data);
@@ -289,8 +292,8 @@ class BaseAccountRepository
     private function AccountRules(): array
     {
         return [
-            'email' => ['required', 'email', 'unique:users,email'],
-            'username' => ['required', 'unique:users,username']
+            'email' => ['email', 'unique:users,email'],
+            'username' => ['unique:users,username']
         ];
     }
 

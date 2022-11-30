@@ -1,27 +1,26 @@
 <?php
 
-namespace App\Http\API\Apps\Class;
+namespace App\Http\API\Apps\Content;
 
 use App\Helper\Constants;
 use App\Http\Controllers\BaseAPIController as Controller;
-use App\Http\Repositories\StudentGradeRepository;
+use App\Http\Repositories\SubjectRepository;
 use App\Http\Response\BodyResponse;
 use App\Http\Response\ResponseCode;
-use App\Models\StudentClass;
 use Exception;
 use Illuminate\Http\Request;
 
-class StudentGradeController extends Controller
+class SubjectController extends Controller
 {
-    /** @var  StudentGradeRepository */
+    /** @var  SubjectRepository */
     private $repository;
 
     /**
      * Class constructor
-     * @param StudentGradeRepository $repo 
+     * @param SubjectRepository $repo 
      * @return void 
      */
-    public function __construct(StudentGradeRepository $repo)
+    public function __construct(SubjectRepository $repo)
     {
         $this->repository = $repo;
     }
@@ -41,7 +40,7 @@ class StudentGradeController extends Controller
 
     public function permissionRule()
     {
-        return Constants::PERMISSIONS()->student_grades;
+        return Constants::PERMISSIONS()->subject_contents;
     }
 
 
@@ -86,6 +85,7 @@ class StudentGradeController extends Controller
     public function store(Request $request)
     {
         $this->checkPermission($this->permissionRule()->store);
+
         $result = $this->repository->create($request->all());
         return $this->sendResponse($result);
     }
@@ -156,13 +156,6 @@ class StudentGradeController extends Controller
      */
     public function destroy(Request $request, string $id)
     {
-        $countClass = StudentClass::where('student_grade_id', $id)->count();
-        if ($countClass > 0) {
-            $body = new BodyResponse();
-            $body->setResponseError('Grade still have classes', ResponseCode::SERVER_ERROR);
-            return $this->sendResponse($body);
-        }
-
         $this->checkPermission($this->permissionRule()->destroy);
 
         $result = $this->repository->deleteBy('id', $id);
