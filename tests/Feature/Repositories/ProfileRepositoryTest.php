@@ -34,14 +34,12 @@ class ProfileRepositoryTest extends TestCase
         $this->assertInstanceOf(BodyResponse::class, $result);
         $this->assertSame($result->getResponseCode()->value, ResponseCode::OK->value);
         $this->assertSame($user->name, $result->getBodyData()->name);
-        $this->assertArrayHasKey('profile', $result->getBodyData()->toArray());
+        $this->assertArrayHasKey('profile_gender', $result->getBodyData()->toArray());
         $this->assertSame($user->id, $result->getBodyData()->profile->user_id);
     }
 
-    public function test_account_update_repository()
+    public function test_email_update_repository()
     {
-        $this->markTestIncomplete("This test change new email address/username directly. 
-        To appropriate function, should have a proper flow to check if this action is valid by sending verification email with token.");
         /** @var User $user */
         $user = User::factory()->create();
         $oldEmail = $user->email;
@@ -50,7 +48,7 @@ class ProfileRepositoryTest extends TestCase
 
         /** @var BodyResponse $result */
         $result =  App::call(function (ProfileRepository $repository) use ($newEmail) {
-            return $repository->updateAccount($newEmail, $newEmail);
+            return $repository->updateEmail($newEmail);
         });
 
         $this->assertInstanceOf(BodyResponse::class, $result);
@@ -100,6 +98,7 @@ class ProfileRepositoryTest extends TestCase
         $result =  App::call(function (ProfileRepository $repository) use ($newData) {
             return $repository->updateProfile($newData);
         });
+        dd($result);
 
         $this->assertInstanceOf(BodyResponse::class, $result);
         $this->assertSame($result->getResponseCode()->value, ResponseCode::OK->value);
@@ -122,6 +121,7 @@ class ProfileRepositoryTest extends TestCase
                 'current_password' => 'password', 'password' => $newPassword, 'confirm_password' => $newPassword
             ]);
         });
+        dd($result);
 
         $this->assertInstanceOf(BodyResponse::class, $result);
         $this->assertSame($result->getResponseCode()->value, ResponseCode::OK->value);

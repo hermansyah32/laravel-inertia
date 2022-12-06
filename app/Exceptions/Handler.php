@@ -3,11 +3,13 @@
 namespace App\Exceptions;
 
 use App\Http\Response\BodyResponse;
+use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -56,11 +58,25 @@ class Handler extends ExceptionHandler
 
         $this->renderable(function (Throwable $e, $request) {
             $body = new BodyResponse();
+
+            $this->globalLogger($e);
+
             if ($request->is('api/*')) {
                 $body->setResponseError($e->getMessage());
+                $body->setException($e);
                 return response()->json($body->getResponse(), $body->getResponseCode()->value);
             }
         });
+    }
+
+    public function globalLogger(Throwable $exception)
+    {
+        Log::error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+        if ($exception instanceof AuthenticationException) return;
+        if ($exception instanceof ValidationException) return;
+        if ($exception instanceof NotFoundHttpException) return;
+
+        if (config('app.debug')) dd($exception);
     }
 
     /**

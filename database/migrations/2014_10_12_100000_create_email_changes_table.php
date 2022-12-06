@@ -13,12 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('teacher_profiles', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->string('teacher_number')->nullable();
-            $table->json('education')->nullable();
-            $table->softDeletes();
-            $table->timestamps();
+        Schema::create('email_changes', function (Blueprint $table) {
+            $table->string('email')->index();
+            $table->string('new_email');
+            $table->string('token');
+            $table->timestamp('created_at')->nullable();
         });
     }
 
@@ -29,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('teacher_profiles');
+        Schema::dropIfExists('password_resets');
     }
 };

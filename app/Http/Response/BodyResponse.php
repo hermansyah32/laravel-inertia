@@ -38,6 +38,9 @@ class BodyResponse
     // in case need exception data
     private $exception;
 
+    // is message exception
+    private $knownIssue = false;
+
     public function getResponseCode(): ResponseCode
     {
         return $this->responseCode;
@@ -106,6 +109,16 @@ class BodyResponse
     public function setException($exception)
     {
         $this->exception = $exception;
+    }
+
+    public function getKnownIssue()
+    {
+        return $this->knownIssue;
+    }
+
+    public function setKnownIssue(bool $knownIssue)
+    {
+        $this->knownIssue = $knownIssue;
     }
 
     public function setResponseError(

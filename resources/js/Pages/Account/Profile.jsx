@@ -63,6 +63,18 @@ export default function Profile(props) {
             disabled={true}
           />
         </div>
+        <div className="block md:flex flex-row">
+          <InputLabel
+            className="md:w-1/4 md:self-center md:font-bold"
+            forInput="username"
+            value="Username"
+          />
+          <TextInput
+            className="mt-1 block w-full bg-gray-100"
+            value={data.username}
+            disabled={true}
+          />
+        </div>
         <div className="block md:flex flex-row mt-4">
           <InputLabel
             className="md:w-1/4 md:self-center md:font-bold"

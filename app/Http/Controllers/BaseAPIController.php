@@ -43,6 +43,5 @@ abstract class BaseAPIController extends LaravelController
 
         $exception = $body->getException();
         Log::error($exception->getMessage());
-        if (config('app.debug')) dd($exception);
     }
 }

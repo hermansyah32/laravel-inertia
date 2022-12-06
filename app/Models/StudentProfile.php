@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helper\Constants;
 use Database\Traits\Uuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,6 +11,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class StudentProfile extends Model
 {
     use HasFactory, SoftDeletes, Uuid;
+
+    /**
+     * @var string CommonDateFormat
+     */
+    const CommonDateFormat = "Y-m-d";
 
     /**
      * Indicates if the model's ID is auto-incrementing.
@@ -25,7 +31,7 @@ class StudentProfile extends Model
      */
     protected $keyType = 'string';
 
-     /**
+    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
@@ -43,4 +49,37 @@ class StudentProfile extends Model
         'cumulative_score',
         'address',
     ];
+
+    /**
+     * Get the user that owns the phone.
+     */
+    public function user()
+    {
+        return $this->morphOne(User::class, 'user');
+    }
+
+    public function getConstants()
+    {
+        return [
+            'gender' => Constants::GENDER(),
+            'grade' => StudentGrade::all()->pluck('name'),
+            'class' => StudentClass::all()->pluck('name'),
+        ];
+    }
+
+    public function updateRules()
+    {
+        return [
+            'name' => 'required',
+            'profile_parent_id' => ['nullable', 'uuid'],
+            'profile_gender' => ['nullable', 'string', 'in:male,female'],
+            'profile_birthday' => 'nullable|date_format:' . self::CommonDateFormat,
+            'profile_address' => 'nullable',
+            'profile_photo_url' => 'nullable|file|max:5120|mimes:jpg,png,jpeg',
+            'profile_student_number' => ['nullable', 'string'],
+            'profile_student_class_id' => ['nullable', 'uuid'],
+            'profile_student_grade_id' => ['nullable', 'uuid'],
+            'profile_cumulative_score' => ['nullable', 'integer'],
+        ];
+    }
 }

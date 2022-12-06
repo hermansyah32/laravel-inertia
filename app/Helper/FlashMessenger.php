@@ -31,11 +31,11 @@ class FlashMessenger
 
     public static function sendFromBody(BodyResponse $bodyResponse, FlashType $type = FlashType::BANNER)
     {
-        $title = Lang::get('flash.success');
+        $title = Lang::get('notification.flash.success');
         $notification = NotificationType::SUCCESS;
         $message = $bodyResponse->getBodyMessage();
         if ($bodyResponse->getResponseCode() !== ResponseCode::OK) {
-            $title = Lang::get('flash.error');
+            $title = Lang::get('notification.flash.error');
             $notification = NotificationType::ERROR;
         }
         Session::flash('flash_message', $message);

@@ -69,7 +69,7 @@ export class TransformData {
    * @returns {Paginate|undefined}
    */
   static paginate(data) {
-    if (!data) return data;
+    if (!data || data.length < 1) return data;
 
     const paginationData = new DataPaging({ ...data });
     return { paging: paginationData, data: data.data };

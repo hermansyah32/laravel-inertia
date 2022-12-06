@@ -5,9 +5,10 @@ namespace App\Models;
 use Database\Traits\Uuid;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use Spatie\Permission\Contracts\Permission as ContractsPermission;
 use Spatie\Permission\Models\Permission as ModelPermission;
 
-class Permission extends ModelPermission
+class Permission extends ModelPermission implements ContractsPermission
 {
     /**
      * user id change to uuid. Spatie role reference 

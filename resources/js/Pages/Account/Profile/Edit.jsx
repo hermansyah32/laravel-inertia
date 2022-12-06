@@ -39,17 +39,17 @@ export default function Edit(props) {
     setData(event.target.name, value);
   };
 
-  const onPhoneHandleChange = (event) =>{
-    const value = event.target.value.replace(/ /g, '');
-    setData('profile_phone', value);
-  }
+  const onPhoneHandleChange = (event) => {
+    const value = event.target.value.replace(/ /g, "");
+    setData("profile_phone", value);
+  };
 
   const onGenderHandleChange = (value) => {
     setData("profile_gender", value.id);
   };
 
   const onBirthdayHandleChange = (date) => {
-    setData("profile_birthday", dayjs(date).format('YYYY-MM-DD'));
+    setData("profile_birthday", dayjs(date).format("YYYY-MM-DD"));
   };
 
   const submit = (e) => {
@@ -112,6 +112,24 @@ export default function Edit(props) {
                 handleChange={onInputHandleChange}
               />
               <InputError message={errors.name} className="mt-2" />
+            </div>
+          </div>
+          <div className="block md:flex flex-row mt-4">
+            <InputLabel
+              forInput="username"
+              className="md:w-1/4 md:self-center md:font-bold"
+              value="Username"
+            />
+            <div className="block w-full">
+              <TextInput
+                type="text"
+                name="username"
+                value={data.username}
+                className="mt-1 block w-full"
+                isFocused={true}
+                handleChange={onInputHandleChange}
+              />
+              <InputError message={errors.username} className="mt-2" />
             </div>
           </div>
           <div className="block md:flex flex-row mt-4">

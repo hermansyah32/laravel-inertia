@@ -52,13 +52,4 @@ class StudentParent extends User
     {
         return 'App\Models\User';
     }
-    
-    /**
-     * Profile relation
-     * @return HasOne 
-     */
-    public function profile()
-    {
-        return $this->hasOne(TeacherProfile::class, 'user_id', 'id');
-    }
 }

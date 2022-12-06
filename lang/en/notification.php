@@ -23,4 +23,10 @@ return [
     'emailSignInHi' => 'Hi :user!',
     'emailSignInContent' => 'We detected sign in request from ip :ipAddress, :countryName using :browserName, :osName',
     'emailSignInPanel' => 'If this request is not you, please change your password or contact administrator',
+
+    // flash messenger
+    'flash' => [
+        'success' => 'Success',
+        'error' => 'Attention',
+    ]
 ];

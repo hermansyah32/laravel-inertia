@@ -45,7 +45,7 @@ class ProfileController extends Controller
      */
     public function update(Request $request)
     {
-        $result = $this->repository->updateAccount($request->email, $request->username);
+        $result = $this->repository->updateEmail($request->email);
         return $this->sendResponse($result);
     }
 

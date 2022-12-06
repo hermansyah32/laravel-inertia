@@ -69,7 +69,6 @@ class UserController extends Controller
         if ($result->getResponseCode() !== ResponseCode::OK) {
             FlashMessenger::sendFromBody($result);
         }
-
         return Inertia::render($this->baseComponent(), [
             'pageItems' => $this->getPageItems(),
             'data' => $result->getBodyData(),

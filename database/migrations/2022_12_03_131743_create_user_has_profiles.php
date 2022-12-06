@@ -13,12 +13,15 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('teacher_profiles', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->string('teacher_number')->nullable();
-            $table->json('education')->nullable();
+        Schema::create('user_has_profiles', function (Blueprint $table) {
+            $table->uuid('user_id'); 
+            $table->foreign('user_id')
+                ->references('id') // users id
+                ->on('users')
+                ->onDelete('cascade');
+            $table->string('profile_type');
+            $table->uuid('profile_id');
             $table->softDeletes();
-            $table->timestamps();
         });
     }
 
@@ -29,6 +32,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('teacher_profiles');
+        Schema::dropIfExists('user_has_profiles');
     }
 };

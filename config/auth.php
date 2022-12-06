@@ -16,6 +16,7 @@ return [
     'defaults' => [
         'guard' => 'web',
         'passwords' => 'users',
+        'emails' => 'users',
     ],
 
     /*
@@ -90,6 +91,15 @@ return [
         'users' => [
             'provider' => 'users',
             'table' => 'password_resets',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+    ],
+
+    'emails' => [
+        'users' => [
+            'provider' => 'users',
+            'table' => 'email_changes',
             'expire' => 60,
             'throttle' => 60,
         ],

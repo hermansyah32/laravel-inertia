@@ -15,11 +15,9 @@ return new class extends Migration
     {
         Schema::create('student_parent_profiles', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->date('birthday')->nullable();
-            $table->string('gender', 20)->nullable();
-            $table->string('phone', 16)->nullable();
-            $table->text('photo_url')->nullable();
-            $table->text('address')->nullable();
+            $table->string('partner_type')->nullable();
+            $table->string('partner_name')->nullable();
+            $table->string('partner_contact')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

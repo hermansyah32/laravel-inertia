@@ -45,6 +45,7 @@ function Table({ columns, inputData, fetchData, withNumber = false }) {
   // set const data
   /** @type {array} */
   const data = inputData.data;
+  
   /** @type {DataPaging} */
   const dataPaging = inputData.paging;
 
@@ -75,11 +76,11 @@ function Table({ columns, inputData, fetchData, withNumber = false }) {
       columns,
       data,
       initialState: {
-        pageIndex: dataPaging.current_page - 1,
-        pageSize: dataPaging.per_page,
+        pageIndex: dataPaging?.current_page - 1,
+        pageSize: dataPaging?.per_page,
       },
       manualPagination: true,
-      pageCount: dataPaging.last_page,
+      pageCount: dataPaging?.last_page,
     },
     useFilters, // useFilters!
     useGlobalFilter,

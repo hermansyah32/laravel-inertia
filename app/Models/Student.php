@@ -46,19 +46,18 @@ class Student extends User
                 $q->whereIn("name", ["student"]);
             });
         });
+        static::created(function (User $user) {
+            try {
+                StudentProfile::create(['user_id' => $user->id]);
+            } catch (\Throwable $th) {
+                echo ($th->getMessage());
+                return false;
+            }
+        });
     }
 
     public function getMorphClass()
     {
         return 'App\Models\User';
-    }
-
-    /**
-     * Profile relation
-     * @return HasOne 
-     */
-    public function profile()
-    {
-        return $this->hasOne(StudentProfile::class, 'user_id', 'id');
     }
 }

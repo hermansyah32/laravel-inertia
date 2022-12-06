@@ -4,26 +4,28 @@ namespace App\Http\Repositories\Base;
 
 use App\Http\Response\BodyResponse;
 use App\Http\Response\MessageResponse;
+use App\http\Systems\Models\EmailChange;
 use App\Models\User;
 use App\Models\UserProfile;
+use App\Notifications\EmailChangeNotification;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Container\Container as Application;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class BaseAccountRepository
 {
-    /**
-     * @var string CommonDateFormat
-     */
-    const CommonDateFormat = "Y-m-d";
-
     /**
      * @var Application
      */
@@ -47,6 +49,12 @@ class BaseAccountRepository
     protected $messageResponse;
 
     /**
+     * Token Repository
+     * @var TokenRepository
+     */
+    private $tokenRepository;
+
+    /**
      * Base repository constructor
      */
     public function __construct(Application $app)
@@ -54,6 +62,7 @@ class BaseAccountRepository
         $this->app = $app;
         $this->messageResponseKey = Lang::get('data.profile');
         $this->messageResponse = MessageResponse::getMessage($this->messageResponseKey);
+        $this->tokenRepository = new TokenRepository(config('app.key'));
     }
 
     /**
@@ -79,10 +88,12 @@ class BaseAccountRepository
      * 
      * @return Authenticatable|\Illuminate\Database\Eloquent\Model
      */
-    public function currentAccount(): Authenticatable|Model
+    public function currentAccount(bool $isBuilder = false): Authenticatable|Model|Builder
     {
         if (!Auth::user()) throw new AuthenticationException();
         $auth = Auth::user();
+        if ($isBuilder) return User::where('id', $auth->id);
+
         $result = User::where('id', $auth->id)->first();
         return $result;
     }
@@ -90,14 +101,31 @@ class BaseAccountRepository
     /**
      * Get all current roles.
      * 
-     * @return bool
      */
-    public function currentRoles(): bool
+    public function currentRoles()
     {
         if (!Auth::user()) throw new AuthenticationException();
         $auth = Auth::user();
         $result = User::where('id', $auth->id)->with('roles')->first();
-        return $result;
+        return $result->roles;
+    }
+
+
+    /**
+     * Get highest rank current roles.
+     * 
+     * @return array
+     */
+    public function currentHighestRole(): array
+    {
+        if (!Auth::user()) throw new AuthenticationException();
+        $auth = Auth::user();
+        $result = User::where('id', $auth->id)->with('roles')->whereHas('roles', function ($query) {
+            $query->orderBy('rank', 'asc');
+        })->first();
+        return count($result->roles) > 0
+            ? $result->roles[0]->toArray()
+            : ['name' => 'unknown', 'rank' => 999, 'permission_tag' => 'unknown'];
     }
 
     /**
@@ -120,21 +148,14 @@ class BaseAccountRepository
     {
         $body = new BodyResponse();
         try {
-            $account = $this->currentAccount();
-            $account->setAttribute('profile_gender', $account->profile?->gender);
-            $account->setAttribute('profile_photo_url', $account->profile?->photo_url);
-            $account->setAttribute('profile_phone', $account->profile?->phone);
-            $account->setAttribute('profile_birthday', $account->profile?->birthday);
-            $account->setAttribute('profile_address', $account->profile?->address);
-            $account->setAttribute('role', is_array($account->roles?->toArray()) && count($account->roles?->toArray()) > 0
-                ? $account->roles[0]?->name
-                : null);
-            unset($account->profile);
-            unset($account->roles);
+            $account = $this->currentAccount(true)->with('profile')->with('roles')->first();
+            $this->transformProfile($account);
+            $this->transformRoles($account);
 
             $body->setBodyMessage(Lang::get('data.get', ['Data' => 'Profile']));
             $body->setBodyData($account);
         } catch (\Throwable $th) {
+            $this->saveLog($th);
             $body->setException($th);
             $body->setResponseError($th->getMessage());
             $body->setBodyMessage($this->messageResponse['failedError']);
@@ -143,39 +164,68 @@ class BaseAccountRepository
     }
 
     /**
-     * Update authenticated user data except password
-     * 
-     * @param string $email User email.
-     * @param string $user User username.
+     * Send email update link
+     * @param string $email New email to be used
      * @return BodyResponse 
      */
-    public function updateAccount(string|null $email, string|null $username): BodyResponse
+    public function sendEmailUpdate(string $email): BodyResponse
     {
         $body = new BodyResponse();
         try {
-            $data = [];
-            if ($email !== null) $data['email'] = $email;
-            if ($username !== null) $data['username'] = $username;
+            $validator = Validator::make(['email' => $email], ['email' => ['required', 'email', 'unique:users']]);
+            if ($validator->fails()) return $body->setResponseValidationError($validator->errors(), $this->messageResponseKey);
 
-            $validator = Validator::make($data, $this->AccountRules());
+            $token = $this->tokenRepository->create(Str::reverse($email));
+            EmailChange::whereNotNull('created_at')->update(['created_at' => new Date()]);
+            EmailChange::create(['email' => $this->currentAccount()->email, 'new_email' => $email, 'token' => $token]);
+
+            Notification::send($this->repository->currentAccount(), new EmailChangeNotification($token, $email));
+
+            $body->setBodyMessage(Lang::get('Email change requested'));
+        } catch (\Throwable $th) {
+            $this->saveLog($th);
+            $body->setException($th);
+            $body->setResponseError($th->getMessage());
+            $body->setBodyMessage($this->messageResponse['failedError']);
+        }
+        return $body;
+    }
+
+    /**
+     * Update authenticated user email
+     * 
+     * @param string $email User email.
+     * @return BodyResponse 
+     */
+    public function updateEmail(string|null $email, string|null $token): BodyResponse
+    {
+        $body = new BodyResponse();
+        try {
+            $data = ['email' => $email, 'token' => $token];
+
+            $validator = Validator::make($data, [
+                'email' => ['required', 'email', 'unique:users'],
+                'token' => ['required', 'string']
+            ]);
             if ($validator->fails())
                 return $body->setResponseValidationError($validator->errors(), $this->messageResponseKey);
 
-            $account = $this->currentAccount();
-            $account->fill($data);
+            $emailRequest = EmailChange::where(['email' => $email, 'token' => $token])->first();
+            if ($emailRequest === null) return $body->setResponseNotFound('Your request is invalid');
+
+            if (!$this->tokenRepository->verify(Str::reverse($email), $token))
+                return $body->setResponseNotFound('Your request can not be verified');
+
+            $account = $this->currentAccount(true)->with('profile')->first();
+            $account->email = $emailRequest->new_email;
             $account->save();
 
-            $result = $account->with('profile')->with('roles')->first();
-            $result->setAttribute('profile_gender', $result->profile?->gender);
-            $result->setAttribute('profile_photo_url', $result->profile?->photo_url);
-            $result->setAttribute('profile_phone', $result->profile?->phone);
-            $result->setAttribute('profile_birthday', $result->profile?->birthday);
-            $result->setAttribute('profile_address', $result->profile?->address);
-            $result->setAttribute('role', is_array($result->roles?->toArray()) ? $result->roles[0]?->name : null);
+            $this->transformProfile($account);
 
             $body->setBodyData($account);
             $body->setBodyMessage($this->messageResponse['successUpdated']);
         } catch (\Throwable $th) {
+            $this->saveLog($th);
             $body->setException($th);
             $body->setResponseError($th->getMessage());
             $body->setBodyMessage($this->messageResponse['failedError']);
@@ -193,15 +243,15 @@ class BaseAccountRepository
     {
         $body = new BodyResponse();
         try {
-            $validator = Validator::make($data, $this->ProfileRules());
+            $account = $this->currentAccount(true)->with('profile')->first();
+            if ($account->profile === null) UserProfile::create(['user_id' => $account->id]);
+
+            $validator = Validator::make($data, $account->profile->updateRules());
             if ($validator->fails())
                 return $body->setResponseValidationError($validator->errors(), $this->messageResponseKey);
 
-            $account = $this->currentAccount();
-            if (!$account->has('profile')->exists()) UserProfile::create(['user_id' => $account->id]);
-
             if (array_key_exists('profile_photo_url', $data) && $data['profile_photo_url']) {
-                $olderFile = UserProfile::where('user_id', Auth::user()->id)->first(['photo_url'])->photo_url;
+                $olderFile = $account->profile->photo_url;
                 if ($olderFile) Storage::disk('public')->delete($olderFile);
 
                 $fileName = $data['profile_photo_url']->hashName();
@@ -216,16 +266,12 @@ class BaseAccountRepository
             $account->profile->fill($this->filterProfileData($data));
             $account->profile->save();
 
-            $account->setAttribute('profile_gender', $account->profile?->gender);
-            $account->setAttribute('profile_photo_url', $account->profile?->photo_url);
-            $account->setAttribute('profile_phone', $account->profile?->phone);
-            $account->setAttribute('profile_birthday', $account->profile?->birthday);
-            $account->setAttribute('profile_address', $account->profile?->address);
-            $account->setAttribute('role', is_array($account->roles?->toArray()) ? $account->roles[0]?->name : null);
+            $this->transformProfile($account);
 
             $body->setBodyData($account);
             $body->setBodyMessage($this->messageResponse['successUpdated']);
         } catch (\Throwable $th) {
+            $this->saveLog($th);
             $body->setException($th);
             $body->setResponseError($th->getMessage());
             $body->setBodyMessage($this->messageResponse['failedError']);
@@ -255,6 +301,7 @@ class BaseAccountRepository
 
             $body->setBodyMessage($this->messageResponse['successUpdated']);
         } catch (\Throwable $th) {
+            $this->saveLog($th);
             $body->setException($th);
             $body->setResponseError($th->getMessage());
             $body->setBodyMessage($this->messageResponse['failedError']);
@@ -277,24 +324,48 @@ class BaseAccountRepository
         return $result;
     }
 
-    private function ProfileRules(): array
+    /**
+     * Transform account with profile
+     * 
+     * @param mixed $user User model
+     */
+    protected function transformProfile($user)
     {
-        return [
-            'name' => 'required',
-            'profile_gender' => ['nullable', 'string', 'in:male,female'],
-            'profile_birthday' => 'nullable|date_format:' . self::CommonDateFormat,
-            'profile_address' => 'nullable',
-            'profile_photo_url' => 'nullable|file|max:5120|mimes:jpg,png,jpeg',
-            'profile_phone' => 'nullable',
-        ];
+        if ($user->profile === null) return;
+
+        $fillable = $user->profile->getFillable();
+        foreach ($fillable as $attr) {
+            $user->setAttribute('profile_' . $attr, $user->profile->{$attr});
+        }
+        unset($user->profile);
     }
 
-    private function AccountRules(): array
+    /**
+     * Transform account with roles
+     * 
+     * @param mixed $user User model
+     */
+    protected function transformRoles(&$user)
     {
-        return [
-            'email' => ['email', 'unique:users,email'],
-            'username' => ['unique:users,username']
-        ];
+        if ($user->roles === null || count($user->roles) < 1) return [];
+
+        $fillable = $user->roles[0]->getFillable();
+        $roles = [];
+        foreach ($user->roles as $role) {
+            $tempRole = [];
+            foreach ($fillable as $attr) {
+                $tempRole[$attr] = $role[$attr];
+            }
+            $roles[] = $tempRole;
+        }
+        $user->setAttribute('roles', $roles);
+        unset($user->roles);
+    }
+
+    private function saveLog($exception)
+    {
+        Log::error($exception->getMessage(), ['class', __CLASS__]);
+        if (config('app.debug')) dd($exception);
     }
 
     private function PasswordRules(): array

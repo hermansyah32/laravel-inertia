@@ -39,6 +39,8 @@ class RoleRepository extends BaseRepository
         return ((object) [
             'rules' => [
                 'name' => ['required', 'string', 'max:255'],
+                'rank' => ['required', 'integer'],
+                'permission_tag' => ['required', 'string', 'unique:roles'],
             ],
             'messages' => [],
             'attributes' => []
@@ -53,7 +55,9 @@ class RoleRepository extends BaseRepository
     {
         return ((object) [
             'rules' => [
-                'name' => ['required', 'string', 'max:255']
+                'name' => ['required', 'string', 'max:255'],
+                'rank' => ['integer'],
+                'permission_tag' => ['string', 'unique:roles'],
             ],
             'messages' => [],
             'attributes' => []

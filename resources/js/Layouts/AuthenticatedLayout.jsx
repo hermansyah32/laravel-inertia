@@ -135,7 +135,7 @@ export default function AuthenticatedLayout({
             page={getNavigation(component)}
             pageItems={pageItems}
           />
-          <div className="flex flex-1 flex-col">
+          <div className="flex flex-1 flex-col overflow-y-auto">
             <header className="bg-white">
               <div className="flex flex-row py-4 px-8 lg:pr-6 shadow">
                 <h1 className="flex-grow text-xl font-bold tracking-tight text-gray-900">

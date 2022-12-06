@@ -2,6 +2,8 @@
 
 namespace App\Helper;
 
+use App\Models\Permission;
+use App\Models\Role;
 use Illuminate\Support\Facades\Lang;
 
 class Constants
@@ -12,6 +14,19 @@ class Constants
             ['id' => 'male', 'name' => Lang::get('Male')],
             ['id' => 'female', 'name' => Lang::get('Female')],
         ];
+    }
+
+    /**
+     * Run after roles and permissions created
+     * @return void 
+     */
+    public static function DEFAULT_USER_MANAGEMENT_PERMISSION(){
+        $roles = Role::all();
+        $userPermissions = self::PERMISSIONS()->users;
+        foreach ($roles as $role) {
+            if ($role->name === 'user') continue; // skip users
+            // Permission
+        }
     }
 
     public static function PERMISSIONS()
@@ -42,9 +57,6 @@ class Constants
                 'restore' => 'roles_restore',
                 'destroy' => 'roles_destroy',
                 'permanent_destroy' => 'roles_permanent_destroy',
-            ]),
-            'permissions' => ((object)[
-                'manage' => 'manage',
             ]),
             // Class
             'student_classes' => ((object)[

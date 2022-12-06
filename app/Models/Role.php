@@ -5,18 +5,17 @@ namespace App\Models;
 use Database\Traits\Uuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Permission\Contracts\Role as ContractsRole;
 use Spatie\Permission\Models\Role as ModelsRole;
-use Spatie\Permission\Traits\HasPermissions;
-use Spatie\Permission\Traits\RefreshesPermissionCache;
 
-class Role extends ModelsRole
+class Role extends ModelsRole implements ContractsRole
 {
     /**
      * user id change to uuid. Spatie role reference 
      * https://petersowah.dev/using-uuids-with-spatie-laravel-permissions-package
      */
 
-    use HasFactory, HasPermissions, RefreshesPermissionCache, SoftDeletes, Uuid;
+    use HasFactory, SoftDeletes, Uuid;
 
     /**
      * Indicates if the model's ID is auto-incrementing.
@@ -39,6 +38,9 @@ class Role extends ModelsRole
      */
     protected $fillable = [
         'name',
+        'rank',
+        'display_name',
+        'permission_tag',
         'guard_name',
     ];
 

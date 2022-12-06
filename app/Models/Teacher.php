@@ -46,19 +46,18 @@ class Teacher extends User
                 $q->whereIn("name", ["teacher"]);
             });
         });
+        static::created(function (User $user) {
+            try {
+                TeacherProfile::create(['user_id' => $user->id]);
+            } catch (\Throwable $th) {
+                echo ($th->getMessage());
+                return false;
+            }
+        });
     }
 
     public function getMorphClass()
     {
         return 'App\Models\User';
-    }
-    
-    /**
-     * Profile relation
-     * @return HasOne 
-     */
-    public function profile()
-    {
-        return $this->hasOne(TeacherProfile::class, 'user_id', 'id');
     }
 }

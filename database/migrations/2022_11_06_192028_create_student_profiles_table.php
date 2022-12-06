@@ -15,17 +15,11 @@ return new class extends Migration
     {
         Schema::create('student_profiles', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('user_id');
             $table->uuid('parent_id')->nullable();
             $table->string('student_number')->nullable();
             $table->uuid('student_grade_id')->nullable();
             $table->uuid('student_class_id')->nullable();
-            $table->date('birthday')->nullable();
-            $table->string('gender', 20)->nullable();
-            $table->string('phone', 16)->nullable();
-            $table->text('photo_url')->nullable();
             $table->integer('cumulative_score')->default(0);
-            $table->text('address')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

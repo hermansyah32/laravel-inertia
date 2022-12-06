@@ -52,7 +52,7 @@ class UserRepository extends BaseRepository
         ]);
     }
 
-     /**
+    /**
      * Get update validation
      * @return object Object of rules, messages, attributes. 
      */
@@ -79,25 +79,16 @@ class UserRepository extends BaseRepository
     public function indexWithProfile(string $order = 'desc', array $search = [], $columns = ['*'], $count = 0): BodyResponse
     {
         $body = new BodyResponse();
+        $repo = $this;
         try {
             if ($count > 0) $this->perPage = $count;
-            $data = $this->allQuery($search)->hasPermissionTo('')->orderBy('created_at', $order)->with('profile')
-                ->with('roles')->paginate($this->getPerPage());
-            $data->transform(function ($item) use ($columns) {
-                $profileData = $item->profile;
-                $roleData = [];
-                foreach ($item->roles as $role) {
-                    $roleData[] = $role->name;
-                }
-                $this->clearColumn($columns, $item);
-                $item->setAttribute('profile_gender', $profileData?->gender);
-                $item->setAttribute('profile_photo_url', $profileData?->photo_url);
-                $item->setAttribute('profile_phone', $profileData?->phone);
-                $item->setAttribute('profile_birthday', $profileData?->birthday);
-                $item->setAttribute('profile_address', $profileData?->address);
-                unset($item->profile);
-                unset($item->roles);
-                $item->setAttribute('roles', $roleData);
+            $data = $this->allQuery($search)->orderBy('created_at', $order)
+                ->permission('managed by ' . $this->currentHighestRole()['name'])
+                ->with('profile')->with('roles')->paginate($this->getPerPage());
+            $data->transform(function ($item) use ($columns, $repo) {
+                $repo->clearColumn($columns, $item);
+                $repo->transformProfile($item);
+                $repo->transformRoles($item);
                 return $item;
             });
             $body->setBodyMessage($this->messageResponse['successGet']);

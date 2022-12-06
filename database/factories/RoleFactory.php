@@ -18,6 +18,8 @@ class RoleFactory extends Factory
     {
         return [
             'name' => 'Role ' . fake()->randomLetter(),
+            'permission_tag' => str_replace('-', '_', fake()->uuid()),
+            'rank' => fake()->randomDigit()
         ];
     }
 }

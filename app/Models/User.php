@@ -5,16 +5,22 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 use App\Notifications\AccountActivatedNotification;
+use App\Notifications\EmailChangeNotification;
 use App\Notifications\ResetPasswordNotification;
 use App\Notifications\UserLoginNotification;
 use App\Notifications\UserResetNotification;
 use App\Notifications\VerifyEmailNotification;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Rappasoft\LaravelAuthenticationLog\Traits\AuthenticationLoggable;
 use Spatie\Permission\Traits\HasRoles;
@@ -101,6 +107,16 @@ class User extends Authenticatable
     ];
 
     /**
+     * Generate a new UUID for the model.
+     *
+     * @return string
+     */
+    public function newUniqueId()
+    {
+        return (string) Str::orderedUuid();
+    }
+
+    /**
      * Route notifications for the mail channel.
      *
      * @param  \Illuminate\Notifications\Notification  $notification
@@ -114,26 +130,21 @@ class User extends Authenticatable
 
     /**
      * Profile relation
-     * @return HasOne 
+     * @return HasOneThrough
      */
-    public function profile()
+    public function profile(): HasOneThrough
     {
-        return $this->hasOne(UserProfile::class, 'user_id', 'id');
+        return $this->hasOneThrough(UserProfile::class, PivotProfiles::class, 'user_id', 'id', 'id', 'profile_id');
     }
 
     /**
-     * Get profile photo url
-     * @return string|null
+     * Get all related profile
+     * 
      */
-    public function ProfilePhoto()
+    public function profiles()
     {
-        if (!filter_var($this->Profile->photo_url, FILTER_VALIDATE_URL) === false) {
-            return $this->Profile->photo_url;
-        } else {
-            return '';
-        }
+        return $this->hasMany(PivotProfiles::class);
     }
-
     /**
      * Send the verified notification.
      * 
@@ -145,7 +156,17 @@ class User extends Authenticatable
     }
 
     /**
-     * Reset password change notification.
+     * Send email change notification
+     * 
+     * @param mixed $token 
+     * @return void 
+     */
+    public function sendEmailChangeNotification($token){
+        $this->notify(new EmailChangeNotification($token));
+    }
+
+    /**
+     * Reset password change notification by admin.
      * 
      * @param string $ipAddress
      * @param mixed $ipLocation
@@ -197,13 +218,15 @@ class User extends Authenticatable
     protected static function booted()
     {
         static::creating(function ($model) {
-            $model->{$model->getKeyName()} = Str::uuid()->toString();
+            $userUuid = $model->newUniqueId();
+            $model->{$model->getKeyName()} = $userUuid;
         });
-        static::created(function (User $user) {
+        static::created(function ($model) {
             try {
-                UserProfile::create(['user_id' => $user->id]);
+                $defaultProfile = UserProfile::create();
+                DB::table('user_has_profiles')->insert(['user_id' => $model->id, 'profile_type' => UserProfile::class, 'profile_id' => $defaultProfile->id]);
             } catch (\Throwable $th) {
-                echo ($th->getMessage());
+                if (config('app.debug')) dd($th);
                 return false;
             }
         });
