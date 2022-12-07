@@ -130,12 +130,12 @@ export default function AuthenticatedLayout({
         {/* Sidebar left menu on mobile laout */}
         {/* <SidebarLeft /> */}
         {/* /End sidebar left menu */}
-        <div className="flex flex-1 overflow-hidden">
+        <div className="flex flex-1">
           <SidebarContentLeft
             page={getNavigation(component)}
             pageItems={pageItems}
           />
-          <div className="flex flex-1 flex-col overflow-y-auto">
+          <div className="flex flex-1 flex-col">
             <header className="bg-white">
               <div className="flex flex-row py-4 px-8 lg:pr-6 shadow">
                 <h1 className="flex-grow text-xl font-bold tracking-tight text-gray-900">
