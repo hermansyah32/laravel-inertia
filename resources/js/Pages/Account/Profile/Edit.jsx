@@ -20,6 +20,7 @@ export default function Edit(props) {
   const { data, setData, post, processing, progress, errors } = useForm({
     _method: "put",
     name: account.name || "",
+    username: account.username || "",
     profile_gender: account.profile_gender || "",
     profile_birthday: account.profile_birthday || "",
     profile_phone: account.profile_phone || "",
@@ -85,7 +86,6 @@ export default function Edit(props) {
                 type="text"
                 name="profile_photo_url"
                 className="mt-1 block w-full"
-                isFocused={true}
                 handleChange={onInputHandleChange}
               />
               {progress && (
@@ -126,7 +126,7 @@ export default function Edit(props) {
                 name="username"
                 value={data.username}
                 className="mt-1 block w-full"
-                isFocused={true}
+                isFocused={false}
                 handleChange={onInputHandleChange}
               />
               <InputError message={errors.username} className="mt-2" />

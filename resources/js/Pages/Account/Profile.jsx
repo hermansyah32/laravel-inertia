@@ -12,6 +12,7 @@ export default function Profile(props) {
   const { account, constants } = usePage().props;
   const { data } = useForm({
     name: account.name || "",
+    username: account.username,
     profile_gender: account.profile_gender
       ? TransformConstants.valueOf(constants.gender, account.profile_gender)
       : "",
@@ -63,7 +64,7 @@ export default function Profile(props) {
             disabled={true}
           />
         </div>
-        <div className="block md:flex flex-row">
+        <div className="block md:flex flex-row mt-4">
           <InputLabel
             className="md:w-1/4 md:self-center md:font-bold"
             forInput="username"
