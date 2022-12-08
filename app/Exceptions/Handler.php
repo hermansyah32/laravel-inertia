@@ -2,7 +2,6 @@
 
 namespace App\Exceptions;
 
-use App\Helper\FlashMessenger;
 use App\Http\Response\BodyResponse;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
@@ -28,7 +27,9 @@ class Handler extends ExceptionHandler
      * @var array<int, class-string<\Throwable>>
      */
     protected $dontReport = [
-        //
+        AuthenticationException::class,
+        ValidationException::class,
+        NotFoundHttpException::class
     ];
 
     /**
@@ -49,33 +50,36 @@ class Handler extends ExceptionHandler
      */
     public function register()
     {
-        $this->reportable(function (Throwable $e) {
-            if (env('APP_ENV') === 'prod') {
-                Log::error($e->getMessage(), $e);
-            }
-        });
-
         $this->renderable(function (Throwable $e, $request) {
             $body = new BodyResponse();
             $body->setResponseError($e->getMessage());
             $body->setException($e);
+
+            // Save to log
+            $this->globalLogger($e);
+
             if ($request->is('api/*')) {
                 return response()->json($body->getResponse(), $body->getResponseCode()->value);
-            } else {
-                FlashMessenger::sendFromBody($body);
-                return redirect()->back();
             }
         });
     }
 
-    public function globalLogger(Throwable $exception)
+    private function globalLogger(Throwable $exception)
     {
-        if ($exception instanceof AuthenticationException) return;
-        if ($exception instanceof ValidationException) return;
-        if ($exception instanceof NotFoundHttpException) return;
-        Log::error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+        $isReport = true;
+        foreach ($this->dontReport as $value) {
+            if ($exception instanceof $value) {
+                $isReport = false;
+                break;
+            }
+        }
 
-        if (config('app.debug')) dd($exception);
+        if ($isReport) {
+            if (env('APP_ENV') === 'prod') {
+                Log::error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            }
+            if (env('APP_DEBUG')) dd($exception);
+        }
     }
 
     /**

@@ -28,9 +28,7 @@ class StudentAssignmentController extends Controller
     public function checkPermission($rule): bool|BodyResponse
     {
         try {
-            if (!$this->repository->currentAccount()
-                ->hasPermissionTo($rule))
-                throw new Exception('Permission denied');
+            if (!$this->repository->currentAccount()->can($rule)) throw new Exception('Permission denied');
             return true;
         } catch (\Throwable $th) {
             $body = new BodyResponse();
