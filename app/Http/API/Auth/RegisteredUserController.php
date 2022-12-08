@@ -15,9 +15,14 @@ class RegisteredUserController extends Controller
 {
 
     // Not sued in authentication controller
-    public function checkPermission($rule) { }
-    public function permissionRule(){} 
-    
+    public function checkPermission($rule): bool|BodyResponse
+    {
+        return true;
+    }
+    public function permissionRule()
+    {
+    }
+
     /**
      * Handle an incoming registration request.
      *
@@ -35,6 +40,8 @@ class RegisteredUserController extends Controller
             ]);
             if ($validator->fails()) {
                 $body->setResponseValidationError($validator->errors());
+                $body->setRequestInfo($request);
+                $this->saveLog($body);
                 return $this->sendResponse($body);
             }
 
@@ -52,8 +59,10 @@ class RegisteredUserController extends Controller
             $body->setBodyData(['user' => $user, 'token' => $token]);
         } catch (\Throwable $th) {
             $body->setResponseError($th->getMessage());
+            $body->setRequestInfo($request);
         }
 
+        $this->saveLog($body);
         return $this->sendResponse($body);
     }
 }
