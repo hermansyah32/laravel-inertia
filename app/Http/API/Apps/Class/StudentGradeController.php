@@ -26,16 +26,17 @@ class StudentGradeController extends Controller
         $this->repository = $repo;
     }
 
-    public function checkPermission($rule)
+    public function checkPermission($rule): bool|BodyResponse
     {
         try {
             if (!$this->repository->currentAccount()
                 ->hasPermissionTo($rule))
                 throw new Exception('Permission denied');
+            return true;
         } catch (\Throwable $th) {
             $body = new BodyResponse();
             $body->setPermissionDenied();
-            return $this->sendResponse($body);
+            return $body;
         }
     }
 
@@ -52,12 +53,22 @@ class StudentGradeController extends Controller
      */
     public function index(Request $request)
     {
-        $this->checkPermission($this->permissionRule()->index);
+        $checkPermission = $this->checkPermission($this->permissionRule()->index);
+        if ($checkPermission !== true) {
+            $checkPermission->setRequestInfo($request, $this->repository->currentAccount()->toArray());
+            $this->saveLog($checkPermission);
+            return $this->sendResponse($checkPermission);
+        }
 
         $order = $request->order ?? 'desc';
         $columns = $request->columns ?? ['*'];
         $count = $request->perPage ?? 0;
         $result = $this->repository->index($order, $request->all(), $columns, $count);
+
+        if ($result->getResponseCode() !== ResponseCode::OK) {
+            $result->setRequestInfo($request, $this->repository->currentAccount()->toArray());
+            $this->saveLog($result);
+        }
         return $this->sendResponse($result);
     }
 
@@ -68,12 +79,22 @@ class StudentGradeController extends Controller
     public function indexTrashed(Request $request)
     {
         // Add permission checking
-        $this->checkPermission($this->permissionRule()->index_trashed);
+        $checkPermission = $this->checkPermission($this->permissionRule()->index_trashed);
+        if ($checkPermission !== true) {
+            $checkPermission->setRequestInfo($request, $this->repository->currentAccount()->toArray());
+            $this->saveLog($checkPermission);
+            return $this->sendResponse($checkPermission);
+        }
 
         $order = $request->order ?? 'desc';
         $columns = $request->columns ?? ['*'];
         $count = $request->perPage ?? 0;
         $result = $this->repository->indexTrashed($order, $request->all(), $columns, $count);
+
+        if ($result->getResponseCode() !== ResponseCode::OK) {
+            $result->setRequestInfo($request, $this->repository->currentAccount()->toArray());
+            $this->saveLog($result);
+        }
         return $this->sendResponse($result);
     }
 
@@ -85,8 +106,18 @@ class StudentGradeController extends Controller
      */
     public function store(Request $request)
     {
-        $this->checkPermission($this->permissionRule()->store);
+        $checkPermission = $this->checkPermission($this->permissionRule()->store);
+        if ($checkPermission !== true) {
+            $checkPermission->setRequestInfo($request, $this->repository->currentAccount()->toArray());
+            $this->saveLog($checkPermission);
+            return $this->sendResponse($checkPermission);
+        }
         $result = $this->repository->create($request->all());
+
+        if ($result->getResponseCode() !== ResponseCode::OK) {
+            $result->setRequestInfo($request, $this->repository->currentAccount()->toArray());
+            $this->saveLog($result);
+        }
         return $this->sendResponse($result);
     }
 
@@ -98,9 +129,19 @@ class StudentGradeController extends Controller
      */
     public function show(Request $request, string $id)
     {
-        $this->checkPermission($this->permissionRule()->show);
+        $checkPermission = $this->checkPermission($this->permissionRule()->show);
+        if ($checkPermission !== true) {
+            $checkPermission->setRequestInfo($request, $this->repository->currentAccount()->toArray());
+            $this->saveLog($checkPermission);
+            return $this->sendResponse($checkPermission);
+        }
 
         $result = $this->repository->get('id', $id);
+
+        if ($result->getResponseCode() !== ResponseCode::OK) {
+            $result->setRequestInfo($request, $this->repository->currentAccount()->toArray());
+            $this->saveLog($result);
+        }
         return $this->sendResponse($result);
     }
 
@@ -112,9 +153,19 @@ class StudentGradeController extends Controller
      */
     public function showTrashed(Request $request, string $id)
     {
-        $this->checkPermission($this->permissionRule()->show_trashed);
+        $checkPermission = $this->checkPermission($this->permissionRule()->show_trashed);
+        if ($checkPermission !== true) {
+            $checkPermission->setRequestInfo($request, $this->repository->currentAccount()->toArray());
+            $this->saveLog($checkPermission);
+            return $this->sendResponse($checkPermission);
+        }
 
         $result = $this->repository->getTrashed('id', $id);
+
+        if ($result->getResponseCode() !== ResponseCode::OK) {
+            $result->setRequestInfo($request, $this->repository->currentAccount()->toArray());
+            $this->saveLog($result);
+        }
         return $this->sendResponse($result);
     }
 
@@ -127,9 +178,19 @@ class StudentGradeController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $this->checkPermission($this->permissionRule()->update);
+        $checkPermission = $this->checkPermission($this->permissionRule()->update);
+        if ($checkPermission !== true) {
+            $checkPermission->setRequestInfo($request, $this->repository->currentAccount()->toArray());
+            $this->saveLog($checkPermission);
+            return $this->sendResponse($checkPermission);
+        }
 
         $result = $this->repository->updateBy($request->all(), 'id', $id);
+
+        if ($result->getResponseCode() !== ResponseCode::OK) {
+            $result->setRequestInfo($request, $this->repository->currentAccount()->toArray());
+            $this->saveLog($result);
+        }
         return $this->sendResponse($result);
     }
 
@@ -142,9 +203,19 @@ class StudentGradeController extends Controller
      */
     public function restore(Request $request, string $id)
     {
-        $this->checkPermission($this->permissionRule()->restore);
+        $checkPermission = $this->checkPermission($this->permissionRule()->restore);
+        if ($checkPermission !== true) {
+            $checkPermission->setRequestInfo($request, $this->repository->currentAccount()->toArray());
+            $this->saveLog($checkPermission);
+            return $this->sendResponse($checkPermission);
+        }
 
         $result = $this->repository->restoreBy('id', $id);
+
+        if ($result->getResponseCode() !== ResponseCode::OK) {
+            $result->setRequestInfo($request, $this->repository->currentAccount()->toArray());
+            $this->saveLog($result);
+        }
         return $this->sendResponse($result);
     }
 
@@ -163,9 +234,19 @@ class StudentGradeController extends Controller
             return $this->sendResponse($body);
         }
 
-        $this->checkPermission($this->permissionRule()->destroy);
+        $checkPermission = $this->checkPermission($this->permissionRule()->destroy);
+        if ($checkPermission !== true) {
+            $checkPermission->setRequestInfo($request, $this->repository->currentAccount()->toArray());
+            $this->saveLog($checkPermission);
+            return $this->sendResponse($checkPermission);
+        }
 
         $result = $this->repository->deleteBy('id', $id);
+
+        if ($result->getResponseCode() !== ResponseCode::OK) {
+            $result->setRequestInfo($request, $this->repository->currentAccount()->toArray());
+            $this->saveLog($result);
+        }
         return $this->sendResponse($result);
     }
 
@@ -177,9 +258,19 @@ class StudentGradeController extends Controller
      */
     public function permanentDestroy(Request $request, string $id)
     {
-        $this->checkPermission($this->permissionRule()->permanent_destroy);
+        $checkPermission = $this->checkPermission($this->permissionRule()->permanent_destroy);
+        if ($checkPermission !== true) {
+            $checkPermission->setRequestInfo($request, $this->repository->currentAccount()->toArray());
+            $this->saveLog($checkPermission);
+            return $this->sendResponse($checkPermission);
+        }
 
         $result = $this->repository->permanentDeleteBy('id', $id);
+
+        if ($result->getResponseCode() !== ResponseCode::OK) {
+            $result->setRequestInfo($request, $this->repository->currentAccount()->toArray());
+            $this->saveLog($result);
+        }
         return $this->sendResponse($result);
     }
 }

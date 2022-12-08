@@ -2,11 +2,10 @@
 
 namespace App\Exceptions;
 
+use App\Helper\FlashMessenger;
 use App\Http\Response\BodyResponse;
-use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -58,23 +57,23 @@ class Handler extends ExceptionHandler
 
         $this->renderable(function (Throwable $e, $request) {
             $body = new BodyResponse();
-
-            $this->globalLogger($e);
-
+            $body->setResponseError($e->getMessage());
+            $body->setException($e);
             if ($request->is('api/*')) {
-                $body->setResponseError($e->getMessage());
-                $body->setException($e);
                 return response()->json($body->getResponse(), $body->getResponseCode()->value);
+            } else {
+                FlashMessenger::sendFromBody($body);
+                return redirect()->back();
             }
         });
     }
 
     public function globalLogger(Throwable $exception)
     {
-        Log::error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
         if ($exception instanceof AuthenticationException) return;
         if ($exception instanceof ValidationException) return;
         if ($exception instanceof NotFoundHttpException) return;
+        Log::error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
 
         if (config('app.debug')) dd($exception);
     }
@@ -125,7 +124,7 @@ class Handler extends ExceptionHandler
     protected function invalid($request, ValidationException $exception)
     {
         return redirect($exception->redirectTo ?? url()->previous())
-            ->withInput([])
+            ->withInput($request->all())
             ->withErrors($exception->errors(), $request->input('_error_bag', $exception->errorBag));
     }
 }

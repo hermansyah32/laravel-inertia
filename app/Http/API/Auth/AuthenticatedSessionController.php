@@ -8,6 +8,7 @@ use App\Http\Response\ResponseCode;
 use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\RateLimiter;
@@ -24,8 +25,13 @@ class AuthenticatedSessionController extends Controller
     protected $username;
 
     // Not sued in authentication controller
-    public function checkPermission($rule) { }
-    public function permissionRule(){} 
+    public function checkPermission($rule): bool|BodyResponse
+    {
+        return true;
+    }
+    public function permissionRule()
+    {
+    }
 
     /**
      * Attempt to authenticate the request's credentials.
@@ -35,12 +41,15 @@ class AuthenticatedSessionController extends Controller
     public function login(Request $request)
     {
         $body = new BodyResponse();
+        $user = [];
         try {
             $this->username = $this->findUsername($request);
 
             if (RateLimiter::tooManyAttempts($this->throttleKey($request), 5)) {
                 event(new Lockout($request));
                 $body->setResponseError("Too many request", ResponseCode::TOO_MANY_REQUEST);
+                $body->setRequestInfo($request);
+                $this->saveLog($body);
                 return $this->sendResponse($body);
             }
 
@@ -62,6 +71,8 @@ class AuthenticatedSessionController extends Controller
             RateLimiter::clear($this->throttleKey($request));
         } catch (\Throwable $th) {
             $body->setResponseError($th->getMessage());
+            $body->setRequestInfo($request, is_array($user) ? $user : $user->toArray());
+            $this->saveLog($body);
         }
 
         return $this->sendResponse($body);
@@ -75,15 +86,17 @@ class AuthenticatedSessionController extends Controller
     public function logout(Request $request)
     {
         $body = new BodyResponse();
+        $user = Auth::check() ? $request->user() : [];
         try {
             $tokenId = $request->bearerToken();
-            if ($tokenId)
-                $request->user()->currentAccessToken()->delete();
+            if ($tokenId) $user->currentAccessToken()->delete();
 
             $body->setBodyMessage(Lang::get('data.logout'));
             $body->setBodyMessage("Logout successfully");
         } catch (\Throwable $th) {
             $body->setResponseError($th->getMessage());
+            $body->setRequestInfo($request, is_array($user) ? $user : $user->toArray());
+            $this->saveLog($body);
         }
         return $this->sendResponse($body);
     }
@@ -96,6 +109,7 @@ class AuthenticatedSessionController extends Controller
     public function reissueToken(Request $request)
     {
         $body = new BodyResponse();
+        $user = Auth::check() ? $request->user() : [];
         try {
             $validator = Validator::make($request->all(), ['device_name' => ['required']]);
             if ($validator->fails()) {
@@ -103,14 +117,15 @@ class AuthenticatedSessionController extends Controller
                 return $this->sendResponse($body);
             }
             $tokenId = $request->bearerToken();
-            if ($tokenId)
-                $request->user()->currentAccessToken()->delete();
+            if ($tokenId) $user->currentAccessToken()->delete();
 
-            $token = $request->user()->createToken($request->device_name)->plainTextToken;
+            $token = $user->createToken($request->device_name)->plainTextToken;
             $body->setBodyMessage(Lang::get('data.reissue_token'));
             $body->setBodyData(['token' => $token]);
         } catch (\Throwable $th) {
             $body->setResponseError($th->getMessage());
+            $body->setRequestInfo($request, is_array($user) ? $user : $user->toArray());
+            $this->saveLog($body);
         }
 
         return $this->sendResponse($body);

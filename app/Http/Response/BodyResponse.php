@@ -3,6 +3,7 @@
 namespace App\Http\Response;
 
 use Illuminate\Contracts\Support\MessageBag;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Lang;
 
 enum ResponseCode: int
@@ -23,6 +24,29 @@ enum ResponseStatus: string
     case BAD = "BAD";
 }
 
+class RequestInfo
+{
+    public $requestInfo = [];
+    public $ipInfo = [];
+    public $userInfo = [];
+
+    public function __construct($requestInfo, $ipInfo, $userInfo)
+    {
+        $this->requestInfo = $requestInfo;
+        $this->ipInfo = $ipInfo;
+        $this->userInfo = $userInfo;
+    }
+
+    public function toArray()
+    {
+        return [
+            'request' => $this->requestInfo,
+            'ipInfo' => $this->ipInfo,
+            'userInfo' => $this->userInfo,
+        ];
+    }
+}
+
 class BodyResponse
 {
     // used for header or response status
@@ -37,6 +61,9 @@ class BodyResponse
 
     // in case need exception data
     private $exception;
+
+    // in case have request. contains ip info, and request send
+    private RequestInfo|array $request = [];
 
     // is message exception
     private $knownIssue = false;
@@ -119,6 +146,38 @@ class BodyResponse
     public function setKnownIssue(bool $knownIssue)
     {
         $this->knownIssue = $knownIssue;
+    }
+
+    public function getRequestInfo()
+    {
+        return is_array($this->request) ? $this->request : $this->request->toArray();
+    }
+
+    public function setRequestInfo(Request $request, array $currentUser = [])
+    {
+        $geoInfo = [];
+        try {
+            $geoInfo = geoip()->getLocation($request->ip)->toArray();
+        } catch (\Throwable $th) {
+            // failed to get info, skip info ip location
+        }
+        if (count($geoInfo) === 0) $geoInfo = ['ip' => $request->ip];
+
+        // remove sensitive data
+        $input = $request->all();
+        foreach ($input as $key => $value) {
+            if (str_contains($key, 'password')) {
+                $input[$key] = '';
+            }
+        }
+
+        $requestInfo = new RequestInfo(
+            ['param' => $input, 'url' => $request->url(), 'method' => $request->method()],
+            $geoInfo,
+            $currentUser
+        );
+
+        $this->request = $requestInfo;
     }
 
     public function setResponseError(

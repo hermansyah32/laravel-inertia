@@ -6,12 +6,10 @@ use App\Http\Controllers\BaseAPIController as Controller;
 use App\Http\Repositories\SubjectContentRepository;
 use App\Http\Repositories\SubjectGroupRepository;
 use App\Http\Repositories\SubjectReferenceRepository;
-use App\Http\Repositories\SubSubjectContentRepository;
 use App\Http\Response\BodyResponse;
 use App\Models\SubjectContent;
 use App\Models\SubjectGroup;
 use App\Models\SubjectReference;
-use App\Models\SubSubjectContent;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -42,24 +40,23 @@ class SyncContentController extends Controller
         SubjectGroupRepository $subjectGroupRepository,
         SubjectContentRepository $subjectContentRepository,
         SubjectReferenceRepository $subjectReferenceRepository,
-        SubSubjectContentRepository $subSubjectContentRepository
     ) {
         $this->subjectGroupRepo = $subjectGroupRepository;
         $this->subjectContentRepo = $subjectContentRepository;
         $this->subjectReferenceRepo = $subjectReferenceRepository;
-        $this->subSubjectContentRepo = $subSubjectContentRepository;
     }
 
-    public function checkPermission($rule)
+    public function checkPermission($rule): bool|BodyResponse
     {
         try {
             if (!$this->repository->currentAccount()
                 ->hasPermissionTo($rule))
                 throw new Exception('Permission denied');
+            return true;
         } catch (\Throwable $th) {
             $body = new BodyResponse();
             $body->setPermissionDenied();
-            return $this->sendResponse($body);
+            return $body;
         }
     }
 
@@ -78,7 +75,6 @@ class SyncContentController extends Controller
         $countSubjectGroup = SubjectGroup::where('updated_at', '>', $input['subjectGroup'])->count();
         $countSubjectContent = SubjectContent::where('updated_at', '>', $input['subjectContent'])->count();
         $countSubjectReference = SubjectReference::where('updated_at', '>', $input['subjectReference'])->count();
-        $countSubSubjectContent = SubSubjectContent::where('updated_at', '>', $input['subSubjectContent'])->count();
 
         // Get the most bigger count in pages
         $biggerPage = 1;
@@ -88,16 +84,12 @@ class SyncContentController extends Controller
             $biggerPage = round($countSubjectContent / $this->perPage);
         if ($biggerPage < round($countSubjectReference / $this->perPage))
             $biggerPage = round($countSubjectReference / $this->perPage);
-        if ($biggerPage < round($countSubSubjectContent / $this->perPage))
-            $biggerPage = round($countSubSubjectContent / $this->perPage);
 
         $dataSubjectGroup = SubjectGroup::where('updated_at', '>', $input['subjectGroup'])
             ->skip(0)->take($this->perPage)->get();
         $dataSubjectContent = SubjectContent::where('updated_at', '>', $input['subjectContent'])
             ->skip(0)->take($this->perPage)->get();
         $dataSubjectReference = SubjectReference::where('updated_at', '>', $input['subjectReference'])
-            ->skip(0)->take($this->perPage)->get();
-        $dataSubSubjectContent = SubSubjectContent::where('updated_at', '>', $input['subSubjectContent'])
             ->skip(0)->take($this->perPage)->get();
 
         $result = [

@@ -8,6 +8,7 @@ use App\Http\Response\ResponseCode;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\UnauthorizedException;
+use Throwable;
 
 abstract class BaseAPIController extends LaravelController
 {
@@ -17,18 +18,7 @@ abstract class BaseAPIController extends LaravelController
      */
     abstract function permissionRule();
 
-    public function checkPermission($rule)
-    {
-        try {
-            $result = $this->repository->currentAccount()->hasPermissionTo($rule);
-            if (!$result) throw new UnauthorizedException(ResponseCode::NOT_AUTHENTICATED->value, "You do not have required permission");
-        } catch (\Throwable $th) {
-            $body = new BodyResponse();
-            $body->setPermissionDenied();
-            $body->setException($th);
-            throw $th;
-        }
-    }
+    abstract function checkPermission($rule): bool|BodyResponse;
 
     public function sendResponse(BodyResponse $body)
     {
@@ -38,10 +28,16 @@ abstract class BaseAPIController extends LaravelController
             return response()->json($body->getResponse(), $body->getResponseCode()->value, $body->getHeaderResponse());
     }
 
-    public function saveLog(BodyResponse $body){
-        if (!($body->getException() instanceof Exception)) return;
+    public function saveLog(BodyResponse $body)
+    {
+        if (!($body->getException() instanceof Throwable)) return;
+        if (config('app.debug')){
+            dd($body);
+        }
 
         $exception = $body->getException();
-        Log::error($exception->getMessage());
+
+        Log::error($exception->getMessage(), $body->getRequestInfo());
+        Log::error($exception->getMessage(), ['trace' =>  $exception->getTraceAsString()]);
     }
 }

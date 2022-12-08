@@ -8,13 +8,13 @@ use App\http\Systems\Models\EmailChange;
 use App\Models\User;
 use App\Models\UserProfile;
 use App\Notifications\EmailChangeNotification;
+use Carbon\Carbon;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Container\Container as Application;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Lang;
@@ -176,14 +176,13 @@ class BaseAccountRepository
             if ($validator->fails()) return $body->setResponseValidationError($validator->errors(), $this->messageResponseKey);
 
             $token = $this->tokenRepository->create(Str::reverse($email));
-            EmailChange::whereNotNull('created_at')->update(['created_at' => new Date()]);
+            EmailChange::where('email', $email)->whereNotNull('created_at')->update(['created_at' => Carbon::now()]);
             EmailChange::create(['email' => $this->currentAccount()->email, 'new_email' => $email, 'token' => $token]);
 
-            Notification::send($this->repository->currentAccount(), new EmailChangeNotification($token, $email));
+            Notification::send($this->currentAccount(), new EmailChangeNotification($token, $email));
 
             $body->setBodyMessage(Lang::get('Email change requested'));
         } catch (\Throwable $th) {
-            $this->saveLog($th);
             $body->setException($th);
             $body->setResponseError($th->getMessage());
             $body->setBodyMessage($this->messageResponse['failedError']);
@@ -225,7 +224,6 @@ class BaseAccountRepository
             $body->setBodyData($account);
             $body->setBodyMessage($this->messageResponse['successUpdated']);
         } catch (\Throwable $th) {
-            $this->saveLog($th);
             $body->setException($th);
             $body->setResponseError($th->getMessage());
             $body->setBodyMessage($this->messageResponse['failedError']);
@@ -301,7 +299,6 @@ class BaseAccountRepository
 
             $body->setBodyMessage($this->messageResponse['successUpdated']);
         } catch (\Throwable $th) {
-            $this->saveLog($th);
             $body->setException($th);
             $body->setResponseError($th->getMessage());
             $body->setBodyMessage($this->messageResponse['failedError']);
@@ -364,7 +361,7 @@ class BaseAccountRepository
 
     private function saveLog($exception)
     {
-        Log::error($exception->getMessage(), ['class', __CLASS__]);
+        Log::error($exception->getMessage(), ['class' => __CLASS__]);
         if (config('app.debug')) dd($exception);
     }
 
