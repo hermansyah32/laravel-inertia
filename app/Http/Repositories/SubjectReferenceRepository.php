@@ -38,6 +38,7 @@ class SubjectReferenceRepository extends BaseRepository
     {
         return ((object) [
             'rules' => [
+                'author_id' => ['nullable', 'uuid'],
                 'subject_content_id' => ['required', 'uuid'],
                 'name' => ['required', 'string'],
                 'url' => ['required', 'string'],
@@ -55,6 +56,7 @@ class SubjectReferenceRepository extends BaseRepository
     {
         return ((object) [
             'rules' => [
+                'author_id' => ['nullable', 'uuid'],
                 'subject_content_id' => ['required', 'uuid'],
                 'name' => ['required', 'string'],
                 'url' => ['required', 'string'],

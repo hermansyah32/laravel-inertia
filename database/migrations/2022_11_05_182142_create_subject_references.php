@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::create('subject_references', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->uuid('author_id')->nullable();
             $table->uuid('subject_content_id');
             $table->string('name');
             $table->text('url');

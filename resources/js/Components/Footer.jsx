@@ -1,8 +1,8 @@
 import React from "react";
 
-export default function FooterContent() {
+export default function Footer({ className }) {
   return (
-    <footer className="py-2 px-4 bg-white">
+    <footer className={className}>
       Copyleft Hermansyah 2022.
       <br className="block md:hidden"></br> Made with ❤️ in Binjai, Indonesia.
     </footer>

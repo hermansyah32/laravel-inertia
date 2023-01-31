@@ -32,6 +32,7 @@ class SubjectAssignment extends Model
      */
     protected $fillable = [
         'assignment_group_id',
+        'author_id',
         'type',
         'question',
         'options',

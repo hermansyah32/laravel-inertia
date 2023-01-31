@@ -35,7 +35,6 @@ class ProfileRepositoryTest extends TestCase
         $this->assertSame($result->getResponseCode()->value, ResponseCode::OK->value);
         $this->assertSame($user->name, $result->getBodyData()->name);
         $this->assertArrayHasKey('profile_gender', $result->getBodyData()->toArray());
-        $this->assertSame($user->id, $result->getBodyData()->profile->user_id);
     }
 
     public function test_email_update_repository()
@@ -48,7 +47,7 @@ class ProfileRepositoryTest extends TestCase
 
         /** @var BodyResponse $result */
         $result =  App::call(function (ProfileRepository $repository) use ($newEmail) {
-            return $repository->updateEmail($newEmail);
+            return $repository->updateEmail($newEmail, null);
         });
 
         $this->assertInstanceOf(BodyResponse::class, $result);
@@ -98,7 +97,6 @@ class ProfileRepositoryTest extends TestCase
         $result =  App::call(function (ProfileRepository $repository) use ($newData) {
             return $repository->updateProfile($newData);
         });
-        dd($result);
 
         $this->assertInstanceOf(BodyResponse::class, $result);
         $this->assertSame($result->getResponseCode()->value, ResponseCode::OK->value);

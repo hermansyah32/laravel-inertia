@@ -4,11 +4,11 @@
     "colId": "5d0f8bfa-bde4-421b-82bc-8bceaa8f5b8d",
     "containerId": "",
     "name": "Auth Login",
-    "url": "http://localhost/inertia/api/auth/login",
+    "url": "{{host}}/api/auth/login",
     "method": "POST",
     "sortNum": 10000,
     "created": "2022-10-08T09:36:00.738Z",
-    "modified": "2022-10-15T03:17:45.791Z",
+    "modified": "2023-01-24T14:12:07.225Z",
     "headers": [
       {
         "name": "Content-Type",
@@ -51,11 +51,11 @@
     "colId": "5d0f8bfa-bde4-421b-82bc-8bceaa8f5b8d",
     "containerId": "",
     "name": "Auth Logout",
-    "url": "http://localhost/inertia/api/auth/logout",
+    "url": "{{host}}/api/auth/logout",
     "method": "POST",
     "sortNum": 20000,
     "created": "2022-10-08T10:38:18.855Z",
-    "modified": "2022-11-26T01:46:56.276Z",
+    "modified": "2023-01-24T14:12:09.974Z",
     "headers": [
       {
         "name": "Content-Type",
@@ -91,11 +91,11 @@
     "colId": "5d0f8bfa-bde4-421b-82bc-8bceaa8f5b8d",
     "containerId": "",
     "name": "Auth Reissue Token",
-    "url": "http://localhost/inertia/api/auth/token/refresh",
+    "url": "{{host}}/api/auth/token/refresh",
     "method": "POST",
     "sortNum": 30000,
     "created": "2022-10-15T02:52:40.984Z",
-    "modified": "2022-11-27T08:06:35.651Z",
+    "modified": "2023-01-24T13:51:57.751Z",
     "headers": [
       {
         "name": "Content-Type",
@@ -146,11 +146,11 @@
     "colId": "5d0f8bfa-bde4-421b-82bc-8bceaa8f5b8d",
     "containerId": "",
     "name": "Auth Register",
-    "url": "http://localhost/inertia/api/auth/register",
+    "url": "{{host}}/api/auth/register",
     "method": "POST",
     "sortNum": 40000,
     "created": "2022-10-15T03:53:05.706Z",
-    "modified": "2022-10-15T03:57:04.871Z",
+    "modified": "2023-01-24T13:52:01.696Z",
     "headers": [
       {
         "name": "Accept",
@@ -164,7 +164,7 @@
     "params": [],
     "body": {
       "type": "json",
-      "raw": "{\n  \"name\": \"Hermansyah\",\n  \"email\": \"herman.piliang23@gmail.com\",\n  \"password\": \"password\",\n  \"device_name\": \"Mobile Test\"\n}",
+      "raw": "{\n  \"name\": \"Hermansyah\",\n  \"email\": \"{{#email}}\",\n  \"password\": \"password\",\n  \"device_name\": \"Mobile Test\"\n}",
       "form": []
     },
     "tests": [
@@ -181,11 +181,11 @@
     "colId": "f7b83f36-f350-4e81-b369-a3763f6741bc",
     "containerId": "",
     "name": "Profile",
-    "url": "http://localhost/inertia/api/account",
+    "url": "{{host}}/api/account",
     "method": "GET",
     "sortNum": 10000,
     "created": "2022-10-17T03:36:30.886Z",
-    "modified": "2022-11-27T07:59:10.822Z",
+    "modified": "2023-01-24T13:52:06.848Z",
     "headers": [
       {
         "name": "Accept",
@@ -211,11 +211,11 @@
     "colId": "f7b83f36-f350-4e81-b369-a3763f6741bc",
     "containerId": "",
     "name": "Account Update",
-    "url": "http://localhost/inertia/api/account",
+    "url": "{{host}}/api/account/email",
     "method": "PUT",
     "sortNum": 20000,
     "created": "2022-10-17T03:40:18.585Z",
-    "modified": "2022-12-02T08:46:18.320Z",
+    "modified": "2023-01-24T13:52:11.555Z",
     "headers": [
       {
         "name": "Accept",
@@ -229,7 +229,7 @@
     "params": [],
     "body": {
       "type": "json",
-      "raw": "{\n  \"email\": \"me@hermansyah.dev\"\n}",
+      "raw": "{\n  \"email\": \"{{#email}}\"\n}",
       "form": []
     },
     "tests": []
@@ -239,11 +239,11 @@
     "colId": "f7b83f36-f350-4e81-b369-a3763f6741bc",
     "containerId": "",
     "name": "Profile Update",
-    "url": "http://localhost/inertia/api/account/profile",
+    "url": "{{host}}/api/account/profile",
     "method": "PUT",
     "sortNum": 30000,
     "created": "2022-10-17T03:55:05.932Z",
-    "modified": "2022-12-02T08:55:36.457Z",
+    "modified": "2023-01-24T13:52:16.758Z",
     "headers": [
       {
         "name": "Accept",
@@ -280,11 +280,11 @@
     "colId": "f7b83f36-f350-4e81-b369-a3763f6741bc",
     "containerId": "",
     "name": "Password Update",
-    "url": "http://localhost/inertia/api/account/password",
+    "url": "{{host}}/api/account/password",
     "method": "PUT",
     "sortNum": 40000,
     "created": "2022-10-17T03:56:40.534Z",
-    "modified": "2022-11-30T07:14:01.405Z",
+    "modified": "2023-01-24T13:52:19.377Z",
     "headers": [
       {
         "name": "Accept",
@@ -3039,11 +3039,11 @@
     "colId": "e6503de7-bf2a-4877-acc6-6dd14436bae7",
     "containerId": "",
     "name": "Index",
-    "url": "http://localhost/inertia/api/users",
+    "url": "{{host}}/api/users",
     "method": "GET",
     "sortNum": 10000,
     "created": "2022-11-22T14:47:38.713Z",
-    "modified": "2022-11-27T07:59:01.684Z",
+    "modified": "2023-01-24T13:52:23.605Z",
     "headers": [
       {
         "name": "Accept",

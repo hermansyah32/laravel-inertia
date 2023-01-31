@@ -8,6 +8,7 @@
         "reset": "php artisan app:install -R && npm run build"
     },
     "devDependencies": {
+        "@faker-js/faker": "^7.6.0",
         "@headlessui/react": "^1.4.2",
         "@inertiajs/inertia": "^0.11.0",
         "@inertiajs/inertia-react": "^0.8.0",

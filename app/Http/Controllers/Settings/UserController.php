@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Settings;
 
 use App\Helper\Constants;
 use App\Helper\FlashMessenger;
-use App\Http\Controllers\SettingsController as Controller;
+use App\Http\Controllers\BaseController as Controller;
 use App\Http\Repositories\UserRepository;
 use App\Http\Response\BodyResponse;
 use App\Http\Response\ResponseCode;
@@ -33,16 +33,17 @@ class UserController extends Controller
         $this->repository = $repo;
     }
 
-    public function checkPermission($rule)
+    public function checkPermission($rule): bool|BodyResponse
     {
         try {
             $result = $this->repository->currentAccount()->can($rule);
             if (!$result) throw new UnauthorizedException(401, "You do not have required permission");
+            return true;
         } catch (\Throwable $th) {
             $body = new BodyResponse();
             $body->setPermissionDenied();
             $body->setException($th);
-            throw $th;
+            throw $body;
         }
     }
 
@@ -59,7 +60,12 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $this->checkPermission($this->permissionRule()->index);
+        $checkPermission = $this->checkPermission($this->permissionRule()->index);
+        if ($checkPermission !== true) {
+            $checkPermission->setRequestInfo($request, $this->repository->currentAccount()->toArray());
+            $this->saveLog($checkPermission);
+            return redirect(route('auth.404'));
+        }
 
         $order = $request->order ?? 'desc';
         $columns = $request->columns ?? ['*'];
@@ -69,10 +75,10 @@ class UserController extends Controller
         if ($result->getResponseCode() !== ResponseCode::OK) {
             FlashMessenger::sendFromBody($result);
         }
+
         return Inertia::render($this->baseComponent(), [
-            'pageItems' => $this->getPageItems(),
-            'data' => $result->getBodyData(),
-            'constants' => [
+            '_data' => $result->getBodyData(),
+            '_constants' => [
                 'gender' => Constants::GENDER()
             ]
         ]);
@@ -85,7 +91,7 @@ class UserController extends Controller
      */
     public function indexTrashed(Request $request)
     {
-        $this->checkPermission($this->permissionRule()->indexTrashed);
+        $this->checkPermission($this->permissionRule()->index_trashed);
 
         $order = $request->order ?? 'desc';
         $columns = $request->columns ?? ['*'];
@@ -97,9 +103,8 @@ class UserController extends Controller
         }
 
         return Inertia::render($this->baseComponent() . '/Trashed', [
-            'pageItems' => $this->getPageItems(),
-            'data' => $result->getBodyData(),
-            'constants' => [
+            '_data' => $result->getBodyData(),
+            '_constants' => [
                 'gender' => Constants::GENDER()
             ]
         ]);
@@ -116,8 +121,7 @@ class UserController extends Controller
         $this->checkPermission($this->permissionRule()->store);
 
         return Inertia::render($this->baseComponent() . '/Create', [
-            'pageItems' => $this->getPageItems(),
-            'constants' => [
+            '_`constants' => [
                 'gender' => Constants::GENDER()
             ]
         ]);
@@ -157,12 +161,11 @@ class UserController extends Controller
     {
         $this->checkPermission($this->permissionRule()->show);
 
-        $result = $this->repository->get('id', $id);
+        $result = $this->repository->getWithProfile('id', $id, false);
 
         return Inertia::render($this->baseComponent() . '/Show', [
-            'pageItems' => $this->getPageItems(),
-            'data' => $result->getBodyData(),
-            'constants' => [
+            '_data' => $result->getBodyData(),
+            '_constants' => [
                 'gender' => Constants::GENDER()
             ]
         ]);
@@ -176,13 +179,12 @@ class UserController extends Controller
      */
     public function showTrashed(Request $request, string $id)
     {
-        $this->checkPermission($this->permissionRule()->showTrashed);
+        $this->checkPermission($this->permissionRule()->show_trashed);
 
-        $result = $this->repository->getTrashed('id', $id);
+        $result = $this->repository->getWithProfile('id', $id, true);
 
         return Inertia::render($this->baseComponent() . '/ShowTrashed', [
-            'pageItems' => $this->getPageItems(),
-            'data' => $result->getBodyData(),
+            '_data' => $result->getBodyData(),
             'constants' => [
                 'gender' => Constants::GENDER()
             ]
@@ -206,9 +208,8 @@ class UserController extends Controller
         }
 
         return Inertia::render($this->baseComponent() . '/Edit', [
-            'pageItems' => $this->getPageItems(),
-            'data' => $result->getBodyData(),
-            'constants' => [
+            '_data' => $result->getBodyData(),
+            '_constants' => [
                 'gender' => Constants::GENDER()
             ]
         ]);
@@ -222,7 +223,7 @@ class UserController extends Controller
      */
     public function editTrashed(Request $request, string $id)
     {
-        $this->checkPermission($this->permissionRule()->showTrashed);
+        $this->checkPermission($this->permissionRule()->show_trashed);
 
         $result = $this->repository->getTrashed('id', $id);
 
@@ -231,9 +232,8 @@ class UserController extends Controller
         }
 
         return Inertia::render($this->baseComponent() . '/EditTrashed', [
-            'pageItems' => $this->getPageItems(),
-            'data' => $result->getBodyData(),
-            'constants' => [
+            '_data' => $result->getBodyData(),
+            '_constants' => [
                 'gender' => Constants::GENDER()
             ]
         ]);
@@ -285,7 +285,7 @@ class UserController extends Controller
             FlashMessenger::sendFromBody($result);
             return redirect(route('settings.users.create'))->withInput($request->all());
         }
-        return redirect(route('settings.users.show', ['id' => $id]));
+        return redirect(route('settings.users.index', ['id' => $id]));
     }
 
     /**
@@ -318,7 +318,7 @@ class UserController extends Controller
      */
     public function permanentDestroy(Request $request, string $id)
     {
-        $this->checkPermission($this->permissionRule()->permanentDestroy);
+        $this->checkPermission($this->permissionRule()->permanent_destroy);
 
         $result = $this->repository->permanentDeleteBy('id', $id);
 

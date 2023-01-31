@@ -17,14 +17,14 @@ function customAction(value, column, row) {
   return (
     <Dropdown.Content>
       <Dropdown.Link
-        href={`${route(column.routeView, {id: value})}`}
+        href={`${route(column.routeView, { id: value })}`}
         method="get"
         as="button"
       >
         View
       </Dropdown.Link>
       <Dropdown.Link
-        href={`${route(column.routeEdit, {id: value})}`}
+        href={`${route(column.routeEdit, { id: value })}`}
         method="get"
         as="button"
       >
@@ -49,8 +49,8 @@ function customAction(value, column, row) {
 }
 
 export default function Users(props) {
-  const { data } = usePage().props;
-  const dataPagination = TransformData.paginate(data);
+  const { _data } = usePage().props;
+  const dataPagination = TransformData.paginate(_data);
 
   const deleteDialogRef = useRef();
   const resetDialogRef = useRef();
@@ -63,7 +63,8 @@ export default function Users(props) {
   };
 
   const callbackDeleteDialog = (value, data) => {
-    if (value) Inertia.delete(route("settings.users.destroy", { id: data["id"] }));
+    if (value)
+      Inertia.delete(route("settings.users.destroy", { id: data["id"] }));
   };
 
   const showResetDialog = (data) => {
@@ -140,28 +141,31 @@ export default function Users(props) {
     <AuthenticatedLayout
       auth={props.auth}
       errors={props.errors}
-      pageItems={props.pageItems}
-      breadcrumb={
-        <div className="flex flex-wrap space-x-4">
+      navigationRoutes={props.navigationRoutes}
+    >
+      <div className="bg-white px-4 py-4 inline-flex justify-between w-full items-center">
+        <div className="flex flex-wrap">
+          <h1 className="text-lg font-semibold">User</h1>
+        </div>
+        <div className="inline-flex space-x-4">
           <Link
             as="button"
             href={route("settings.users.create")}
-            className="inline-flex items-center px-4 py-2 bg-blue-400 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest active:bg-blue-400 transition ease-in-out duration-150"
+            className="inline-flex items-center px-4 py-2 bg-blue-400 border border-transparent rounded-md font-semibold text-xs justify-center text-white uppercase tracking-widest active:bg-blue-400 transition ease-in-out duration-150"
           >
             Create
           </Link>
           <Link
             as="button"
             href={route("settings.trashed.users.index")}
-            className="inline-flex items-center px-4 py-2 bg-red-400 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest active:bg-blue-400 transition ease-in-out duration-150"
+            className="inline-flex items-center px-4 py-2 bg-red-400 border border-transparent rounded-md font-semibold text-xs justify-center text-white uppercase tracking-widest active:bg-blue-400 transition ease-in-out duration-150"
           >
             {/* <TrashIcon className="h-4 w-4 mr-1" /> */}
             Trashed
           </Link>
         </div>
-      }
-    >
-      <div className="px-4">
+      </div>
+      <div className="py-6 px-4 w-full">
         <Table
           columns={columns}
           inputData={dataPagination}

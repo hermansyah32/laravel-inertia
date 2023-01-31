@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::create('student_departments', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->uuid('author_id')->nullable();
             $table->string('name')->unique();
             $table->softDeletes();
             $table->timestamps();

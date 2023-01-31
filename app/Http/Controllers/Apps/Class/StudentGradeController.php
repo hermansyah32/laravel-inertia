@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Apps\Class;
 
-use App\Http\Controllers\AppsController as Controller;
+use App\Helper\Constants;
+use App\Helper\FlashMessenger;
+use App\Http\Controllers\BaseController as Controller;
 use App\Http\Repositories\StudentGradeRepository;
 use App\Http\Response\BodyResponse;
 use App\Http\Response\ResponseCode;
@@ -10,6 +12,7 @@ use App\Models\StudentClass;
 use Exception;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Spatie\Permission\Exceptions\UnauthorizedException;
 
 class StudentGradeController extends Controller
 {
@@ -31,33 +34,22 @@ class StudentGradeController extends Controller
         $this->repository = $repo;
     }
 
-    public function checkPermission($rule)
+    public function checkPermission($rule): bool|BodyResponse
     {
         try {
-            if (!$this->repository->currentAccount()
-                ->hasPermissionTo($rule))
-                throw new Exception('Permission denied');
+            $result = $this->repository->currentAccount()->can($rule);
+            if (!$result) throw new UnauthorizedException(401, "You do not have required permission");
+            return true;
         } catch (\Throwable $th) {
             $body = new BodyResponse();
             $body->setPermissionDenied();
-            return $this->sendResponse($body);
+            return $body;
         }
     }
 
     public function permissionRule()
     {
-        return ((object)[
-            'index' => 'can index student grades',
-            'indexTrashed' => 'can index trashed student grades',
-            'show' => 'can show student grades',
-            'showFull' => 'can show full student grades',
-            'showTrashed' => 'can show trashed student grades',
-            'store' => 'can store student grades',
-            'update' => 'can update student grades',
-            'restore' => 'can restore student grades',
-            'destroy' => 'can destroy student grades',
-            'permanentDestroy' => 'can permanent destroy student grades',
-        ]);
+        return Constants::PERMISSIONS()->student_grades;
     }
 
 
@@ -68,18 +60,26 @@ class StudentGradeController extends Controller
      */
     public function index(Request $request)
     {
-        $this->checkPermission($this->permissionRule()->index);
+        $checkPermission = $this->checkPermission($this->permissionRule()->index);
+        if ($checkPermission !== true) {
+            $checkPermission->setRequestInfo($request, $this->repository->currentAccount()->toArray());
+            $this->saveLog($checkPermission);
+            return redirect(route('auth.404'));
+        }
 
         $order = $request->order ?? 'desc';
         $columns = $request->columns ?? ['*'];
         $count = $request->perPage ?? 0;
         $result = $this->repository->index($order, $request->all(), $columns, $count);
 
+        if ($result->getResponseCode() !== ResponseCode::OK) {
+            FlashMessenger::sendFromBody($result);
+        }
+
         return Inertia::render($this->baseComponent(), [
-            'pageItems' => $this->getPageItems()
+            '_data' => $result->getBodyData(),
         ]);
     }
-
     /**
      * Display a listing of the resource trashed.
      ** @return \Illuminate\Http\Response
@@ -87,13 +87,24 @@ class StudentGradeController extends Controller
     public function indexTrashed(Request $request)
     {
         // Add permission checking
-        $this->checkPermission($this->permissionRule()->indexTrashed);
+        $checkPermission = $this->checkPermission($this->permissionRule()->index_trashed);
+        if ($checkPermission !== true) {
+            $checkPermission->setRequestInfo($request, $this->repository->currentAccount()->toArray());
+            $this->saveLog($checkPermission);
+            return redirect(route('auth.404'));
+        }
 
         $order = $request->order ?? 'desc';
         $columns = $request->columns ?? ['*'];
         $count = $request->perPage ?? 0;
         $result = $this->repository->indexTrashed($order, $request->all(), $columns, $count);
-        return $this->sendResponse($result);
+        if ($result->getResponseCode() !== ResponseCode::OK) {
+            FlashMessenger::sendFromBody($result);
+        }
+
+        return Inertia::render($this->baseComponent(), [
+            '_data' => $result->getBodyData(),
+        ]);
     }
 
     /**

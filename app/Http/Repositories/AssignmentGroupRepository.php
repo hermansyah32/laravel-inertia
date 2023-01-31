@@ -38,9 +38,14 @@ class AssignmentGroupRepository extends BaseRepository
     {
         return ((object) [
             'rules' => [
-                'subject_group_id' => ['required', 'uuid'],
-                'subject_content_id' => ['required', 'uuid'],
+                'subject_id' => ['nullable', 'uuid'],
+                'author_id' => ['nullable', 'uuid'],
+                'subject_group_id' => ['nullable', 'uuid'],
+                'subject_content_id' => ['nullable', 'uuid'],
                 'name' => ['required', 'string'],
+                'description' => ['nullable', 'string'],
+                'type' => ['required', 'string'],
+                'due_datetime' => ['nullable', 'date_format:Y-m-d H:i'],
             ],
             'messages' => [],
             'attributes' => []
@@ -55,9 +60,14 @@ class AssignmentGroupRepository extends BaseRepository
     {
         return ((object) [
             'rules' => [
-                'subject_group_id' => ['required', 'uuid'],
-                'subject_content_id' => ['required', 'uuid'],
+                'subject_id' => ['nullable', 'uuid'],
+                'author_id' => ['nullable', 'uuid'],
+                'subject_group_id' => ['nullable', 'uuid'],
+                'subject_content_id' => ['nullable', 'uuid'],
                 'name' => ['required', 'string'],
+                'description' => ['nullable', 'string'],
+                'type' => ['required', 'string'],
+                'due_datetime' => ['nullable', 'date_format:Y-m-d H:i'],
             ],
             'messages' => [],
             'attributes' => []

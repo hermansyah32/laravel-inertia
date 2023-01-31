@@ -31,8 +31,9 @@ class StudentClass extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'author_id',
         'student_grade_id',
-        'student_department_id'
+        'student_department_id',
+        'name',
     ];
 }

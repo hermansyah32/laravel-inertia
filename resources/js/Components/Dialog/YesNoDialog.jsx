@@ -54,6 +54,18 @@ const YesNoDialog = forwardRef(
       setOpen(false);
     };
 
+    const getTextColor = () => {
+      if (bgColor === "bg-red-400") {
+        return "text-white";
+      }
+
+      if (bgColor === "bg-green-400") {
+        return "text-gray-600";
+      }
+
+      return "text-gray-900";
+    };
+
     return (
       <Transition appear show={open} as={Fragment}>
         <Dialog as="div" className="relative z-10" onClose={onDialogClose}>
@@ -83,7 +95,7 @@ const YesNoDialog = forwardRef(
                 <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white text-left align-middle shadow-xl transition-all text-black">
                   <Dialog.Title
                     as="h3"
-                    className={`text-lg font-medium p-4 leading-6 text-gray-900 select-none flex flex-row items-center ${bgColor}`}
+                    className={`text-lg font-medium p-4 leading-6 ${getTextColor()} select-none flex flex-row items-center ${bgColor}`}
                   >
                     <div className="w-full">{title}</div>
                     <DynamicIconSolid iconName={icon} className="h-8 w-8" />
@@ -94,7 +106,7 @@ const YesNoDialog = forwardRef(
                   <div className="mt-4 flex justify-between px-4 pb-4">
                     <button
                       type="button"
-                      className="inline-flex justify-center rounded-md border border-transparent bg-red-400 px-4 py-2 text-sm font-medium text-white hover:opacity-25 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2"
+                      className="inline-flex justify-center rounded-md border border-transparent bg-red-400 px-4 py-2 text-sm font-medium text-white hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2"
                       onClick={(e) => {
                         if (callback) {
                           callback(true, data);
@@ -106,7 +118,7 @@ const YesNoDialog = forwardRef(
                     </button>
                     <button
                       type="button"
-                      className="inline-flex justify-center rounded-md border border-transparent bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:opacity-25 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2"
+                      className="inline-flex justify-center rounded-md border border-transparent bg-blue-400 px-4 py-2 text-sm font-medium text-white hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2"
                       onClick={(e) => {
                         if (callback) {
                           callback(false, data);

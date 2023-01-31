@@ -1,5 +1,5 @@
 import { Link, usePage } from "@inertiajs/inertia-react";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import DynamicIconOutline from "./DynamicIconOutline";
 import DynamicIconSolid from "./DynamicIconSolid";
 
@@ -9,14 +9,10 @@ function classes(...classes) {
 
 export default function SidebarContentLeft({ page, pageItems }) {
   const [show, setShow] = useState(true);
-  const { url, component } = usePage();
-
-  useEffect(() => {
-    // console.log("component :>> ", component);
-  }, []);
+  const { component } = usePage();
 
   return (
-    <div className="hidden md:flex bg-gray-900 pt-4 pb-2 px-4 lg:px-6">
+    <div className="hidden md:flex bg-gray-900 pt-4 pb-2 px-4 lg:px-6 h-full">
       <div className="flex flex-grow h-full">
         <div className=" flex flex-col h-full justify-between">
           <div>

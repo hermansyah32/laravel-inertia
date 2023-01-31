@@ -38,6 +38,7 @@ class StudentGradeRepository extends BaseRepository
     {
         return ((object) [
             'rules' => [
+                'author_id' => ['nullable', 'uuid'],
                 'name' => ['required', 'string', 'unique:student_grades'],
             ],
             'messages' => [],

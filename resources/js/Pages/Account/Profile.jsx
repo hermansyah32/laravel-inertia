@@ -28,10 +28,14 @@ export default function Profile(props) {
     <AuthenticatedLayout
       auth={props.auth}
       errors={props.errors}
-      pageItems={props.pageItems}
+      navigationRoutes={props.navigationRoutes}
       flash={props.flash}
-      breadcrumb={
-        <>
+    >
+      <div className="bg-white px-4 py-4 inline-flex justify-between w-full items-center">
+        <div className="flex flex-wrap">
+          <h1 className="text-lg font-semibold">Profile</h1>
+        </div>
+        <div>
           <Link
             as="button"
             href={route("profile.edit")}
@@ -39,10 +43,9 @@ export default function Profile(props) {
           >
             Update
           </Link>
-        </>
-      }
-    >
-      <div className="px-4">
+        </div>
+      </div>
+      <div className="py-6 px-4 w-full">
         <div className="flex justify-center mb-2">
           <Avatar
             source={data.profile_photo_url}

@@ -32,6 +32,7 @@ class SubjectReference extends Model
      */
     protected $fillable = [
         'subject_content_id',
+        'author_id',
         'name',
         'url'
     ];

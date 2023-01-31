@@ -38,7 +38,12 @@ class SubjectRepository extends BaseRepository
     {
         return ((object) [
             'rules' => [
+                'author_id' => ['nullable', 'uuid'],
+                'student_grade_id' => ['required', 'uuid'],
+                'student_department_id' => ['required', 'uuid'],
                 'name' => ['required', 'string', 'unique:student_grades'],
+                'description' => ['required', 'string'],
+                'image' => ['required', 'string'],
             ],
             'messages' => [],
             'attributes' => []
@@ -53,7 +58,12 @@ class SubjectRepository extends BaseRepository
     {
         return ((object) [
             'rules' => [
-                'name' => ['required', 'string'],
+                'author_id' => ['nullable', 'uuid'],
+                'student_grade_id' => ['required', 'uuid'],
+                'student_department_id' => ['required', 'uuid'],
+                'name' => ['required', 'string', 'unique:student_grades'],
+                'description' => ['required', 'string'],
+                'image' => ['required', 'string'],
             ],
             'messages' => [],
             'attributes' => []

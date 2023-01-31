@@ -15,10 +15,14 @@ return new class extends Migration
     {
         Schema::create('assignment_groups', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('subject_id');
+            $table->uuid('author_id')->nullable();
+            $table->uuid('subject_id')->nullable();
             $table->uuid('subject_group_id')->nullable();
             $table->uuid('subject_content_id')->nullable();
             $table->string('name');
+            $table->string('description')->nullable();
+            $table->string('type');
+            $table->dateTime('due_datetime')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

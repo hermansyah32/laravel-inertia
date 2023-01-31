@@ -5,6 +5,7 @@ import Avatar from "./Avatar";
 
 const userNavigation = [
   { type: "link", label: "Account", href: route("profile") },
+  { type: "link", label: "Security", href: route("account.security") },
   { type: "sep" },
   { type: "link", label: "Logout", href: route("logout"), method: "post" },
 ];
@@ -42,7 +43,7 @@ const renderNavigation = (type, label, href, method, key) => {
 
 export default function AvatarMenu({ name, profilePhoto }) {
   return (
-    <Menu as="div" className="relative ml-3">
+    <Menu as="div" className="relative ml-3 pr-2">
       <div>
         <Menu.Button className="flex max-w-xs items-center rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
           <span className="sr-only">Open user menu</span>
@@ -59,13 +60,13 @@ export default function AvatarMenu({ name, profilePhoto }) {
         leaveTo="transform opacity-0 scale-95"
       >
         <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-          {userNavigation.map((item) =>
+          {userNavigation.map((item, index) =>
             renderNavigation(
               item.type,
               item.label,
               item.href,
               item.method,
-              item.label
+              `avatarMenu` + index
             )
           )}
         </Menu.Items>

@@ -31,6 +31,7 @@ class StudentDepartment extends Model
      * @var array<int, string>
      */
     protected $fillable = [
+        'author_id',
         'name',
     ];
 }

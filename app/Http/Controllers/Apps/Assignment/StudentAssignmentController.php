@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Apps\Assignment;
 
-use App\Http\Controllers\AppsController as Controller;
+use App\Http\Controllers\BaseController as Controller;
 use App\Http\Repositories\StudentAssignmentRepository;
 use App\Http\Response\BodyResponse;
 use Exception;
@@ -23,20 +23,19 @@ class StudentAssignmentController extends Controller
         $this->repository = $repo;
     }
 
-    public function baseComponent() { }
+    public function baseComponent()
+    {
+    }
 
-    public static function getPageItems() { }
-
-    public function checkPermission($rule)
+    public function checkPermission($rule): bool|BodyResponse
     {
         try {
-            if (!$this->repository->currentAccount()
-                ->hasPermissionTo($rule))
-                throw new Exception('Permission denied');
+            if (!$this->repository->currentAccount()->can($rule)) throw new Exception('Permission denied');
+            return true;
         } catch (\Throwable $th) {
             $body = new BodyResponse();
             $body->setPermissionDenied();
-            return $this->sendResponse($body);
+            return $body;
         }
     }
 

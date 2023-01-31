@@ -32,8 +32,12 @@ class AssignmentGroup extends Model
      */
     protected $fillable = [
         'subject_id',
+        'author_id',
         'subject_group_id',
         'subject_content_id',
         'name',
+        'description',
+        'type',
+        'due_datetime'
     ];
 }

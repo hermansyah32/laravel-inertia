@@ -31,8 +31,12 @@ class SubjectContent extends Model
      * @var array<int, string>
      */
     protected $fillable = [
+        'author_id',
         'subject_group_id',
         'order',
+        'type',
+        'thumbnail',
+        'video_url',
         'title',
         'content'
     ];

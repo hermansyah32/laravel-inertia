@@ -38,11 +38,13 @@ class SubjectAssignmentRepository extends BaseRepository
     {
         return ((object) [
             'rules' => [
+                'author_id' => ['nullable', 'uuid'],
                 'assignment_group_id' => ['required', 'uuid'],
                 'type' => ['required', 'string'],
-                'question' => ['required', 'string'],
-                'options' => ['required', 'string'],
+                'question' => ['required', 'json'],
+                'options' => ['nullable', 'json'],
                 'answer' => ['required', 'string'],
+                'score' => ['required', 'numeric'],
             ],
             'messages' => [],
             'attributes' => []
@@ -57,11 +59,13 @@ class SubjectAssignmentRepository extends BaseRepository
     {
         return ((object) [
             'rules' => [
+                'author_id' => ['nullable', 'uuid'],
                 'assignment_group_id' => ['required', 'uuid'],
                 'type' => ['required', 'string'],
-                'question' => ['required', 'string'],
-                'options' => ['required', 'string'],
+                'question' => ['required', 'json'],
+                'options' => ['nullable', 'json'],
                 'answer' => ['required', 'string'],
+                'score' => ['required', 'integer'],
             ],
             'messages' => [],
             'attributes' => []

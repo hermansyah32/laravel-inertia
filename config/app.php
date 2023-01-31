@@ -195,6 +195,7 @@ return [
          * Package Service Providers...
          */
         \Torann\GeoIP\GeoIPServiceProvider::class,
+        Mews\Captcha\CaptchaServiceProvider::class,
     ],
 
     /*
@@ -211,6 +212,7 @@ return [
     'aliases' => Facade::defaultAliases()->merge([
         // 'ExampleClass' => App\Example\ExampleClass::class,
         // 'GeoIP' => \Torann\GeoIP\Facades\GeoIP::class,
+        'Captcha' => Mews\Captcha\Facades\Captcha::class,
     ])->toArray(),
 
 ];

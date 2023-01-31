@@ -38,8 +38,12 @@ class SubjectContentRepository extends BaseRepository
     {
         return ((object) [
             'rules' => [
+                'author_id' => ['nullable', 'uuid'],
                 'subject_group_id' => ['required', 'uuid'],
                 'order' => ['required', 'integer'],
+                'type' => ['required', 'string'],
+                'thumbnail' => ['required', 'string'],
+                'video_url' => ['required', 'string'],
                 'title' => ['required', 'string'],
                 'content' => ['required', 'string'],
             ],
@@ -56,8 +60,12 @@ class SubjectContentRepository extends BaseRepository
     {
         return ((object) [
             'rules' => [
+                'author_id' => ['nullable', 'uuid'],
                 'subject_group_id' => ['required', 'uuid'],
                 'order' => ['required', 'integer'],
+                'type' => ['required', 'string'],
+                'thumbnail' => ['required', 'string'],
+                'video_url' => ['nullable', 'string'],
                 'title' => ['required', 'string'],
                 'content' => ['required', 'string'],
             ],

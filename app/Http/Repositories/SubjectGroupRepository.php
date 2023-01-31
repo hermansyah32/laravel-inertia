@@ -38,9 +38,11 @@ class SubjectGroupRepository extends BaseRepository
     {
         return ((object) [
             'rules' => [
-                'name' => ['required', 'string'],
+                'author_id' => ['nullable', 'uuid'],
                 'subject_id' => ['required', 'uuid'],
                 'order' => ['required', 'integer'],
+                'name' => ['required', 'string'],
+                'description' => ['required', 'string'],
             ],
             'messages' => [],
             'attributes' => []
@@ -55,9 +57,11 @@ class SubjectGroupRepository extends BaseRepository
     {
         return ((object) [
             'rules' => [
-                'name' => ['required', 'string'],
+                'author_id' => ['nullable', 'uuid'],
                 'subject_id' => ['required', 'uuid'],
                 'order' => ['required', 'integer'],
+                'name' => ['required', 'string'],
+                'description' => ['nullable', 'string'],
             ],
             'messages' => [],
             'attributes' => []

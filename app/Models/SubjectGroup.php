@@ -31,8 +31,10 @@ class SubjectGroup extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'author_id',
         'subject_id',
         'order',
+        'name',
+        'description',
     ];
 }

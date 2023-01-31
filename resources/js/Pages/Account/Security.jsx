@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { useForm } from "@inertiajs/inertia-react";
+import { Link, useForm } from "@inertiajs/inertia-react";
 import InputLabel from "@/Components/Forms/InputLabel";
 import TextInput from "@/Components/Forms/TextInput";
 import InputError from "@/Components/Forms/InputError";
@@ -31,11 +31,16 @@ export default function Security(props) {
     <AuthenticatedLayout
       auth={props.auth}
       errors={props.errors}
-      pageItems={props.pageItems}
+      navigationRoutes={props.navigationRoutes}
       flash={props.flash}
     >
-      <form onSubmit={submit}>
-        <div className="px-4">
+      <div className="bg-white px-4 py-4 inline-flex justify-between w-full items-center">
+        <div className="flex flex-wrap">
+          <h1 className="text-lg font-semibold">Security</h1>
+        </div>
+      </div>
+      <div className="py-6 px-4 w-full">
+        <form onSubmit={submit}>
           <div className="block md:flex flex-row">
             <InputLabel
               className="md:w-1/4 md:self-center md:font-bold"
@@ -87,11 +92,11 @@ export default function Security(props) {
               <InputError message={errors.confirm_password} className="mt-2" />
             </div>
           </div>
-        </div>
-        <PrimaryButton className="ml-4 bg-blue-400" processing={processing}>
-          Update
-        </PrimaryButton>
-      </form>
+          <PrimaryButton className="bg-blue-400" processing={processing}>
+            Update
+          </PrimaryButton>
+        </form>
+      </div>
     </AuthenticatedLayout>
   );
 }

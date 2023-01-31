@@ -25,11 +25,11 @@ function GlobalFilter({
   }, 200);
 
   return (
-    <label className="flex gap-x-2 items-baseline">
+    <label className="w-full flex gap-x-2 items-baseline">
       <span className="text-gray-700">Search: </span>
       <input
         type="text"
-        className="rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+        className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
         value={value || ""}
         onChange={(e) => {
           setValue(e.target.value);
@@ -45,7 +45,7 @@ function Table({ columns, inputData, fetchData, withNumber = false }) {
   // set const data
   /** @type {array} */
   const data = inputData.data;
-  
+
   /** @type {DataPaging} */
   const dataPaging = inputData.paging;
 
@@ -170,6 +170,17 @@ function Table({ columns, inputData, fetchData, withNumber = false }) {
                   {...getTableBodyProps()}
                   className="bg-white divide-y divide-gray-200"
                 >
+                  {page.length === 0 && (
+                    <tr>
+                      <td
+                        colSpan={headerGroups[0].headers.length}
+                        className="px-4 py-2 whitespace-nowrap text-center"
+                        role="cell"
+                      >
+                        Empty Data
+                      </td>
+                    </tr>
+                  )}
                   {page.map((row, rowIndex) => {
                     // new
                     prepareRow(row);

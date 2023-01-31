@@ -338,25 +338,51 @@ class BaseAccountRepository
     }
 
     /**
-     * Transform account with roles
+     * Transform account with multiple profiles
      * 
      * @param mixed $user User model
      */
-    protected function transformRoles(&$user)
+    protected function transformProfiles($user)
+    {
+        if ($user->profiles === null || count($user->profiles) == 0) return;
+
+        foreach ($user->profiles as $key => $profile) {
+            $instantiateProfile = (new $profile->profile_type);
+            $prefix = strtolower(basename(str_replace('\\', '/', $instantiateProfile::class)));
+            $fillable = $instantiateProfile->getFillable();
+
+            foreach ($fillable as $attr) {
+                $user->setAttribute($prefix . '_' . $attr, $profile->{$attr});
+            }
+        }
+        unset($user->profiles);
+    }
+
+    /**
+     * Transform account with roles
+     * 
+     * @param mixed $user User model
+     * @param bool $onlyName Return only role's name
+     */
+    protected function transformRoles(&$user, bool $onlyName = true)
     {
         if ($user->roles === null || count($user->roles) < 1) return [];
 
         $fillable = $user->roles[0]->getFillable();
         $roles = [];
         foreach ($user->roles as $role) {
-            $tempRole = [];
-            foreach ($fillable as $attr) {
-                $tempRole[$attr] = $role[$attr];
+            if ($onlyName) {
+                $roles[] = $role->name;
+            } else {
+                $tempRole = [];
+                foreach ($fillable as $attr) {
+                    $tempRole[$attr] = $role[$attr];
+                }
+                $roles[] = $tempRole;
             }
-            $roles[] = $tempRole;
         }
-        $user->setAttribute('roles', $roles);
         unset($user->roles);
+        $user->setAttribute('roles', $roles);
     }
 
     private function saveLog($exception)

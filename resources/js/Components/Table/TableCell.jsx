@@ -225,13 +225,13 @@ export function TrashedActionCell({ value, column, row }) {
             >
               View
             </Dropdown.Link>
-            <Dropdown.Link
-              href={`${route(column.routeRestore, { id: value })}`}
-              method="get"
-              as="button"
+            <Dropdown.Button
+              onClick={() => {
+                column.showRestore(row.original);
+              }}
             >
               Restore
-            </Dropdown.Link>
+            </Dropdown.Button>
             <Dropdown.Button
               onClick={() => {
                 column.showDelete(row.original);

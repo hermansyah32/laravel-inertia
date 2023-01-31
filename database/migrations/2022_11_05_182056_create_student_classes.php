@@ -15,9 +15,10 @@ return new class extends Migration
     {
         Schema::create('student_classes', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('name');
+            $table->uuid('author_id')->nullable();
             $table->uuid('student_grade_id');
             $table->uuid('student_department_id');
+            $table->string('name');
             $table->softDeletes();
             $table->timestamps();
         });

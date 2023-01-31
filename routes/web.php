@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\RedirectRouteController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -29,6 +30,8 @@ Route::get('/about', function () {
 })->name('about');
 
 require __DIR__ . '/web/auth.php';
+
+Route::get('/testpage', [RedirectRouteController::class, 'notFound']);
 
 Route::middleware(['auth'])->group(function () {
     require __DIR__ . '/web/dashboard.php';

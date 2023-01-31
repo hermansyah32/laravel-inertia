@@ -15,8 +15,10 @@ return new class extends Migration
     {
         Schema::create('subject_groups', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->uuid('author_id')->nullable();
             $table->uuid('subject_id');
             $table->string('name');
+            $table->string('description');
             $table->integer('order')->default(1);
             $table->softDeletes();
             $table->timestamps();

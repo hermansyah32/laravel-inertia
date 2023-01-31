@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Response\BodyResponse;
-use Exception;
-use Illuminate\Support\Facades\Log;
+use Router\Navigation\Router;
 
 abstract class BaseController extends BaseAPIController
 {
 
     abstract function baseComponent();
 
-    abstract static function getPageItems();
+    public function getNavigationRoute($auth = null)
+    {
+        return new Router($auth);
+    }
 }

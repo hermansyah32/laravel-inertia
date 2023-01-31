@@ -41,6 +41,7 @@ class StudentClassRepository extends BaseRepository
     {
         return ((object) [
             'rules' => [
+                'author_id' => ['nullable', 'uuid'],
                 'student_grade_id' => ['required', 'uuid'],
                 'student_department_id' => ['required', 'uuid'],
                 'name' => ['required', 'string'],
@@ -58,6 +59,7 @@ class StudentClassRepository extends BaseRepository
     {
         return ((object) [
             'rules' => [
+                'author_id' => ['nullable', 'uuid'],
                 'student_grade_id' => ['required', 'uuid'],
                 'student_department_id' => ['required', 'uuid'],
                 'name' => ['required', 'string'],

@@ -6,7 +6,6 @@ export default defineConfig({
     plugins: [
         laravel({
             input: "resources/js/app.jsx",
-            hotFile: "../../inertia/vite.hot",
             buildDirectory: "../../../inertia/build",
             ssr: "resources/js/ssr.jsx",
             refresh: true,

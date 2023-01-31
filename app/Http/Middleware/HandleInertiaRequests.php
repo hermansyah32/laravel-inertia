@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
+use Router\Navigation\Router;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -64,7 +65,8 @@ class HandleInertiaRequests extends Middleware
                 'message' => session()->get('flash_message'),
                 'notification' => session()->get('flash_notification'),
                 'type' => session()->get('flash_type'),
-            ]
+            ],
+            'navigationRoutes' => (new Router($auth))->getAll()
         ]);
     }
 }

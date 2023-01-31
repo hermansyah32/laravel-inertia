@@ -4,8 +4,9 @@ namespace App\Http\Controllers\Account;
 
 use App\Helper\Constants;
 use App\Helper\FlashMessenger;
-use App\Http\Controllers\AccountController as Controller;
+use App\Http\Controllers\BaseController as Controller;
 use App\Http\Repositories\Base\BaseAccountRepository;
+use App\Http\Response\BodyResponse;
 use App\Http\Response\ResponseCode;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -32,8 +33,9 @@ class ProfileController extends Controller
     }
 
     // Not used in authentication controller
-    public function checkPermission($rule)
+    public function checkPermission($rule): bool|BodyResponse
     {
+        return true;
     }
     public function permissionRule()
     {
@@ -48,14 +50,12 @@ class ProfileController extends Controller
     public function showProfile(Request $request)
     {
         $result = $this->repository->getProfile();
-
         if ($result->getResponseCode() !== ResponseCode::OK) {
+            $this->saveLog($result);
             FlashMessenger::sendFromBody($result);
         }
-        $this->saveLog($result);
 
         return Inertia::render($this->baseComponent() . '/Profile', [
-            'pageItems' => $this->getPageItems(),
             'account' => $result->getBodyData(),
             'constants' => [
                 'gender' => Constants::GENDER()
@@ -72,13 +72,13 @@ class ProfileController extends Controller
     public function editProfile(Request $request)
     {
         $result = $this->repository->getProfile();
+        FlashMessenger::sendFromBody($result);
         if ($result->getResponseCode() !== ResponseCode::OK) {
-            FlashMessenger::sendFromBody($result);
+            $this->saveLog($result);
+            return redirect()->back();
         }
-        $this->saveLog($result);
 
         return Inertia::render($this->baseComponent() . '/Profile/Edit', [
-            'pageItems' => $this->getPageItems(),
             'account' => $result->getBodyData(),
             'constants' => [
                 'gender' => Constants::GENDER()
@@ -96,20 +96,15 @@ class ProfileController extends Controller
     {
         $input = $request->all();
         foreach ($input as $key => $value) {
-            if ($input[$key] === null){
+            if ($input[$key] === null) {
                 unset($input[$key]);
             }
         }
         $result = $this->repository->updateProfile($input);
         FlashMessenger::sendFromBody($result);
-
-        if ($result->getResponseCode() === ResponseCode::VALIDATION_ERROR){
-            throw ValidationException::withMessages($result->getBodyData()->toArray());
-        }        
-
-        if($result->getResponseCode() !== ResponseCode::OK){
+        if ($result->getResponseCode() !== ResponseCode::OK) {
             $this->saveLog($result);
-            return redirect(route('profile.edit'));
+            return redirect()->back()->withInput($input);
         }
 
         return redirect(route('profile'));
@@ -123,9 +118,7 @@ class ProfileController extends Controller
      */
     public function editSecurity(Request $request)
     {
-        return Inertia::render($this->baseComponent() . '/Security', [
-            'pageItems' => $this->getPageItems(),
-        ]);
+        return Inertia::render($this->baseComponent() . '/Security', []);
     }
 
     /**
@@ -138,32 +131,55 @@ class ProfileController extends Controller
     {
         $input = $request->all();
         foreach ($input as $key => $value) {
-            if ($input[$key] === null){
+            if ($input[$key] === null) {
                 unset($input[$key]);
             }
         }
 
         $result = $this->repository->updatePassword($input);
         FlashMessenger::sendFromBody($result);
-
-        if ($result->getResponseCode() === ResponseCode::VALIDATION_ERROR){
-            throw ValidationException::withMessages($result->getBodyData()->toArray());
+        if ($result->getResponseCode() !== ResponseCode::OK) {
+            $this->saveLog($result);
+            return redirect()->back();
         }
-        $this->saveLog($result);
 
         return redirect(route('account.security'));
     }
 
     /**
-     * Update the account email or/and username.
+     * Send email change request
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request)
+    public function sendEmailUpdate(Request $request)
     {
-        $result = $this->repository->updateEmail($request->email, $request->username);
-        $this->saveLog($result);
+        $result = $this->repository->sendEmailUpdate($request->email);
+
+        FlashMessenger::sendFromBody($result);
+        if ($result->getResponseCode() !== ResponseCode::OK) {
+            $this->saveLog($result);
+            return redirect()->back();
+        }
+        return $this->sendResponse($result);
+    }
+
+    /**
+     * Update email
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function updateEmail(Request $request)
+    {
+        $result = $this->repository->updateEmail($request->email, $request->token);
+
+        FlashMessenger::sendFromBody($result);
+        if ($result->getResponseCode() !== ResponseCode::OK) {
+            $this->saveLog($result);
+            return redirect()->back();
+        }
+
         return $this->sendResponse($result);
     }
 }

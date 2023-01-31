@@ -15,8 +15,12 @@ return new class extends Migration
     {
         Schema::create('subject_contents', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->uuid('author_id');
             $table->uuid('subject_group_id');
             $table->integer('order')->default(1);
+            $table->string('type');
+            $table->string('thumbnail');
+            $table->string('video_url')->nullable();
             $table->string('title');
             $table->longText('content');
             $table->softDeletes();

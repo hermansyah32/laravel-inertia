@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
-class StudentRepository extends BaseRepository
+class TeacherRepository extends BaseRepository
 {
     /**
      * Base repository Constructor

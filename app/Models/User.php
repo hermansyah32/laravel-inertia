@@ -139,11 +139,11 @@ class User extends Authenticatable
 
     /**
      * Get all related profile
-     * 
+     * TODO: still not working, pivot successfully but not showing data
      */
     public function profiles()
     {
-        return $this->hasMany(PivotProfiles::class);
+        return $this->hasMany(PivotProfiles::class)->with('profile');
     }
     /**
      * Send the verified notification.
@@ -162,7 +162,7 @@ class User extends Authenticatable
      * @return void 
      */
     public function sendEmailChangeNotification($token){
-        $this->notify(new EmailChangeNotification($token));
+        // $this->notify(new EmailChangeNotification($token));
     }
 
     /**

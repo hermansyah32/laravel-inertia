@@ -37,14 +37,10 @@ class TeacherProfile extends Model
      * @var array<int, string>
      */
     protected $fillable = [
+        'id',
         'user_id',
         'teacher_number',
-        'birthday',
-        'gender',
         'education',
-        'phone',
-        'photo_url',
-        'address',
     ];
 
     /**

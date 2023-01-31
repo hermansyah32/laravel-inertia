@@ -1,12 +1,11 @@
 import React, { useEffect } from "react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { useForm, usePage } from "@inertiajs/inertia-react";
+import { Link, useForm, usePage } from "@inertiajs/inertia-react";
 import InputLabel from "@/Components/Forms/InputLabel";
 import TextInput from "@/Components/Forms/TextInput";
 import InputError from "@/Components/Forms/InputError";
 import TextArea from "@/Components/Forms/TextArea";
 import DateInput from "@/Components/Forms/DateInput";
-import ComboInput from "@/Components/Forms/ComboInput";
 import dayjs from "dayjs";
 import { TransformConstants } from "@/Helper/Transform";
 import PrimaryButton from "@/Components/PrimaryButton";
@@ -62,10 +61,24 @@ export default function Edit(props) {
     <AuthenticatedLayout
       auth={props.auth}
       errors={props.errors}
-      pageItems={props.pageItems}
+      navigationRoutes={props.navigationRoutes}
     >
-      <form onSubmit={submit}>
-        <div className="px-4">
+      <div className="bg-white px-4 py-4 inline-flex justify-between w-full items-center">
+        <div className="flex flex-wrap">
+          <h1 className="text-lg font-semibold">Profile</h1>
+        </div>
+        <div>
+          <Link
+            as="button"
+            href={route("profile")}
+            className="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest active:bg-gray-800 transition ease-in-out duration-150"
+          >
+            Back
+          </Link>
+        </div>
+      </div>
+      <div className="py-6 px-4 w-full">
+        <form onSubmit={submit}>
           <div className="flex justify-center mb-2">
             <Avatar
               source={account.profile_photo_url}
@@ -201,11 +214,11 @@ export default function Edit(props) {
               <InputError message={errors.profile_address} className="mt-2" />
             </div>
           </div>
-        </div>
-        <PrimaryButton className="ml-4 bg-blue-400" processing={processing}>
-          Update
-        </PrimaryButton>
-      </form>
+          <PrimaryButton className="bg-blue-400" processing={processing}>
+            Update
+          </PrimaryButton>
+        </form>
+      </div>
     </AuthenticatedLayout>
   );
 }

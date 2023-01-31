@@ -15,9 +15,10 @@ return new class extends Migration
     {
         Schema::create('subject_assignments', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->uuid('author_id')->nullable();
             $table->uuid('assignment_group_id');
             $table->string('type');
-            $table->text('question');
+            $table->json('question');
             $table->json('options')->nullable();
             $table->string('answer');
             $table->integer('score');

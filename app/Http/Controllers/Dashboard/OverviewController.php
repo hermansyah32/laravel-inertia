@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers\Dashboard;
 
-use App\Http\Controllers\DashboardController as Controller;
+use App\Http\Controllers\BaseController as Controller;
+use App\Http\Response\BodyResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -14,9 +15,9 @@ class OverviewController extends Controller
     }
 
     // Not used in authentication controller
-    public function checkPermission($rule)
+    public function checkPermission($rule): bool|BodyResponse
     {
-        // Empty
+        return true;
     }
     public function permissionRule()
     {
@@ -31,7 +32,7 @@ class OverviewController extends Controller
     public function overview(Request $request)
     {
         return Inertia::render($this->baseComponent(), [
-            'pageItems' => $this->getPageItems()
+            
         ]);
     }
 }

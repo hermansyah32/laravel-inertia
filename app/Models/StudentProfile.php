@@ -37,17 +37,13 @@ class StudentProfile extends Model
      * @var array<int, string>
      */
     protected $fillable = [
+        'id',
         'user_id',
         'parent_id',
         'student_number',
         'student_class_id',
         'student_grade_id',
-        'birthday',
-        'gender',
-        'phone',
-        'photo_url',
         'cumulative_score',
-        'address',
     ];
 
     /**
