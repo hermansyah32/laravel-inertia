@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Apps\Assignment;
 
+use App\Helper\Constants;
+use App\Helper\FlashMessenger;
 use App\Http\Controllers\BaseController as Controller;
 use App\Http\Repositories\StudentAssignmentRepository;
 use App\Http\Response\BodyResponse;
+use App\Http\Response\ResponseCode;
 use Exception;
 use Illuminate\Http\Request;
 
@@ -13,18 +16,19 @@ class StudentAssignmentController extends Controller
     /** @var  StudentAssignmentRepository */
     private $repository;
 
+    public function baseComponent()
+    {
+        return 'Settings/StudentAssignments';
+    }
+
     /**
      * Class constructor
-     * @param StudentAssignmentRepository $repo 
-     * @return void 
+     * @param StudentAssignmentRepository $repo
+     * @return void
      */
     public function __construct(StudentAssignmentRepository $repo)
     {
         $this->repository = $repo;
-    }
-
-    public function baseComponent()
-    {
     }
 
     public function checkPermission($rule): bool|BodyResponse
@@ -41,18 +45,7 @@ class StudentAssignmentController extends Controller
 
     public function permissionRule()
     {
-        return ((object)[
-            'index' => 'can index student assignments',
-            'indexTrashed' => 'can index trashed student assignments',
-            'show' => 'can show student assignments',
-            'showFull' => 'can show full student assignments',
-            'showTrashed' => 'can show trashed student assignments',
-            'store' => 'can store student assignments',
-            'update' => 'can update student assignments',
-            'restore' => 'can restore student assignments',
-            'destroy' => 'can destroy student assignments',
-            'permanentDestroy' => 'can permanent destroy student assignments',
-        ]);
+        return Constants::PERMISSIONS()->users;
     }
 
 
@@ -69,7 +62,14 @@ class StudentAssignmentController extends Controller
         $columns = $request->columns ?? ['*'];
         $count = $request->perPage ?? 0;
         $result = $this->repository->index($order, $request->all(), $columns, $count);
-        return $this->sendResponse($result);
+
+        if ($result->getResponseCode() !== ResponseCode::OK) {
+            FlashMessenger::sendFromBody($result);
+        }
+
+        return Inertia::render($this->baseComponent(), [
+            '_data' => $result->getBodyData(),
+        ]);
     }
 
     /**
@@ -85,7 +85,27 @@ class StudentAssignmentController extends Controller
         $columns = $request->columns ?? ['*'];
         $count = $request->perPage ?? 0;
         $result = $this->repository->indexTrashed($order, $request->all(), $columns, $count);
-        return $this->sendResponse($result);
+
+        if ($result->getResponseCode() !== ResponseCode::OK) {
+            FlashMessenger::sendFromBody($result);
+        }
+
+        return Inertia::render($this->baseComponent(), [
+            '_data' => $result->getBodyData(),
+        ]);
+    }
+
+    /**
+     * Create a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function create(Request $request)
+    {
+        $this->checkPermission($this->permissionRule()->store);
+
+        return Inertia::render($this->baseComponent() . '/Create', []);
     }
 
     /**
@@ -113,7 +133,9 @@ class StudentAssignmentController extends Controller
         $this->checkPermission($this->permissionRule()->show);
 
         $result = $this->repository->get('id', $id);
-        return $this->sendResponse($result);
+        return Inertia::render($this->baseComponent() . '/Show', [
+            '_data' => $result->getBodyData(),
+        ]);
     }
 
     /**
@@ -127,7 +149,10 @@ class StudentAssignmentController extends Controller
         $this->checkPermission($this->permissionRule()->showTrashed);
 
         $result = $this->repository->getTrashed('id', $id);
-        return $this->sendResponse($result);
+
+        return Inertia::render($this->baseComponent() . '/ShowTrashed', [
+            '_data' => $result->getBodyData(),
+        ]);
     }
 
     /**

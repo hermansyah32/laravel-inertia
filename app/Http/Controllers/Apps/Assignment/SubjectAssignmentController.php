@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Apps\Assignment;
 
+use App\Helper\Constants;
 use App\Http\Controllers\BaseController as Controller;
 use App\Http\Repositories\SubjectAssignmentRepository;
 use App\Http\Response\BodyResponse;
@@ -13,18 +14,19 @@ class SubjectAssignmentController extends Controller
     /** @var  SubjectAssignmentRepository */
     private $repository;
 
+    public function baseComponent()
+    {
+        return 'Settings/SubjectAssignments';
+    }
+
     /**
      * Class constructor
-     * @param SubjectAssignmentRepository $repo 
-     * @return void 
+     * @param SubjectAssignmentRepository $repo
+     * @return void
      */
     public function __construct(SubjectAssignmentRepository $repo)
     {
         $this->repository = $repo;
-    }
-
-    public function baseComponent()
-    {
     }
 
     public function checkPermission($rule): bool|BodyResponse
@@ -41,18 +43,7 @@ class SubjectAssignmentController extends Controller
 
     public function permissionRule()
     {
-        return ((object)[
-            'index' => 'can index subject assignments',
-            'indexTrashed' => 'can index trashed subject assignments',
-            'show' => 'can show subject assignments',
-            'showFull' => 'can show full subject assignments',
-            'showTrashed' => 'can show trashed subject assignments',
-            'store' => 'can store subject assignments',
-            'update' => 'can update subject assignments',
-            'restore' => 'can restore subject assignments',
-            'destroy' => 'can destroy subject assignments',
-            'permanentDestroy' => 'can permanent destroy subject assignments',
-        ]);
+        return Constants::PERMISSIONS()->users;
     }
 
 

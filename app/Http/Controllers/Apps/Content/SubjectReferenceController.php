@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Apps\Content;
 
+use App\Helper\Constants;
 use App\Http\Controllers\BaseController as Controller;
 use App\Http\Repositories\SubjectReferenceRepository;
 use App\Http\Response\BodyResponse;
@@ -13,17 +14,20 @@ class SubjectReferenceController extends Controller
     /** @var  SubjectReferenceRepository */
     private $repository;
 
+    public function baseComponent()
+    {
+        return 'Apps/SubjectReferences';
+    }
+
     /**
      * Class constructor
-     * @param SubjectReferenceRepository $repo 
-     * @return void 
+     * @param SubjectReferenceRepository $repo
+     * @return void
      */
     public function __construct(SubjectReferenceRepository $repo)
     {
         $this->repository = $repo;
     }
-
-    public function baseComponent() { }
 
     public function checkPermission($rule): bool|BodyResponse
     {
@@ -39,18 +43,7 @@ class SubjectReferenceController extends Controller
 
     public function permissionRule()
     {
-        return ((object)[
-            'index' => 'can index subject references',
-            'indexTrashed' => 'can index trashed subject references',
-            'show' => 'can show subject references',
-            'showFull' => 'can show full subject references',
-            'showTrashed' => 'can show trashed subject references',
-            'store' => 'can store subject references',
-            'update' => 'can update subject references',
-            'restore' => 'can restore subject references',
-            'destroy' => 'can destroy subject references',
-            'permanentDestroy' => 'can permanent destroy subject references',
-        ]);
+        return Constants::PERMISSIONS()->users;
     }
 
 

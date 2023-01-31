@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Apps\Class;
 
+use App\Helper\Constants;
 use App\Http\Controllers\BaseController as Controller;
 use App\Http\Repositories\StudentDepartmentRepository;
 use App\Http\Response\BodyResponse;
@@ -13,18 +14,18 @@ use Inertia\Inertia;
 
 class StudentDepartmentController extends Controller
 {
-    public function baseComponent()
-    {
-        return 'Apps/StudentDepartment';
-    }
-
     /** @var  StudentDepartmentRepository */
     private $repository;
 
+    public function baseComponent()
+    {
+        return 'Apps/StudentDepartments';
+    }
+
     /**
      * Class constructor
-     * @param StudentDepartmentRepository $repo 
-     * @return void 
+     * @param StudentDepartmentRepository $repo
+     * @return void
      */
     public function __construct(StudentDepartmentRepository $repo)
     {
@@ -45,18 +46,7 @@ class StudentDepartmentController extends Controller
 
     public function permissionRule()
     {
-        return ((object)[
-            'index' => 'can index student departments',
-            'indexTrashed' => 'can index trashed student departments',
-            'show' => 'can show student departments',
-            'showFull' => 'can show full student departments',
-            'showTrashed' => 'can show trashed student departments',
-            'store' => 'can store student departments',
-            'update' => 'can update student departments',
-            'restore' => 'can restore student departments',
-            'destroy' => 'can destroy student departments',
-            'permanentDestroy' => 'can permanent destroy student departments',
-        ]);
+        return Constants::PERMISSIONS()->users;
     }
 
 
@@ -74,9 +64,7 @@ class StudentDepartmentController extends Controller
         $count = $request->perPage ?? 0;
         $result = $this->repository->index($order, $request->all(), $columns, $count);
 
-        return Inertia::render($this->baseComponent(), [
-            
-        ]);
+        return Inertia::render($this->baseComponent(), []);
     }
 
     /**

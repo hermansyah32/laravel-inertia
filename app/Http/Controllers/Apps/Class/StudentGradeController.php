@@ -16,18 +16,18 @@ use Spatie\Permission\Exceptions\UnauthorizedException;
 
 class StudentGradeController extends Controller
 {
-    public function baseComponent()
-    {
-        return 'Apps/StudentGrade';
-    }
-
     /** @var  StudentGradeRepository */
     private $repository;
 
+    public function baseComponent()
+    {
+        return 'Apps/StudentGrades';
+    }
+
     /**
      * Class constructor
-     * @param StudentGradeRepository $repo 
-     * @return void 
+     * @param StudentGradeRepository $repo
+     * @return void
      */
     public function __construct(StudentGradeRepository $repo)
     {

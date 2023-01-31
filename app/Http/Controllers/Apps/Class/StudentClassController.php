@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Apps\Class;
 
+use App\Helper\Constants;
 use App\Http\Controllers\BaseController as Controller;
 use App\Http\Repositories\StudentClassRepository;
 use App\Http\Response\BodyResponse;
@@ -15,14 +16,15 @@ class StudentClassController extends Controller
     /** @var  StudentClassRepository */
     private $repository;
 
-    public function baseComponent() {
+    public function baseComponent()
+    {
         return 'Apps/StudentClass';
     }
 
     /**
      * Class constructor
-     * @param StudentClassRepository $repo 
-     * @return void 
+     * @param StudentClassRepository $repo
+     * @return void
      */
     public function __construct(StudentClassRepository $repo)
     {
@@ -43,18 +45,7 @@ class StudentClassController extends Controller
 
     public function permissionRule()
     {
-        return ((object)[
-            'index' => 'can index student classes',
-            'indexTrashed' => 'can index trashed student classes',
-            'show' => 'can show student classes',
-            'showFull' => 'can show full student classes',
-            'showTrashed' => 'can show trashed student classes',
-            'store' => 'can store student classes',
-            'update' => 'can update student classes',
-            'restore' => 'can restore student classes',
-            'destroy' => 'can destroy student classes',
-            'permanentDestroy' => 'can permanent destroy student classes',
-        ]);
+        return Constants::PERMISSIONS()->users;
     }
 
 

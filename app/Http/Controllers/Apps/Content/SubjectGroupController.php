@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Apps\Content;
 
+use App\Helper\Constants;
 use App\Http\Controllers\BaseController as Controller;
 use App\Http\Repositories\SubjectGroupRepository;
 use App\Http\Response\BodyResponse;
@@ -15,17 +16,21 @@ class SubjectGroupController extends Controller
     /** @var  SubjectGroupRepository */
     private $repository;
 
+    public function baseComponent()
+    {
+        return 'Apps/SubjectGroups';
+    }
+
     /**
      * Class constructor
-     * @param SubjectGroupRepository $repo 
-     * @return void 
+     * @param SubjectGroupRepository $repo
+     * @return void
      */
     public function __construct(SubjectGroupRepository $repo)
     {
         $this->repository = $repo;
     }
 
-    public function baseComponent() { }
 
     public function checkPermission($rule): bool|BodyResponse
     {
@@ -41,18 +46,7 @@ class SubjectGroupController extends Controller
 
     public function permissionRule()
     {
-        return ((object)[
-            'index' => 'can index subject groups',
-            'indexTrashed' => 'can index trashed subject groups',
-            'show' => 'can show subject groups',
-            'showFull' => 'can show full subject groups',
-            'showTrashed' => 'can show trashed subject groups',
-            'store' => 'can store subject groups',
-            'update' => 'can update subject groups',
-            'restore' => 'can restore subject groups',
-            'destroy' => 'can destroy subject groups',
-            'permanentDestroy' => 'can permanent destroy subject groups',
-        ]);
+        return Constants::PERMISSIONS()->users;
     }
 
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Apps\Assignment;
 
+use App\Helper\Constants;
 use App\Http\Controllers\BaseController as Controller;
 use App\Http\Repositories\AssignmentGroupRepository;
 use App\Http\Response\BodyResponse;
@@ -15,17 +16,20 @@ class AssignmentGroupController extends Controller
     /** @var  AssignmentGroupRepository */
     private $repository;
 
+    public function baseComponent()
+    {
+        return 'Apps/AssignmentGroups';
+    }
+
     /**
      * Class constructor
-     * @param AssignmentGroupRepository $repo 
-     * @return void 
+     * @param AssignmentGroupRepository $repo
+     * @return void
      */
     public function __construct(AssignmentGroupRepository $repo)
     {
         $this->repository = $repo;
     }
-
-    public function baseComponent() { }
 
     public function checkPermission($rule): bool|BodyResponse
     {
@@ -41,18 +45,7 @@ class AssignmentGroupController extends Controller
 
     public function permissionRule()
     {
-        return ((object)[
-            'index' => 'can index assignment groups',
-            'indexTrashed' => 'can index trashed assignment groups',
-            'show' => 'can show assignment groups',
-            'showFull' => 'can show full assignment groups',
-            'showTrashed' => 'can show trashed assignment groups',
-            'store' => 'can store assignment groups',
-            'update' => 'can update assignment groups',
-            'restore' => 'can restore assignment groups',
-            'destroy' => 'can destroy assignment groups',
-            'permanentDestroy' => 'can permanent destroy assignment groups',
-        ]);
+        return Constants::PERMISSIONS()->users;
     }
 
 
